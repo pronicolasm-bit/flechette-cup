@@ -10,6 +10,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script>
+/* Intro en vue subjective : pas de lien profond, pas de mouvement réduit */
+(function () {
+  try {
+    if (location.hash || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var c = document.documentElement.classList;
+    c.add('intro');
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 9000);
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
 
@@ -48,13 +60,99 @@
 
 <main>
 
-  <!-- ====================== HERO ====================== -->
-  <section class="hero">
+  <!-- ====================== HERO : la cible, rien que la cible ====================== -->
+  <section class="hero" id="accueil">
     <div class="hero-pattern" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <div class="hero-copy">
+    <div class="speedlines" aria-hidden="true"></div>
+
+    <div class="hero-stage">
+      <h1 class="visually-hidden">Fléchettes Cup, édition 2, le 12 juin 2027</h1>
+      <div class="board-wrap" aria-hidden="true">
+        <div id="dartboard"></div>
+
+        <!-- La fléchette plantée dans le bull (révélée à l'impact) -->
+        <svg class="stuck-dart" viewBox="0 0 300 80" focusable="false">
+          <defs>
+            <linearGradient id="acier-v" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#F4F4F8"/><stop offset="0.45" stop-color="#9C9CA6"/><stop offset="1" stop-color="#3A3A42"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 40 L72 37 L72 43 Z" fill="#D9D9DF"/>
+          <rect x="68" y="31" width="94" height="18" rx="5" fill="url(#acier-v)"/>
+          <path d="M82 31v18M92 31v18M102 31v18M112 31v18M122 31v18M132 31v18M142 31v18M152 31v18" stroke="#26262C" stroke-width="2.4" opacity="0.55"/>
+          <rect x="160" y="36" width="60" height="8" fill="#2B0C86"/>
+          <path d="M205 40 L232 5 L297 0 L284 40 Z" fill="#6C2EF2"/>
+          <path d="M205 40 L232 75 L297 80 L284 40 Z" fill="#4B14CC"/>
+          <path d="M205 38 H292 V42 H205 Z" fill="#9A6BFF"/>
+          <path d="M228 12 L282 8 M224 20 L284 17 M220 28 L286 26 M228 68 L282 72 M224 60 L284 63 M220 52 L286 54" stroke="#1E0766" stroke-width="1.2" opacity="0.4"/>
+        </svg>
+
+        <!-- Éléments punaisés sur la cible -->
+        <div class="pinned pinned-logo" style="--rot:-4deg; --i:0">
+          <svg class="logo logo-hero" viewBox="0 0 120 86" focusable="false">
+            <g class="logo-ink">
+              <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+              <text x="0" y="74" class="logo-line2">CUP</text>
+              <path d="M88 52 L112 58 L88 66 Z"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="pinned pinned-ticket" style="--rot:5deg; --i:1">
+          <span class="pin pin-red"></span>
+          <p class="ticket-date">12 juin 2027</p>
+          <p class="ticket-line">Fléchettes Cup · Édition 2</p>
+          <div class="ticket-barcode"></div>
+        </div>
+        <div class="pinned pinned-photo" style="--rot:-6deg; --i:2">
+          <span class="pin pin-blue"></span>
+          <div class="photo-img"><span class="display">E&nbsp;&amp;&nbsp;R</span><img src="assets/vainqueurs-edition-1.jpg" alt="" onerror="this.remove()"></div>
+          <p class="photo-caption">Elian et Raska, tenants du titre</p>
+        </div>
+        <div class="pinned pinned-badge" style="--rot:8deg; --i:3">
+          <span class="display badge-txt">3&nbsp;000<br>places</span>
+        </div>
+        <div class="pinned pinned-live" style="--rot:-3deg; --i:4">
+          <span class="pin pin-anis"></span>
+          <p>En live sur<br><strong>twitch.tv/lebouseuh</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vue subjective : la pointe de la fléchette pendant l'intro -->
+    <svg class="pov-tip" viewBox="0 0 200 420" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="acier-h" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#2E2E34"/><stop offset="0.34" stop-color="#F1F1F5"/><stop offset="0.6" stop-color="#9A9AA4"/><stop offset="1" stop-color="#232328"/>
+        </linearGradient>
+      </defs>
+      <path d="M100 0 L107 152 L93 152 Z" fill="url(#acier-h)"/>
+      <path d="M92 150 L108 150 L150 420 L50 420 Z" fill="url(#acier-h)"/>
+      <g stroke="#17171B" opacity="0.5" fill="none">
+        <path d="M84 200 H116" stroke-width="3"/>
+        <path d="M81 222 H119" stroke-width="3.5"/>
+        <path d="M77 246 H123" stroke-width="4"/>
+        <path d="M73 272 H127" stroke-width="4.5"/>
+        <path d="M69 300 H131" stroke-width="5"/>
+        <path d="M64 330 H136" stroke-width="5.5"/>
+        <path d="M59 362 H141" stroke-width="6"/>
+        <path d="M54 396 H146" stroke-width="7"/>
+      </g>
+    </svg>
+
+    <div class="impact-flash" aria-hidden="true"></div>
+
+    <a class="scroll-hint" href="#edition-2">Découvrir l'édition 2</a>
+    <button class="skip-intro" type="button">Passer l'intro</button>
+  </section>
+
+  <!-- ====================== ÉDITION 2 : titre, alertes, compte à rebours ====================== -->
+  <section class="intro-band" id="edition-2">
+    <div class="wrap intro-grid">
+      <div>
         <p class="hero-kicker">Fléchettes <span>Cup</span> <span>Édition 2</span></p>
-        <h1 class="display hero-title">La revanche<br>se joue à<br>trois fléchettes</h1>
+        <h2 class="display hero-title">La revanche<br>se joue à<br>trois fléchettes</h2>
+      </div>
+      <div class="intro-side">
         <p class="hero-sub">Huit duos de créateurs, une salle de 3 000 personnes, un trophée à reprendre à Elian et Raska. Rendez-vous le 12 juin 2027, sur place ou en live.</p>
         <div class="hero-actions">
           <a class="btn btn-anis btn-big" href="#billetterie">Être alerté pour les billets</a>
@@ -65,40 +163,6 @@
           <div class="count-cell"><span class="count-num" data-count="h">00</span><span class="count-label">heures</span></div>
           <div class="count-cell"><span class="count-num" data-count="m">00</span><span class="count-label">minutes</span></div>
           <div class="count-cell"><span class="count-num" data-count="s">00</span><span class="count-label">secondes</span></div>
-        </div>
-      </div>
-
-      <div class="hero-board" aria-hidden="true">
-        <div class="board-wrap">
-          <div id="dartboard"></div>
-          <!-- Éléments punaisés sur la cible -->
-          <div class="pinned pinned-ticket">
-            <span class="pin pin-red"></span>
-            <p class="ticket-date">12 juin 2027</p>
-            <p class="ticket-line">Fléchettes Cup · Édition 2</p>
-            <div class="ticket-barcode"></div>
-          </div>
-          <div class="pinned pinned-photo">
-            <span class="pin pin-blue"></span>
-            <div class="photo-img"><span class="display">E&nbsp;&amp;&nbsp;R</span></div>
-            <p class="photo-caption">Elian et Raska, vainqueurs édition 1</p>
-          </div>
-          <div class="pinned pinned-badge">
-            <span class="display badge-txt">3&nbsp;000<br>places</span>
-          </div>
-          <div class="pinned pinned-live">
-            <span class="pin pin-anis"></span>
-            <p>En live sur<br><strong>twitch.tv/lebouseuh</strong></p>
-          </div>
-          <div class="pinned pinned-logo">
-            <svg class="logo logo-hero" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
-              <g class="logo-ink">
-                <text x="2" y="24" class="logo-line1">FLECHETTES</text>
-                <text x="0" y="74" class="logo-line2">CUP</text>
-                <path d="M88 52 L112 58 L88 66 Z"></path>
-              </g>
-            </svg>
-          </div>
         </div>
       </div>
     </div>

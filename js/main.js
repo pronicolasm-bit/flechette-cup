@@ -117,3 +117,135 @@
     form.querySelector('.form-done').hidden = false;
   });
 })();
+
+/* ---------- Intro en vue subjective : on est la fléchette ----------
+   1. visée   : la cible au loin, la pointe en amorce, léger tremblement
+   2. lancer  : la cible fonce vers nous, lignes de vitesse
+   3. impact  : flash, secousse, la fléchette est plantée
+   4. recul   : la caméra se cale sur la cible, l'habillage se pose      */
+(function intro() {
+  const root = document.documentElement;
+  if (!root.classList.contains('intro')) return;
+
+  const $ = s => document.querySelector(s);
+  const board = $('.board-wrap'), tip = $('.pov-tip'), lines = $('.speedlines');
+  const pattern = $('.hero-pattern'), flash = $('.impact-flash'), stage = $('.hero-stage');
+  const skip = $('.skip-intro');
+
+  const running = new Set();
+  let over = false;
+
+  function play(el, frames, opts) {
+    const a = el.animate(frames, Object.assign({ fill: 'forwards' }, opts));
+    running.add(a);
+    return a.finished.catch(() => {});
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  function end() {
+    if (over) return;
+    over = true;
+    running.forEach(a => a.cancel());
+    root.classList.remove('intro', 'intro-impact', 'intro-pose');
+    clearTimeout(window.__introSafety);
+    ['wheel', 'touchmove', 'keydown'].forEach(ev => window.removeEventListener(ev, onUserSkip));
+  }
+  function onUserSkip(e) {
+    if (e.type === 'keydown' && e.key !== 'Escape') return;
+    end();
+  }
+  skip.addEventListener('click', end);
+  ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, onUserSkip, { passive: true }));
+
+  const S0 = 0.09;          // la cible vue du pas de tir
+  const S1 = 3.2;           // à l'impact, le bull remplit l'écran
+  const AIM = 1050, FLY = 1150, BACK = 950;
+
+  // Trajectoire : zoom exponentiel accéléré + cloche + la fléchette qui se redresse
+  const fly = [];
+  const N = 30;
+  for (let k = 0; k <= N; k++) {
+    const t = k / N;
+    const p = Math.pow(t, 1.8);
+    const s = S0 * Math.pow(S1 / S0, p);
+    const arc = -7 * Math.sin(Math.PI * t) * (1 - t * 0.5);
+    const drift = 1.6 * Math.sin(Math.PI * t * 1.5) * (1 - t);
+    const rot = -14 * Math.pow(1 - t, 2);
+    fly.push({ offset: t, transform: `translate(${drift.toFixed(2)}vw, ${arc.toFixed(2)}vh) rotate(${rot.toFixed(2)}deg) scale(${s.toFixed(4)})` });
+  }
+
+  async function run() {
+    /* 1. visée */
+    play(tip, [
+      { transform: 'translate(0, 6vh)' },
+      { transform: 'translate(-0.7vw, 0.4vh)', offset: 0.35 },
+      { transform: 'translate(0.5vw, -0.4vh)', offset: 0.7 },
+      { transform: 'translate(0, 0)' }
+    ], { duration: AIM, easing: 'ease-out' });
+    play(pattern, [
+      { transform: 'scale(0.5) rotate(-10deg)' },
+      { transform: 'scale(1.8) rotate(26deg)' }
+    ], { duration: AIM + FLY, easing: 'cubic-bezier(0.7, 0, 0.9, 0.5)' });
+    await play(board, [
+      { transform: `translate(0, 0) rotate(-14deg) scale(${S0})` },
+      { transform: `translate(1.1vw, -0.9vh) rotate(-14deg) scale(${S0})`, offset: 0.3 },
+      { transform: `translate(-0.9vw, 0.6vh) rotate(-14deg) scale(${S0})`, offset: 0.62 },
+      { transform: `translate(0.3vw, -0.3vh) rotate(-14deg) scale(${S0})`, offset: 0.85 },
+      { transform: `translate(0, 0) rotate(-14deg) scale(${S0})` }
+    ], { duration: AIM, easing: 'ease-in-out' });
+    if (over) return;
+
+    /* 2. lancer */
+    play(lines, [
+      { opacity: 0, transform: 'scale(0.7)' },
+      { opacity: 1, transform: 'scale(2.8)' }
+    ], { duration: FLY, easing: 'cubic-bezier(0.6, 0, 1, 0.6)' });
+    play(tip, [
+      { transform: 'translate(0, 0)' },
+      { transform: 'translate(0.35vw, -1.2vh)', offset: 0.3 },
+      { transform: 'translate(-0.3vw, -3vh)', offset: 0.6 },
+      { transform: 'translate(0.2vw, -5vh)', offset: 0.85 },
+      { transform: 'translate(0, -7vh)' }
+    ], { duration: FLY, easing: 'ease-in' });
+    await play(board, fly, { duration: FLY, easing: 'linear' });
+    if (over) return;
+
+    /* 3. impact */
+    root.classList.add('intro-impact');
+    play(tip, [
+      { transform: 'translate(0, -7vh) scale(1)', opacity: 1 },
+      { transform: 'translate(0, -30vh) scale(0.1)', opacity: 0 }
+    ], { duration: 110, easing: 'ease-in' });
+    play(flash, [{ opacity: 0 }, { opacity: 0.92, offset: 0.2 }, { opacity: 0 }], { duration: 360 });
+    play(lines, [{ opacity: 1, transform: 'scale(2.8)' }, { opacity: 0, transform: 'scale(3.2)' }], { duration: 240 });
+    play(stage, [
+      { transform: 'translate(0, 0)' },
+      { transform: 'translate(14px, -10px)', offset: 0.12 },
+      { transform: 'translate(-11px, 8px)', offset: 0.3 },
+      { transform: 'translate(7px, -5px)', offset: 0.5 },
+      { transform: 'translate(-4px, 3px)', offset: 0.72 },
+      { transform: 'translate(0, 0)' }
+    ], { duration: 440, easing: 'ease-out' });
+    await wait(170);
+    if (over) return;
+
+    /* 4. recul de caméra, calé sur la cible */
+    play(pattern, [
+      { transform: 'scale(1.8) rotate(26deg)' },
+      { transform: 'scale(1) rotate(0deg)' }
+    ], { duration: BACK, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    await play(board, [
+      { transform: `scale(${S1})` },
+      { transform: 'scale(1)' }
+    ], { duration: BACK, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    if (over) return;
+
+    root.classList.add('intro-pose');
+    await wait(1700);
+    end();
+  }
+
+  // On attend la police pour que les chiffres de la cible ne sautent pas en plein vol
+  const fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  Promise.race([fontsReady, wait(700)]).then(run);
+})();
