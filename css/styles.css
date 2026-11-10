@@ -1,5 +1,5 @@
 /* ==========================================================
-   FLÉCHETTES CUP 2 — DA édition 2
+   FLÉCHETTES CUP 2 : DA édition 2
    Violet #5B1DDA · dégradé #5012D4 → #210666 · dark #160444
    Papier #E3E3E3 · vert anis #D9FBB3 · Archivo VAR (≈ Baikal)
    ========================================================== */
@@ -562,7 +562,7 @@ img, svg { display: block; max-width: 100%; }
   transform: translateY(-50%);
   font-style: italic; font-weight: 800; font-size: 26px; color: var(--anis);
 }
-#faq details[open] summary::after { content: "–"; }
+#faq details[open] summary::after { content: "−"; }
 #faq details p { margin: 0 0 20px; max-width: 64ch; color: #E6E0FA; }
 
 /* ==========================================================

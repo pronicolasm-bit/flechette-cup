@@ -1,4 +1,4 @@
-# Fléchettes Cup 2 — Site vitrine
+# Fléchettes Cup 2 : site vitrine
 
 Site one-page de la deuxième édition de la Fléchettes Cup (12 juin 2027), le tournoi de fléchettes entre duos de créateurs porté par LeBouseuh et organisé par Webedia.
 
