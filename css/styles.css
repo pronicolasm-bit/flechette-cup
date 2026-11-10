@@ -178,6 +178,34 @@ img, svg { display: block; max-width: 100%; }
   pointer-events: none;
 }
 
+/* Avec la scène 3D, le décor est le bar : le fond graphique ne sert plus qu'en repli */
+html.gl .hero { background: #06030A; }
+html.gl .hero-pattern,
+html.gl .speedlines,
+html.gl .hero-light { display: none; }
+/* rendu photo : vignettage, fondu vers la suite de la page, grain */
+html.gl .hero::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(4, 0, 12, 0) 52%, rgba(4, 0, 12, 0.5) 100%),
+    linear-gradient(to bottom, rgba(22, 4, 68, 0) 90%, #160444 100%);
+}
+html.gl .hero::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 3;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Un lien par papier cloué sur la cible */
+.hotspots { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.hotspot { position: absolute; pointer-events: auto; border-radius: 4px; cursor: pointer; }
+.hotspot:focus-visible { outline: 3px solid var(--anis-deep); outline-offset: 4px; }
+html.intro:not(.intro-pose) .hotspot { pointer-events: none; }
+
 .hero-stage {
   position: relative;
   width: 100%;
@@ -307,6 +335,7 @@ html.gl .pinned { display: none; }
   color: var(--paper); text-decoration: none;
   font-weight: 650; font-size: 14.5px;
   white-space: nowrap;
+  z-index: 7;
 }
 .scroll-hint::after {
   content: "";

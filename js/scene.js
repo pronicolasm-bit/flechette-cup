@@ -1,8 +1,9 @@
-/* Fléchettes Cup 2 : cible réaliste et intro 3D en vue subjective.
-   On est la première fléchette : visée, armé, vol, impact sur le ticket.
-   La caméra se détache et recule pour se caler exactement sur l'emplacement
-   de la cible dans la page, pendant que les autres fléchettes viennent
-   clouer chacune leur papier (logo, photo, sticker, carte du live). */
+/* Fléchettes Cup 2 : la cible dans son bar, et l'intro 3D en vue subjective.
+   On chevauche la première fléchette (caméra derrière les ailettes, mise au point
+   sur la cible) : visée, armé, vol, impact sur le ticket de la billetterie.
+   La caméra se détache et recule pour se caler sur l'emplacement de la cible dans
+   la page, pendant que les autres fléchettes viennent clouer chacune une section
+   du site. Chaque papier est ensuite un lien vers sa section. */
 (function () {
   'use strict';
 
@@ -211,17 +212,20 @@
     host.appendChild(c);
   }
 
-  /* ---------- Les éléments fixés à la cible : de vrais papiers, dessinés en texture ----------
+  /* ---------- Ce que les fléchettes viennent clouer : les sections du site ----------
      Positions en mètres dans le plan de la cible (x vers la droite, y vers le haut).
      pin : point où la fléchette transperce le papier, par rapport à son centre.
      aim : inclinaison finale de la fléchette (piqué, lacet) en degrés. */
   const ITEMS = [
-    { id: 'ticket', w: 0.190, h: 0.076, x: 0.116, y: 0.112, rot: -5, pin: [0.004, 0.027], aim: [-20, 14], fins: [0x6A2CF0, 0x4A16D6] },
-    { id: 'logo', w: 0.126, h: 0.094, x: -0.126, y: 0.122, rot: 5, pin: [0.002, 0.036], aim: [-16, -20], fins: [0xF48227, 0xF7B531] },
-    { id: 'photo', w: 0.150, h: 0.178, x: -0.136, y: -0.098, rot: 6, pin: [0, 0.079], aim: [-24, 10], fins: [0xFE628A, 0xD10146] },
-    { id: 'badge', w: 0.098, h: 0.098, x: 0.171, y: -0.040, rot: -8, pin: [0, 0.036], aim: [-15, -24], fins: [0x25DA4E, 0xB7E83A], round: true },
-    { id: 'live', w: 0.172, h: 0.054, x: 0.060, y: -0.187, rot: 3, pin: [-0.004, 0.018], aim: [-22, 22], fins: [0x00D1FF, 0x1487B8] }
+    { id: 'billetterie', href: '#billetterie', label: 'Billetterie', w: 0.176, h: 0.070, x: 0.108, y: 0.122, rot: -6, pin: [0.004, 0.024], aim: [-20, 13], fins: [0x6A2CF0, 0x4A16D6] },
+    { id: 'equipes', href: '#equipes', label: 'Les équipes', w: 0.126, h: 0.090, x: -0.116, y: 0.116, rot: 6, pin: [0, 0.034], aim: [-16, -20], fins: [0xF48227, 0xF7B531] },
+    { id: 'photo', href: '#best-of', label: 'Édition 1 : les vainqueurs', w: 0.122, h: 0.146, x: -0.150, y: -0.046, rot: 7, pin: [0, 0.063], aim: [-24, 22], fins: [0xFE628A, 0xD10146] },
+    { id: 'boutique', href: '#boutique', label: 'Boutique', w: 0.094, h: 0.120, x: 0.158, y: -0.016, rot: -8, pin: [0, 0.050], aim: [-15, -24], fins: [0x25DA4E, 0xB7E83A] },
+    { id: 'amateur', href: '#tournoi-amateur', label: 'Tournoi amateur', w: 0.128, h: 0.086, x: -0.058, y: -0.172, rot: -4, pin: [0, 0.032], aim: [-22, -14], fins: [0x00D1FF, 0x1487B8] },
+    { id: 'programme', href: '#programme', label: 'Programme et infos pratiques', w: 0.094, h: 0.094, x: 0.104, y: -0.148, rot: 9, pin: [0, 0.034], aim: [-18, 16], fins: [0xFFCA00, 0xFF366D], round: true }
   ];
+  const TEAM_GRADS = [['#F48227', '#F7CB3E'], ['#25DA4E', '#F0F048'], ['#446DBB', '#323950'], ['#F03B2B', '#FF6D00'],
+    ['#FE628A', '#D10146'], ['#00D1FF', '#124E67'], ['#FFCA00', '#FF366D'], ['#DD2991', '#630053']];
   const PX_PER_M = 5200;
   const DISPLAY = px => `italic 800 extra-condensed ${px}px Archivo, "Arial Narrow", Impact, sans-serif`;
   const TEXT = (px, w) => `${w || 600} ${px}px Archivo, "Helvetica Neue", Arial, sans-serif`;
@@ -253,50 +257,52 @@
   }
 
   const DRAW = {
-    ticket(g, W, H) {
+    billetterie(g, W, H) {
       g.fillStyle = '#ECE7DC'; g.fillRect(0, 0, W, H);
       const stub = W * 0.2;
       g.fillStyle = '#5B1DDA'; g.fillRect(0, 0, stub, H);
       g.save();
       g.translate(stub * 0.58, H / 2); g.rotate(-Math.PI / 2);
       g.fillStyle = '#FFFFFF'; g.font = DISPLAY(H * 0.36); g.textBaseline = 'middle';
-      fitText(g, 'ÉDITION 2', 0, 0, H * 0.84, 'center');
+      fitText(g, 'BILLETTERIE', 0, 0, H * 0.86, 'center');
       g.restore();
       g.fillStyle = 'rgba(20,6,60,0.55)';
       for (let y = H * 0.06; y < H; y += H * 0.085) { g.beginPath(); g.arc(stub, y, H * 0.016, 0, TAU); g.fill(); }
       const x0 = stub + W * 0.045, maxW = W - x0 - W * 0.05;
       g.fillStyle = '#160444';
       g.textBaseline = 'alphabetic';
-      g.font = TEXT(H * 0.105, 700);
-      fitText(g, 'FLÉCHETTES CUP', x0, H * 0.2, maxW * 0.6);
-      g.font = TEXT(H * 0.085, 500);
-      fitText(g, 'N° 000 002', W - W * 0.05, H * 0.2, maxW * 0.35, 'right');
+      g.font = TEXT(H * 0.1, 700);
+      fitText(g, 'FLÉCHETTES CUP  ÉDITION 2', x0, H * 0.2, maxW);
       g.font = DISPLAY(H * 0.56);
       fitText(g, '12 JUIN 2027', x0 - H * 0.02, H * 0.68, maxW);
       const rnd = mulberry32(12);
       let bx = x0;
-      while (bx < W - W * 0.05) {
+      while (bx < x0 + maxW * 0.5) {
         const bw = (1 + Math.floor(rnd() * 3)) * H * 0.008;
         g.fillRect(bx, H * 0.76, bw, H * 0.15);
         bx += bw + (1 + Math.floor(rnd() * 3)) * H * 0.008;
       }
+      g.font = TEXT(H * 0.085, 600);
+      g.textBaseline = 'middle';
+      fitText(g, 'OUVERTURE MARS 2027', W - W * 0.05, H * 0.84, maxW * 0.44, 'right');
       grain(g, W, H, 0.22, 3);
     },
 
-    logo(g, W, H) {
-      g.fillStyle = '#D6F8AC'; g.fillRect(0, 0, W, H);
-      g.save();
-      g.transform(1, -0.07, 0, 1, 0, H * 0.05);
-      g.fillStyle = '#1B0550';
-      g.textBaseline = 'alphabetic';
-      g.font = `800 extra-condensed ${H * 0.25}px Archivo, "Arial Narrow", Impact, sans-serif`;
-      fitText(g, 'FLECHETTES', W * 0.12, H * 0.36, W * 0.6);
-      g.font = `800 extra-condensed ${H * 0.62}px Archivo, "Arial Narrow", Impact, sans-serif`;
-      fitText(g, 'CUP', W * 0.105, H * 0.86, W * 0.56);
-      g.beginPath();
-      g.moveTo(W * 0.70, H * 0.60); g.lineTo(W * 0.90, H * 0.67); g.lineTo(W * 0.70, H * 0.76);
-      g.closePath(); g.fill();
-      g.restore();
+    equipes(g, W, H) {
+      g.fillStyle = '#1B0550'; g.fillRect(0, 0, W, H);
+      g.fillStyle = '#FFFFFF'; g.textBaseline = 'alphabetic';
+      g.font = DISPLAY(H * 0.3);
+      fitText(g, 'LES ÉQUIPES', W * 0.07, H * 0.33, W * 0.6);
+      g.fillStyle = '#D9FBB3'; g.font = TEXT(H * 0.085, 600); g.textBaseline = 'middle';
+      fitText(g, '8 DUOS', W * 0.93, H * 0.22, W * 0.24, 'right');
+      const gx = W * 0.07, gy = H * 0.44, gw = W * 0.86, gh = H * 0.46, gap = W * 0.018;
+      const cw = (gw - gap * 3) / 4, ch = (gh - gap) / 2;
+      TEAM_GRADS.forEach((c, i) => {
+        const x = gx + (i % 4) * (cw + gap), y = gy + Math.floor(i / 4) * (ch + gap);
+        const gr = g.createLinearGradient(0, y, 0, y + ch);
+        gr.addColorStop(0, c[0]); gr.addColorStop(1, c[1]);
+        g.fillStyle = gr; g.fillRect(x, y, cw, ch);
+      });
       grain(g, W, H, 0.2, 5);
     },
 
@@ -308,61 +314,289 @@
       if (img) {
         const s = Math.max(pw / img.width, ph / img.height);
         const sw = pw / s, sh = ph / s;
-        g.drawImage(img, (img.width - sw) / 2, (img.height - sh) * 0.3, sw, sh, m, top, pw, ph);
+        g.drawImage(img, (img.width - sw) / 2, (img.height - sh) * 0.55, sw, sh, m, top, pw, ph);
       } else {
         const bg = g.createLinearGradient(m, top, m + pw, top + ph);
         bg.addColorStop(0, '#5012D4'); bg.addColorStop(1, '#210666');
         g.fillStyle = bg; g.fillRect(m, top, pw, ph);
-        g.fillStyle = '#FFFFFF'; g.font = DISPLAY(pw * 0.3); g.textBaseline = 'middle';
-        fitText(g, 'E & R', m + pw / 2, top + ph / 2, pw * 0.8, 'center');
       }
-      // léger reflet du papier photo
       const gloss = g.createLinearGradient(m, top, m + pw, top + ph);
-      gloss.addColorStop(0, 'rgba(255,255,255,0.16)'); gloss.addColorStop(0.4, 'rgba(255,255,255,0)');
+      gloss.addColorStop(0, 'rgba(255,255,255,0.14)'); gloss.addColorStop(0.4, 'rgba(255,255,255,0)');
       g.fillStyle = gloss; g.fillRect(m, top, pw, ph);
       g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = W * 0.004; g.strokeRect(m, top, pw, ph);
       g.fillStyle = '#2A2440'; g.textBaseline = 'middle';
-      g.font = `italic 500 ${W * 0.062}px Archivo, "Helvetica Neue", Arial, sans-serif`;
-      fitText(g, 'Elian & Raska, vainqueurs 2026', W / 2, top + ph + (H - top - ph) / 2, pw, 'center');
+      g.font = `italic 500 ${W * 0.07}px Archivo, "Helvetica Neue", Arial, sans-serif`;
+      fitText(g, 'Les vainqueurs de l’édition 1', W / 2, top + ph + (H - top - ph) / 2, pw, 'center');
     },
 
-    badge(g, W, H) {
-      g.clearRect(0, 0, W, H);
-      g.beginPath(); g.arc(W / 2, H / 2, W / 2, 0, TAU); g.fillStyle = '#D6F8AC'; g.fill();
-      g.beginPath(); g.arc(W / 2, H / 2, W * 0.455, 0, TAU);
-      g.strokeStyle = '#1B0550'; g.lineWidth = W * 0.012; g.stroke();
+    boutique(g, W, H) {
+      g.fillStyle = '#F1EDE3'; g.fillRect(0, 0, W, H);
+      // un maillot, aux couleurs d'une équipe
+      const cx = W / 2, jy = H * 0.19, jw = W * 0.74, jh = H * 0.44;
+      const P = (u, v) => [cx + (u - 0.5) * jw, jy + v * jh];
+      const pts = [[0.30, 0], [0.70, 0], [0.79, 0.07], [1, 0.16], [0.93, 0.36], [0.82, 0.31], [0.82, 1], [0.18, 1], [0.18, 0.31], [0.07, 0.36], [0, 0.16], [0.21, 0.07]];
+      const gr = g.createLinearGradient(0, jy, 0, jy + jh);
+      gr.addColorStop(0, '#F48227'); gr.addColorStop(1, '#F7CB3E');
+      g.beginPath();
+      pts.forEach((p, i) => { const q = P(p[0], p[1]); if (i) g.lineTo(q[0], q[1]); else g.moveTo(q[0], q[1]); });
+      g.closePath(); g.fillStyle = gr; g.fill();
+      g.beginPath(); g.arc(cx, jy, jw * 0.13, 0, Math.PI); g.fillStyle = '#F1EDE3'; g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.92)'; g.textBaseline = 'middle';
+      g.font = DISPLAY(jh * 0.3);
+      fitText(g, 'FC 27', cx, jy + jh * 0.56, jw * 0.42, 'center');
+      g.fillStyle = '#160444'; g.textBaseline = 'alphabetic';
+      g.font = DISPLAY(H * 0.2);
+      fitText(g, 'BOUTIQUE', cx, H * 0.83, W * 0.8, 'center');
+      g.font = TEXT(H * 0.052, 600);
+      fitText(g, 'MAILLOTS OFFICIELS', cx, H * 0.905, W * 0.8, 'center');
+      g.fillStyle = '#C8102E'; g.font = TEXT(H * 0.042, 700);
+      fitText(g, 'ÉDITION LIMITÉE', cx, H * 0.955, W * 0.8, 'center');
+      grain(g, W, H, 0.2, 9);
+    },
+
+    amateur(g, W, H) {
+      g.fillStyle = '#D6F8AC'; g.fillRect(0, 0, W, H);
+      // petite cible
+      const tx = W * 0.8, ty = H * 0.42, tr = H * 0.3;
+      ['#1B0550', '#D6F8AC', '#1B0550', '#D6F8AC', '#5B1DDA'].forEach((c, i) => {
+        g.beginPath(); g.arc(tx, ty, tr * (1 - i * 0.21), 0, TAU); g.fillStyle = c; g.fill();
+      });
       g.fillStyle = '#1B0550'; g.textBaseline = 'alphabetic';
-      g.font = DISPLAY(W * 0.36);
-      fitText(g, '3 000', W / 2, H * 0.56, W * 0.66, 'center');
-      g.font = DISPLAY(W * 0.2);
-      fitText(g, 'PLACES', W / 2, H * 0.75, W * 0.56, 'center');
-      grain(g, W, H, 0.18, 9);
+      g.font = DISPLAY(H * 0.36);
+      fitText(g, 'TOURNOI', W * 0.07, H * 0.4, W * 0.5);
+      fitText(g, 'AMATEUR', W * 0.07, H * 0.72, W * 0.52);
+      g.font = TEXT(H * 0.095, 700);
+      fitText(g, 'INSCRIS TON DUO', W * 0.075, H * 0.89, W * 0.6);
+      grain(g, W, H, 0.2, 11);
     },
 
-    live(g, W, H) {
-      g.fillStyle = '#0D0328'; g.fillRect(0, 0, W, H);
-      g.fillStyle = '#F03B2B';
-      g.beginPath(); g.arc(W * 0.075, H * 0.3, H * 0.085, 0, TAU); g.fill();
-      g.fillStyle = '#E3E3E3'; g.textBaseline = 'middle';
-      g.font = TEXT(H * 0.2, 700);
-      fitText(g, 'EN LIVE SUR', W * 0.12, H * 0.31, W * 0.5);
-      g.fillStyle = '#CFF99A';
-      g.font = DISPLAY(H * 0.5);
-      fitText(g, 'TWITCH.TV/LEBOUSEUH', W * 0.05, H * 0.7, W * 0.9);
-      grain(g, W, H, 0.14, 11);
+    programme(g, W, H) {
+      // sous-bock
+      g.clearRect(0, 0, W, H);
+      const c = W / 2;
+      g.beginPath(); g.arc(c, c, c, 0, TAU); g.fillStyle = '#EFE9DC'; g.fill();
+      g.beginPath(); g.arc(c, c, c * 0.9, 0, TAU); g.strokeStyle = '#5B1DDA'; g.lineWidth = W * 0.05; g.stroke();
+      g.beginPath(); g.arc(c, c, c * 0.8, 0, TAU); g.strokeStyle = '#160444'; g.lineWidth = W * 0.008; g.stroke();
+      g.fillStyle = '#160444'; g.textBaseline = 'alphabetic';
+      g.font = TEXT(W * 0.075, 700);
+      fitText(g, '12.06.2027', c, W * 0.36, W * 0.5, 'center');
+      g.font = DISPLAY(W * 0.25);
+      fitText(g, 'PROGRAMME', c, W * 0.6, W * 0.68, 'center');
+      g.font = TEXT(W * 0.062, 700);
+      fitText(g, 'ET INFOS PRATIQUES', c, W * 0.71, W * 0.56, 'center');
+      // auréole de verre
+      g.beginPath(); g.arc(c * 1.12, c * 0.92, c * 0.6, 0, TAU);
+      g.strokeStyle = 'rgba(120,70,20,0.16)'; g.lineWidth = W * 0.022; g.stroke();
+      g.save();
+      g.beginPath(); g.arc(c, c, c, 0, TAU); g.clip();
+      grain(g, W, H, 0.26, 13);
+      g.restore();
     }
   };
+
+  /* ---------- Textures du bar ---------- */
+  function brickTextures() {
+    const W = 2048, H = 1056, COLS = 8, ROWS = 11;
+    const bw = W / COLS, bh = H / ROWS, mortar = 9;
+    const col = document.createElement('canvas'); col.width = W; col.height = H;
+    const bmp = document.createElement('canvas'); bmp.width = W; bmp.height = H;
+    const g = col.getContext('2d'), b = bmp.getContext('2d');
+    const rnd = mulberry32(404);
+    g.fillStyle = '#3B342F'; g.fillRect(0, 0, W, H);
+    b.fillStyle = '#2A2A2A'; b.fillRect(0, 0, W, H);
+    for (let r = 0; r < ROWS; r++) {
+      const off = (r % 2) * bw / 2;
+      for (let c = -1; c < COLS; c++) {
+        const x = c * bw + off + mortar / 2, y = r * bh + mortar / 2;
+        const hue = 10 + rnd() * 12, sat = 26 + rnd() * 14;
+        let lig = 21 + rnd() * 10;
+        const roll = rnd();
+        if (roll < 0.12) lig -= 8; else if (roll > 0.9) lig += 7;
+        const draw = (xx) => {
+          const gr = g.createLinearGradient(xx, y, xx, y + bh);
+          gr.addColorStop(0, `hsl(${hue},${sat}%,${lig + 3}%)`);
+          gr.addColorStop(1, `hsl(${hue},${sat}%,${lig - 3}%)`);
+          g.fillStyle = gr;
+          g.fillRect(xx, y, bw - mortar, bh - mortar);
+          const v = 150 + rnd() * 50 | 0;
+          b.fillStyle = `rgb(${v},${v},${v})`;
+          b.fillRect(xx, y, bw - mortar, bh - mortar);
+        };
+        draw(x);
+        if (x + bw > W) draw(x - W);      // raccord horizontal
+        // éclats
+        for (let k = 0; k < 3; k++) {
+          if (rnd() < 0.5) continue;
+          const ex = x + rnd() * (bw - mortar), ey = rnd() < 0.5 ? y : y + bh - mortar;
+          g.fillStyle = '#3B342F'; b.fillStyle = '#2A2A2A';
+          const er = 3 + rnd() * 7;
+          g.beginPath(); g.arc(ex, ey, er, 0, TAU); g.fill();
+          b.beginPath(); b.arc(ex, ey, er, 0, TAU); b.fill();
+        }
+      }
+    }
+    const tile = noiseTile(rnd, 256);
+    [[g, 0.5, 1], [g, 0.3, 5], [b, 0.5, 1]].forEach(([ctx, a, s]) => {
+      ctx.save();
+      ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = a;
+      ctx.fillStyle = ctx.createPattern(tile, 'repeat');
+      ctx.scale(s, s); ctx.fillRect(0, 0, W / s, H / s);
+      ctx.restore();
+    });
+    return { col, bmp, tileW: 1.72, tileH: 0.825 };
+  }
+
+  function woodTexture(seed) {
+    const S = 512;
+    const c = document.createElement('canvas'); c.width = c.height = S;
+    const g = c.getContext('2d');
+    const rnd = mulberry32(seed);
+    g.fillStyle = '#6B4226'; g.fillRect(0, 0, S, S);
+    for (let i = 0; i < 520; i++) {
+      const x = rnd() * S, w = 0.5 + rnd() * 2.2;
+      g.strokeStyle = rnd() < 0.6 ? `rgba(30,14,4,${0.08 + rnd() * 0.22})` : `rgba(210,150,90,${0.05 + rnd() * 0.12})`;
+      g.lineWidth = w;
+      g.beginPath();
+      g.moveTo(x, 0);
+      const k = (rnd() - 0.5) * 14;
+      g.bezierCurveTo(x + k, S * 0.33, x - k, S * 0.66, x + k * 0.4, S);
+      g.stroke();
+    }
+    for (let x = 0; x < S; x += 128) {
+      g.fillStyle = 'rgba(10,4,0,0.75)'; g.fillRect(x, 0, 3, S);
+      g.fillStyle = 'rgba(255,220,170,0.12)'; g.fillRect(x + 3, 0, 2, S);
+    }
+    const tile = noiseTile(rnd, 128);
+    g.globalCompositeOperation = 'overlay'; g.globalAlpha = 0.25;
+    g.fillStyle = g.createPattern(tile, 'repeat'); g.fillRect(0, 0, S, S);
+    return c;
+  }
+
+  function chalkTexture(names, seed) {
+    const W = 512, H = 1024, F = 34;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const rnd = mulberry32(seed);
+    g.fillStyle = '#3A2413'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#1B2420'; g.fillRect(F, F, W - 2 * F, H - 2 * F);
+    // traces de chiffon
+    for (let i = 0; i < 26; i++) {
+      const x = F + rnd() * (W - 2 * F), y = F + rnd() * (H - 2 * F), r = 60 + rnd() * 130;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, `rgba(230,235,225,${0.03 + rnd() * 0.05})`); gr.addColorStop(1, 'rgba(230,235,225,0)');
+      g.fillStyle = gr; g.fillRect(F, F, W - 2 * F, H - 2 * F);
+    }
+    // l'écriture à la craie, sur un calque qu'on grignote ensuite
+    const t = document.createElement('canvas'); t.width = W; t.height = H;
+    const tg = t.getContext('2d');
+    const chalk = (txt, x, y, px, align) => {
+      tg.font = `italic 500 ${px}px Archivo, "Helvetica Neue", Arial, sans-serif`;
+      tg.textAlign = align || 'center'; tg.textBaseline = 'middle';
+      for (let k = 0; k < 3; k++) {
+        tg.fillStyle = `rgba(238,238,228,${0.5 + rnd() * 0.3})`;
+        tg.save();
+        tg.translate(x + (rnd() - 0.5) * 2.5, y + (rnd() - 0.5) * 2.5);
+        tg.rotate((rnd() - 0.5) * 0.05);
+        tg.fillText(txt, 0, 0);
+        tg.restore();
+      }
+    };
+    const line = (x0, y0, x1, y1) => {
+      tg.strokeStyle = 'rgba(238,238,228,0.75)'; tg.lineWidth = 3.5; tg.lineCap = 'round';
+      tg.beginPath(); tg.moveTo(x0, y0 + (rnd() - 0.5) * 4); tg.lineTo(x1, y1 + (rnd() - 0.5) * 4); tg.stroke();
+    };
+    chalk('301', W / 2, 120, 92);
+    line(140, 172, W - 140, 176);
+    chalk(names[0], W * 0.3, 240, 34);
+    chalk(names[1], W * 0.7, 240, 34);
+    line(W / 2, 215, W / 2, 800);
+    line(70, 272, W - 70, 270);
+    let a = 301, bScore = 301;
+    for (let r = 0; r < 7; r++) {
+      const y = 330 + r * 66;
+      chalk(String(a), W * 0.3, y, 44);
+      chalk(String(bScore), W * 0.7, y, 44);
+      if (r < 6) { line(W * 0.3 - 46, y, W * 0.3 + 46, y - 6); line(W * 0.7 - 46, y, W * 0.7 + 46, y - 6); }
+      a = Math.max(2, a - (26 + Math.floor(rnd() * 60)));
+      bScore = Math.max(2, bScore - (26 + Math.floor(rnd() * 60)));
+    }
+    chalk('GAME ON !', W / 2, 880, 50);
+    tg.globalCompositeOperation = 'destination-out';
+    tg.globalAlpha = 0.5;
+    // le bruit est opaque : on ne retire qu'une partie des pixels, façon grain de craie
+    const mask = document.createElement('canvas'); mask.width = mask.height = 128;
+    const mg = mask.getContext('2d');
+    const id = mg.createImageData(128, 128);
+    for (let i = 0; i < 128 * 128; i++) { id.data[i * 4 + 3] = rnd() < 0.42 ? 255 : 0; }
+    mg.putImageData(id, 0, 0);
+    tg.fillStyle = tg.createPattern(mask, 'repeat');
+    tg.fillRect(0, 0, W, H);
+    g.drawImage(t, 0, 0);
+    return c;
+  }
+
+  function neonTexture() {
+    const W = 1024, H = 288;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineJoin = 'round'; g.lineCap = 'round';
+    g.font = DISPLAY(190);
+    const draw = (style, lw, blur, glow) => {
+      g.strokeStyle = style; g.lineWidth = lw; g.shadowColor = glow; g.shadowBlur = blur;
+      g.save(); g.translate(W / 2, H / 2 + 8); g.scale(0.9, 1); g.strokeText('FLÉCHETTES CUP', 0, 0); g.restore();
+    };
+    draw('#6A2CF0', 16, 60, '#6A2CF0');
+    draw('#8F5BFF', 10, 30, '#8F5BFF');
+    draw('#F3ECFF', 3.5, 8, '#C9B0FF');
+    return c;
+  }
+
+  function posterTexture(colors, word, seed) {
+    const W = 512, H = 683;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, colors[0]); gr.addColorStop(1, colors[1]);
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.fillStyle = 'rgba(0,0,0,0.12)';
+    for (let i = 0; i < 13; i++) {
+      const a0 = Math.PI * (0.05 + i / 13 * 0.9), a1 = a0 + Math.PI * 0.035;
+      g.beginPath(); g.moveTo(W / 2, -40);
+      g.lineTo(W / 2 + Math.cos(a0) * 1200, -40 + Math.sin(a0) * 1200);
+      g.lineTo(W / 2 + Math.cos(a1) * 1200, -40 + Math.sin(a1) * 1200);
+      g.closePath(); g.fill();
+    }
+    g.fillStyle = '#FFFFFF'; g.textBaseline = 'alphabetic';
+    g.save(); g.translate(W * 0.08, H * 0.84); g.rotate(-0.07);
+    g.font = DISPLAY(150); fitText(g, word, 0, 0, W * 0.84);
+    g.font = TEXT(26, 700); fitText(g, 'FLÉCHETTES CUP 2026', 4, 44, W * 0.8);
+    g.restore();
+    grain(g, W, H, 0.2, seed);
+    return c;
+  }
+
+  function haloTexture(inner, outer) {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, inner); gr.addColorStop(0.25, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    return c;
+  }
 
   /* ---------- Scène 3D ---------- */
   function build() {
     const THREE = window.THREE;
     const mobile = Math.min(window.innerWidth, window.innerHeight) < 700;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    renderer.setPixelRatio(dpr);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.98;
+    renderer.toneMappingExposure = 1.05;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x000000, 0);
@@ -373,19 +607,29 @@
     hero.insertBefore(canvas, hero.querySelector('.hero-stage'));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, 1, 0.006, 30);
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.006, 14);
+    const aniso = renderer.capabilities.getMaxAnisotropy();
+    const canvasTex = (c, repeat) => {
+      const t = new THREE.CanvasTexture(c);
+      t.encoding = THREE.sRGBEncoding;
+      t.anisotropy = aniso;
+      if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
+      return t;
+    };
+    const dataTex = (c, repeat) => { const t = canvasTex(c, repeat); t.encoding = THREE.LinearEncoding; return t; };
 
-    // Environnement de studio pour les reflets du métal
+    // Reflets : l'ambiance d'un bar, sombre, avec des sources chaudes et un néon violet
     const envC = document.createElement('canvas');
     envC.width = 512; envC.height = 256;
     const eg = envC.getContext('2d');
     const sky = eg.createLinearGradient(0, 0, 0, 256);
-    sky.addColorStop(0, '#3A2A78'); sky.addColorStop(0.5, '#120634'); sky.addColorStop(1, '#05020F');
+    sky.addColorStop(0, '#1A1210'); sky.addColorStop(0.5, '#0C0808'); sky.addColorStop(1, '#050304');
     eg.fillStyle = sky; eg.fillRect(0, 0, 512, 256);
-    eg.fillStyle = '#FFFFFF'; eg.fillRect(40, 24, 150, 70);
-    eg.fillStyle = '#FFF4DD'; eg.fillRect(300, 10, 90, 40);
-    eg.fillStyle = '#7A45FF'; eg.fillRect(350, 90, 120, 90);
-    eg.fillStyle = '#D9FBB3'; eg.fillRect(210, 150, 70, 26);
+    eg.fillStyle = '#FFE2B0'; eg.fillRect(60, 20, 120, 44);
+    eg.fillStyle = '#FFC98A'; eg.fillRect(300, 30, 60, 30);
+    eg.fillStyle = '#FFB060'; eg.fillRect(430, 96, 40, 30);
+    eg.fillStyle = '#7A45FF'; eg.fillRect(200, 70, 110, 26);
+    eg.fillStyle = '#FFE8C8'; eg.fillRect(120, 150, 50, 16);
     const envT = new THREE.CanvasTexture(envC);
     envT.mapping = THREE.EquirectangularReflectionMapping;
     envT.encoding = THREE.sRGBEncoding;
@@ -393,34 +637,171 @@
     scene.environment = pmrem.fromEquirectangular(envT).texture;
     envT.dispose(); pmrem.dispose();
 
-    // Lumières : une source principale en haut à gauche, un remplissage violet
-    const key = new THREE.DirectionalLight(0xFFF6E8, 2.1);
-    key.position.set(-0.55, 0.85, 1.9);
+    /* --- Lumières --- */
+    const lights = [];
+    // le spot du pas de tir, braqué sur la cible : c'est lui qui porte les ombres
+    const key = new THREE.SpotLight(0xFFE4C2, 3.3, 0, 0.33, 0.9, 1);
+    key.position.set(-0.5, 1.2, 1.9);
+    key.target.position.set(0, -0.04, 0);
     key.castShadow = true;
     key.shadow.mapSize.set(mobile ? 1024 : 2048, mobile ? 1024 : 2048);
-    key.shadow.camera.left = -0.46; key.shadow.camera.right = 0.46;
-    key.shadow.camera.top = 0.46; key.shadow.camera.bottom = -0.46;
-    key.shadow.camera.near = 0.4; key.shadow.camera.far = 4.5;
+    key.shadow.camera.near = 1.2; key.shadow.camera.far = 3.6;
     key.shadow.bias = -0.0004;
     key.shadow.normalBias = 0.0009;
     key.shadow.radius = 4;
-    scene.add(key);
-    scene.add(new THREE.HemisphereLight(0xCDBBFF, 0x1B0A44, 0.42));
+    scene.add(key, key.target);
+    lights.push(key);
+    const lampGlow = new THREE.PointLight(0xFFC27A, 0.75, 1.5, 1.6);
+    lampGlow.position.set(0, 0.42, 0.24);
+    const neonGlow = new THREE.PointLight(0x7A45FF, 1.3, 2.6, 1.5);
+    neonGlow.position.set(0, 0.78, 0.28);
+    const sconceL = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
+    sconceL.position.set(-2.05, 0.5, 0.22);
+    const sconceR = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
+    sconceR.position.set(2.05, 0.5, 0.22);
+    const hemi = new THREE.HemisphereLight(0x9C8AD8, 0x1C0E0A, 0.2);
+    [lampGlow, neonGlow, sconceL, sconceR, hemi].forEach(l => { scene.add(l); lights.push(l); });
+    lights.forEach(l => l.layers.enable(1));
 
-    // Cible
+    /* --- Le bar --- */
+    const WALL_Z = -0.075;
+    const bricks = brickTextures();
+    const wallW = 9, wallH = 3.8;
+    const rep = [wallW / bricks.tileW, wallH / bricks.tileH];
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(wallW, wallH), new THREE.MeshStandardMaterial({
+      map: canvasTex(bricks.col, rep), bumpMap: dataTex(bricks.bmp, rep), bumpScale: 0.006,
+      roughness: 0.94, metalness: 0, envMapIntensity: 0.25
+    }));
+    wall.position.set(0, -0.15, WALL_Z);
+    wall.receiveShadow = true;
+    scene.add(wall);
+
+    const woodA = woodTexture(21), woodB = woodTexture(22);
+    const wood = (tint, repeat, canvasSrc) => new THREE.MeshStandardMaterial({
+      map: canvasTex(canvasSrc || woodA, repeat || [1, 1]), color: tint, roughness: 0.62, metalness: 0, envMapIntensity: 0.5
+    });
+    // soubassement en lambris et sa cimaise
+    const wains = new THREE.Mesh(new THREE.PlaneGeometry(wallW, 1.3), wood(0x8A6A52, [wallW / 0.5, 1.3 / 0.9]));
+    wains.position.set(0, -0.78 - 0.65, WALL_Z + 0.02);
+    wains.receiveShadow = true;
+    scene.add(wains);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(wallW, 0.055, 0.05), wood(0x7A5A44, [12, 0.2]));
+    rail.position.set(0, -0.78, WALL_Z + 0.03);
+    scene.add(rail);
+
+    // le meuble à fléchettes : fond en bois, portes ouvertes avec leurs ardoises
+    const CAB = 0.66;
+    const cabMat = wood(0x6A4A38, [1.4, 1.4], woodB);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(CAB, CAB, 0.037), cabMat);
+    cab.position.set(0, 0, WALL_Z + 0.0185);
+    cab.castShadow = true; cab.receiveShadow = true;
+    scene.add(cab);
+    [[0, CAB / 2 + 0.014, CAB + 0.056, 0.028], [0, -CAB / 2 - 0.014, CAB + 0.056, 0.028]].forEach(d => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(d[2], d[3], 0.07), cabMat);
+      m.position.set(d[0], d[1], WALL_Z + 0.035);
+      m.castShadow = true; m.receiveShadow = true;
+      scene.add(m);
+    });
+    [['LEBOUSEUH', 'MICHOU', 31, -1], ['DOMINGO', 'INOX', 32, 1]].forEach(d => {
+      const pivot = new THREE.Group();
+      pivot.position.set(d[3] * CAB / 2, 0, WALL_Z + 0.04);
+      pivot.rotation.y = -d[3] * 0.34;
+      const mats = [cabMat, cabMat, cabMat, cabMat,
+        new THREE.MeshStandardMaterial({ map: canvasTex(chalkTexture([d[0], d[1]], d[2])), roughness: 0.9, envMapIntensity: 0.2 }), cabMat];
+      const door = new THREE.Mesh(new THREE.BoxGeometry(CAB / 2, CAB, 0.02), mats);
+      door.position.x = d[3] * CAB / 4;
+      door.castShadow = true; door.receiveShadow = true;
+      pivot.add(door);
+      scene.add(pivot);
+    });
+
+    // l'applique en laiton au-dessus du meuble
+    const brass = new THREE.MeshStandardMaterial({ color: 0xB08A3C, metalness: 1, roughness: 0.3, envMapIntensity: 1.3 });
+    const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 20), brass);
+    shade.rotation.z = Math.PI / 2;
+    shade.position.set(0, 0.485, 0.2);
+    scene.add(shade);
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.44, 10), new THREE.MeshBasicMaterial({ color: 0xFFE9C4, toneMapped: false }));
+    tube.rotation.z = Math.PI / 2;
+    tube.position.set(0, 0.462, 0.2);
+    scene.add(tube);
+    [-0.14, 0.14].forEach(x => {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.28, 8), brass);
+      arm.rotation.x = Math.PI / 2;
+      arm.position.set(x, 0.485, WALL_Z + 0.14);
+      scene.add(arm);
+    });
+
+    // le néon
+    const neon = new THREE.Mesh(new THREE.PlaneGeometry(0.98, 0.275), new THREE.MeshBasicMaterial({
+      map: canvasTex(neonTexture()), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false
+    }));
+    neon.position.set(0, 0.78, WALL_Z + 0.03);
+    scene.add(neon);
+
+    // appliques murales, avec leur halo
+    const halo = canvasTex(haloTexture('rgba(255,236,200,1)', 'rgba(255,170,80,0.35)'));
+    [-2.05, 2.05].forEach(x => {
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), new THREE.MeshBasicMaterial({ color: 0xFFE2B5, toneMapped: false }));
+      bulb.position.set(x, 0.5, WALL_Z + 0.12);
+      scene.add(bulb);
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.035, 0.1, 12), brass);
+      base.position.set(x, 0.42, WALL_Z + 0.1);
+      scene.add(base);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: halo, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false, opacity: 0.8 }));
+      sp.position.set(x, 0.5, WALL_Z + 0.14);
+      sp.scale.set(0.9, 0.9, 1);
+      scene.add(sp);
+    });
+
+    // étagère à bouteilles, à gauche
+    const shelfMat = wood(0x5A3E2E, [3, 0.4]);
+    [[-1.3, 0.02], [-1.3, 0.47]].forEach((s, row) => {
+      const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.03, 0.17), shelfMat);
+      shelf.position.set(s[0], s[1], WALL_Z + 0.085);
+      scene.add(shelf);
+      const rnd = mulberry32(60 + row);
+      const prof = [[0, 0], [0.034, 0], [0.036, 0.008], [0.036, 0.15], [0.031, 0.185], [0.014, 0.22], [0.0125, 0.27], [0.015, 0.274], [0.015, 0.285], [0, 0.285]]
+        .map(p => new THREE.Vector2(p[0], p[1]));
+      const bottleGeo = new THREE.LatheGeometry(prof, 20);
+      const glassCols = [0x2B1608, 0x12331C, 0x3A1E0A, 0x20303A, 0x0E0E10, 0x4A2A10];
+      for (let i = 0; i < 8; i++) {
+        const sc = 0.82 + rnd() * 0.3;
+        const bottle = new THREE.Mesh(bottleGeo, new THREE.MeshStandardMaterial({
+          color: glassCols[Math.floor(rnd() * glassCols.length)], roughness: 0.07, metalness: 0.1,
+          transparent: true, opacity: 0.9, envMapIntensity: 2.2
+        }));
+        const bx = s[0] - 0.46 + i * 0.13 + (rnd() - 0.5) * 0.03;
+        bottle.position.set(bx, s[1] + 0.015, WALL_Z + 0.085 + (rnd() - 0.5) * 0.04);
+        bottle.scale.set(sc, 0.9 + rnd() * 0.3, sc);
+        scene.add(bottle);
+        const label = new THREE.Mesh(new THREE.CylinderGeometry(0.0368 * sc, 0.0368 * sc, 0.06, 18, 1, true),
+          new THREE.MeshStandardMaterial({ color: [0xE9E2D0, 0xC9A64A, 0x7A1F1F, 0xE9E2D0][Math.floor(rnd() * 4)], roughness: 0.8 }));
+        label.position.set(bx, s[1] + 0.015 + 0.085 * bottle.scale.y, bottle.position.z);
+        scene.add(label);
+      }
+    });
+
+    // affiches encadrées, à droite
+    [[1.1, 0.22, 0.44, 0.59, TEAM_GRADS[1], 'MICHOU', 41], [1.66, 0.02, 0.36, 0.48, TEAM_GRADS[4], 'INOX', 42], [1.38, -0.42, 0.3, 0.4, TEAM_GRADS[0], 'LEBOUSEUH', 43]].forEach(f => {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(f[2] + 0.05, f[3] + 0.05, 0.03), new THREE.MeshStandardMaterial({ color: 0x15100C, roughness: 0.5, envMapIntensity: 0.6 }));
+      frame.position.set(f[0], f[1], WALL_Z + 0.015);
+      scene.add(frame);
+      const pic = new THREE.Mesh(new THREE.PlaneGeometry(f[2], f[3]), new THREE.MeshStandardMaterial({ map: canvasTex(posterTexture(f[4], f[5], f[6])), color: 0xB8B0A8, roughness: 0.4, envMapIntensity: 0.6 }));
+      pic.position.set(f[0], f[1], WALL_Z + 0.031);
+      scene.add(pic);
+    });
+
+    /* --- La cible --- */
     const board = new THREE.Group();
-    const tex = new THREE.CanvasTexture(drawBoardTexture(mobile ? 2048 : 4096, false));
-    tex.encoding = THREE.sRGBEncoding;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    const bump = new THREE.CanvasTexture(drawBump(1024));
+    const tex = canvasTex(drawBoardTexture(mobile ? 2048 : 4096, false));
     const face = new THREE.Mesh(
       new THREE.CircleGeometry(BOARD_R, 128),
-      new THREE.MeshStandardMaterial({ map: tex, bumpMap: bump, bumpScale: 0.0012, roughness: 0.97, metalness: 0, envMapIntensity: 0.22 })
+      new THREE.MeshStandardMaterial({ map: tex, bumpMap: dataTex(drawBump(1024)), bumpScale: 0.0012, roughness: 0.97, metalness: 0, envMapIntensity: 0.2 })
     );
     face.position.z = 0.0004;
     face.receiveShadow = true;
     board.add(face);
-
     const body = new THREE.Mesh(
       new THREE.CylinderGeometry(BOARD_R, BOARD_R, 0.038, 96),
       new THREE.MeshStandardMaterial({ color: 0x0D0C0B, roughness: 0.92, envMapIntensity: 0.2 })
@@ -429,9 +810,7 @@
     body.position.z = -0.019;
     body.castShadow = true;
     board.add(body);
-
-    // Fils d'acier en relief
-    const steel = new THREE.MeshStandardMaterial({ color: 0xC9C9D2, metalness: 1, roughness: 0.32, envMapIntensity: 1.25 });
+    const steel = new THREE.MeshStandardMaterial({ color: 0xC9C9D2, metalness: 1, roughness: 0.32, envMapIntensity: 1.6 });
     const WIRE = 0.00075;
     [DIM.dOut, DIM.dIn, DIM.tOut, DIM.tIn, DIM.bullO, DIM.bullI].forEach(r => {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(r, WIRE, 8, 160), steel);
@@ -450,21 +829,13 @@
     }
     scene.add(board);
 
-    // Le mur ne se voit pas (la page reste visible derrière), il reçoit juste les ombres
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.ShadowMaterial({ opacity: 0.42 }));
-    wall.position.z = -0.038;
-    wall.receiveShadow = true;
-    scene.add(wall);
-
-    // Papiers : tenus par un seul point, ils se soulèvent en s'éloignant de la fléchette
+    /* --- Les papiers : tenus par un seul point, ils se soulèvent en s'éloignant de la fléchette --- */
     const papers = ITEMS.map((it, n) => {
       const W = Math.round(it.w * PX_PER_M), H = Math.round(it.h * PX_PER_M);
       const c = document.createElement('canvas');
       c.width = W; c.height = H;
       DRAW[it.id](c.getContext('2d'), W, H);
-      const map = new THREE.CanvasTexture(c);
-      map.encoding = THREE.sRGBEncoding;
-      map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      const map = canvasTex(c);
 
       const geo = it.round ? new THREE.CircleGeometry(it.w / 2, 64) : new THREE.PlaneGeometry(it.w, it.h, 20, 14);
       const pos = geo.attributes.position;
@@ -476,7 +847,8 @@
       geo.computeVertexNormals();
 
       const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-        map, roughness: it.id === 'photo' ? 0.55 : 0.86, metalness: 0, envMapIntensity: 0.3, side: THREE.DoubleSide
+        map, roughness: it.id === 'photo' ? 0.5 : 0.86, metalness: 0, envMapIntensity: 0.3, side: THREE.DoubleSide,
+        emissive: 0xFFFFFF, emissiveMap: map, emissiveIntensity: 0
       }));
       mesh.position.set(it.x, it.y, 0);
       mesh.rotation.z = it.rot * DEG;
@@ -493,72 +865,157 @@
       return { it, mesh, map, canvas: c, pinWorld };
     });
 
-    // Fléchettes : pointe à l'origine, corps vers +Z, elles volent vers -Z
+    /* --- Les fléchettes : pointe à l'origine, corps vers +Z, elles volent vers -Z --- */
     const alongZ = (geo, z) => { geo.rotateX(Math.PI / 2); geo.translate(0, 0, z); return geo; };
-    const pointGeo = alongZ(new THREE.CylinderGeometry(0.00115, 0.00012, 0.034, 16), 0.017);
-    const prof = [[0.0011, 0], [0.0029, 0.006], [0.0034, 0.009]];
-    for (let y = 0.011; y < 0.038; y += 0.0019) {
-      prof.push([0.0034, y], [0.0034, y + 0.0010], [0.0029, y + 0.0012], [0.0029, y + 0.0017]);
+    const lathe = (pts, z) => alongZ(new THREE.LatheGeometry(pts.map(p => new THREE.Vector2(p[0], p[1])), 36), z);
+
+    const pointGeo = lathe([[0.00008, 0], [0.0005, 0.010], [0.0010, 0.026], [0.00115, 0.034]], 0);
+    const barrelGeo = lathe([[0.00115, 0], [0.0021, 0.002], [0.0030, 0.007], [0.0035, 0.014], [0.0037, 0.024], [0.0037, 0.036],
+      [0.0035, 0.044], [0.0030, 0.049], [0.0024, 0.052]], 0.034);
+    // gravure du fût : fines rainures et deux bagues anodisées, en texture et en relief
+    const gripC = document.createElement('canvas'); gripC.width = 8; gripC.height = 512;
+    const gripB = document.createElement('canvas'); gripB.width = 8; gripB.height = 512;
+    const gc = gripC.getContext('2d'), gb = gripB.getContext('2d');
+    gc.fillStyle = '#B9BAC2'; gc.fillRect(0, 0, 8, 512);
+    gb.fillStyle = '#B0B0B0'; gb.fillRect(0, 0, 8, 512);
+    for (let y = 90; y < 400; y += 9) {
+      if ((y > 170 && y < 200) || (y > 300 && y < 330)) continue;
+      gc.fillStyle = '#4C4D55'; gc.fillRect(0, y, 8, 4);
+      gb.fillStyle = '#202020'; gb.fillRect(0, y, 8, 4);
     }
-    prof.push([0.0034, 0.040], [0.0033, 0.046], [0.0024, 0.050]);
-    const barrelGeo = alongZ(new THREE.LatheGeometry(prof.map(p => new THREE.Vector2(p[0], p[1])), 40), 0.034);
-    const shaftGeo = alongZ(new THREE.CylinderGeometry(0.0010, 0.0024, 0.068, 16), 0.118);
+    const gripMap = canvasTex(gripC), gripBump = dataTex(gripB);
+
+    const shaftGeo = lathe([[0.0024, 0], [0.0026, 0.002], [0.0021, 0.006], [0.0018, 0.03], [0.0016, 0.05], [0.0019, 0.052], [0.0012, 0.056], [0.0009, 0.084]], 0.086);
     const finShape = new THREE.Shape();
-    finShape.moveTo(0.0012, 0.112);
-    finShape.lineTo(0.0165, 0.126);
-    finShape.lineTo(0.0195, 0.149);
-    finShape.lineTo(0.0170, 0.158);
-    finShape.lineTo(0.0012, 0.152);
+    finShape.moveTo(0.0009, 0.118);
+    finShape.quadraticCurveTo(0.010, 0.124, 0.0185, 0.137);
+    finShape.lineTo(0.0205, 0.158);
+    finShape.quadraticCurveTo(0.0195, 0.166, 0.0150, 0.168);
+    finShape.lineTo(0.0009, 0.162);
     finShape.closePath();
     const finGeos = [0, 1].map(tone => [0, 2].map(q => {
-      const geo = new THREE.ShapeGeometry(finShape);
+      const geo = new THREE.ShapeGeometry(finShape, 10);
       geo.rotateX(Math.PI / 2);
       geo.rotateZ((45 + (q + tone) * 90) * DEG);
       return geo;
     }));
-    const ribC = document.createElement('canvas');
-    ribC.width = ribC.height = 64;
-    const rg = ribC.getContext('2d');
+    const ribC = document.createElement('canvas'); ribC.width = ribC.height = 64;
+    const ribB = document.createElement('canvas'); ribB.width = ribB.height = 64;
+    const rg = ribC.getContext('2d'), rb = ribB.getContext('2d');
     rg.fillStyle = '#FFFFFF'; rg.fillRect(0, 0, 64, 64);
-    rg.fillStyle = 'rgba(0,0,0,0.14)';
-    for (let x = 0; x < 64; x += 8) rg.fillRect(x, 0, 3, 64);
-    const ribs = new THREE.CanvasTexture(ribC);
-    ribs.wrapS = ribs.wrapT = THREE.RepeatWrapping;
-    ribs.repeat.set(60, 60);
-    ribs.encoding = THREE.sRGBEncoding;
+    rb.fillStyle = '#909090'; rb.fillRect(0, 0, 64, 64);
+    for (let x = 0; x < 64; x += 8) {
+      rg.fillStyle = 'rgba(0,0,0,0.16)'; rg.fillRect(x, 0, 3, 64);
+      rb.fillStyle = '#303030'; rb.fillRect(x, 0, 3, 64);
+    }
+    const ribs = canvasTex(ribC, [70, 70]), ribsBump = dataTex(ribB, [70, 70]);
 
-    const pointMat = new THREE.MeshStandardMaterial({ color: 0xD8D8DE, metalness: 1, roughness: 0.2, envMapIntensity: 1.5 });
-    const tungsten = new THREE.MeshStandardMaterial({ color: 0x9A9BA3, metalness: 1, roughness: 0.27, envMapIntensity: 1.4 });
+    const pointMat = new THREE.MeshStandardMaterial({ color: 0x8E8F97, metalness: 1, roughness: 0.22, envMapIntensity: 2.2 });
+    const tungsten = new THREE.MeshStandardMaterial({ map: gripMap, bumpMap: gripBump, bumpScale: 0.0006, metalness: 1, roughness: 0.3, envMapIntensity: 2.2 });
 
     function makeDart(colors) {
       const d = new THREE.Group();
       d.add(new THREE.Mesh(pointGeo, pointMat));
       d.add(new THREE.Mesh(barrelGeo, tungsten));
-      d.add(new THREE.Mesh(shaftGeo, new THREE.MeshStandardMaterial({ color: colors[1], metalness: 0.55, roughness: 0.35, envMapIntensity: 1 })));
+      d.add(new THREE.Mesh(shaftGeo, new THREE.MeshStandardMaterial({ color: colors[1], metalness: 0.75, roughness: 0.32, envMapIntensity: 1.6 })));
       colors.forEach((color, tone) => {
-        // albédo assombri + émission : la couleur reste saturée sous la lumière principale
+        // albédo assombri + émission : la couleur reste saturée sous le spot
         const mat = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(color).multiplyScalar(0.42), map: ribs, roughness: 0.7, metalness: 0, side: THREE.DoubleSide,
-          emissive: color, emissiveIntensity: 0.38, envMapIntensity: 0.15
+          color: new THREE.Color(color).multiplyScalar(0.34), map: ribs, bumpMap: ribsBump, bumpScale: 0.0005,
+          roughness: 0.6, metalness: 0, side: THREE.DoubleSide,
+          emissive: color, emissiveIntensity: 0.13, envMapIntensity: 0.25
         });
         finGeos[tone].forEach(geo => d.add(new THREE.Mesh(geo, mat)));
       });
       d.traverse(o => { if (o.isMesh) o.castShadow = true; });
-      d.scale.setScalar(1.3);   // un peu plus grande que nature : c'est l'accessoire vedette
+      d.scale.setScalar(1.25);   // un peu plus grande que nature : c'est l'accessoire vedette
       scene.add(d);
       return d;
     }
     const darts = papers.map(p => makeDart(p.it.fins));
 
-    return { THREE, renderer, scene, camera, canvas, papers, darts };
+    /* --- Flou de profondeur du premier plan ---
+       Les fléchettes proches de la caméra sont rendues à part, floutées, puis recomposées :
+       la mise au point reste sur la cible, comme sur une photo. */
+    const rtOpts = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, depthBuffer: true };
+    const rtA = new THREE.WebGLRenderTarget(4, 4, rtOpts);
+    const rtB = new THREE.WebGLRenderTarget(4, 4, Object.assign({}, rtOpts, { depthBuffer: false }));
+    rtA.texture.encoding = THREE.sRGBEncoding;
+    const blurShader = {
+      uniforms: { tMap: { value: null }, dir: { value: new THREE.Vector2() } },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: [
+        'uniform sampler2D tMap; uniform vec2 dir; varying vec2 vUv;',
+        'void main(){',
+        '  vec4 c = texture2D(tMap, vUv) * 0.1964825501511404;',
+        '  c += (texture2D(tMap, vUv + dir * 1.411764705882353) + texture2D(tMap, vUv - dir * 1.411764705882353)) * 0.2969069646728344;',
+        '  c += (texture2D(tMap, vUv + dir * 3.2941176470588234) + texture2D(tMap, vUv - dir * 3.2941176470588234)) * 0.09447039785044732;',
+        '  c += (texture2D(tMap, vUv + dir * 5.176470588235294) + texture2D(tMap, vUv - dir * 5.176470588235294)) * 0.010381362401148057;',
+        '  gl_FragColor = c;',
+        '}'
+      ].join('\n')
+    };
+    const blurMat = new THREE.ShaderMaterial(Object.assign({ depthTest: false, depthWrite: false, blending: THREE.NoBlending }, blurShader));
+    const compMat = new THREE.ShaderMaterial({
+      uniforms: { tMap: { value: null }, dir: { value: new THREE.Vector2() } },
+      vertexShader: blurShader.vertexShader, fragmentShader: blurShader.fragmentShader,
+      depthTest: false, depthWrite: false, transparent: true,
+      blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+      blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor
+    });
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blurMat);
+    quad.frustumCulled = false;
+    const quadScene = new THREE.Scene();
+    quadScene.add(quad);
+    const quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const size = new THREE.Vector2();
+
+    function resize(w, h) {
+      renderer.setSize(w, h, false);
+      renderer.getDrawingBufferSize(size);
+      rtA.setSize(Math.max(2, Math.round(size.x / 2)), Math.max(2, Math.round(size.y / 2)));
+      rtB.setSize(rtA.width, rtA.height);
+    }
+
+    /* Rendu d'une image. blurPx > 0 : les objets du calque 1 sont floutés d'autant (en pixels CSS). */
+    function render(blurPx) {
+      camera.layers.set(0);
+      renderer.setRenderTarget(null);
+      renderer.render(scene, camera);
+      if (!(blurPx > 0)) return;
+
+      camera.layers.set(1);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.setRenderTarget(rtA);
+      renderer.render(scene, camera);
+
+      const s = blurPx * dpr / 2 / 3.2;
+      quad.material = blurMat;
+      blurMat.uniforms.tMap.value = rtA.texture;
+      blurMat.uniforms.dir.value.set(s / rtA.width, 0);
+      renderer.setRenderTarget(rtB);
+      renderer.render(quadScene, quadCam);
+
+      quad.material = compMat;
+      compMat.uniforms.tMap.value = rtB.texture;
+      compMat.uniforms.dir.value.set(0, s / rtA.height);
+      renderer.setRenderTarget(null);
+      renderer.autoClear = false;
+      renderer.render(quadScene, quadCam);
+      renderer.autoClear = true;
+
+      renderer.shadowMap.autoUpdate = true;
+      camera.layers.set(0);
+    }
+
+    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize };
   }
 
   /* ---------- Mise en scène ---------- */
   function start(S) {
-    const { THREE, renderer, scene, camera, canvas, papers, darts } = S;
+    const { THREE, renderer, camera, canvas, papers, darts } = S;
     const V = (x, y, z) => new THREE.Vector3(x, y, z);
     const FWD = V(0, 0, -1);
-    const lines = document.querySelector('.speedlines');
     const flash = document.querySelector('.impact-flash');
     const skip = document.querySelector('.skip-intro');
 
@@ -567,14 +1024,16 @@
     const easeInOut = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
     const easeOut = (x, p) => 1 - Math.pow(1 - x, p);
     const dirFrom = (pitch, yaw, out) => out.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+    const setLayer = (d, n) => d.traverse(o => o.layers.set(n));
 
     const N = darts.length;
     const ends = papers.map(p => p.pinWorld);
     const dirEnds = papers.map(p => dirFrom(p.it.aim[0] * DEG, p.it.aim[1] * DEG, V()));
 
-    // Caméra embarquée sur la première fléchette : au-dessus de la tige,
-    // le regard partagé entre l'axe de la fléchette et le point visé
-    const RIG_POS = V(0, 0.024, 0.100);
+    // Caméra embarquée : en trois quarts arrière, décalée sur le côté et un peu au-dessus,
+    // comme sur l'affiche. On voit les ailettes au premier plan, la tige et le fût qui
+    // pointent vers la cible, nette au fond.
+    const RIG_POS = V(0.070, 0.046, 0.272);
     const RIG_LOOK = V(0, 0, -3);
     const LOOK_TARGET = 0.6;
     const TARGET = ends[0];
@@ -602,18 +1061,23 @@
     const PITCH_AIM = Math.atan2(TARGET.y - P0.y, P0.z) + 3 * DEG, YAW_AIM = Math.atan2(TARGET.x - P0.x, P0.z);
 
     const tip = V(), dir = V(), tmp = V(), tmp2 = V();
-    function setDart(d, tipPos, direction, pitchExtra, yawExtra) {
+    function setDart(d, tipPos, direction, pitchExtra, yawExtra, roll) {
       d.position.copy(tipPos);
       d.quaternion.setFromUnitVectors(FWD, direction);
       if (pitchExtra) d.rotateX(pitchExtra);
       if (yawExtra) d.rotateY(yawExtra);
+      if (roll) d.rotateZ(roll);
       d.updateMatrixWorld(true);
     }
-    function povCamera() {
+    const rigQ = new THREE.Quaternion();
+    function povCamera(direction) {
+      // repère de la fléchette sans son roulis ni ses vibrations : la caméra reste stable
       const d = darts[0];
-      camera.position.copy(d.localToWorld(tmp.copy(RIG_POS)));
+      rigQ.setFromUnitVectors(FWD, direction);
+      const sc = d.scale.x;
+      camera.position.copy(RIG_POS).multiplyScalar(sc).applyQuaternion(rigQ).add(d.position);
       camera.up.set(0, 1, 0);
-      d.localToWorld(tmp2.copy(RIG_LOOK)).sub(camera.position).normalize();
+      tmp2.copy(RIG_LOOK).applyQuaternion(rigQ).add(d.position).sub(camera.position).normalize();
       tmp.copy(TARGET).sub(camera.position).normalize();
       tmp2.lerp(tmp, LOOK_TARGET).normalize().add(camera.position);
       camera.lookAt(tmp2);
@@ -622,9 +1086,11 @@
     // Cadrage final : la cible 3D se superpose exactement à son emplacement dans la page
     const FOV_POV = 50, FOV_END = 34;
     const camEnd = { pos: V(), quat: new THREE.Quaternion() };
+    const view = { w: 1, h: 1 };
     function fit() {
       const hr = hero.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
-      renderer.setSize(hr.width, hr.height, false);
+      view.w = hr.width; view.h = hr.height;
+      S.resize(hr.width, hr.height);
       camera.aspect = hr.width / hr.height;
       const wpp = 2 * BOARD_R / wr.width;
       const cx = wr.left - hr.left + wr.width / 2, cy = wr.top - hr.top + wr.height / 2;
@@ -632,15 +1098,50 @@
       camEnd.pos.set(-(cx - hr.width / 2) * wpp, (cy - hr.height / 2) * wpp, d);
     }
 
+    /* Zones cliquables : un lien posé sur chaque papier, calé sur sa projection à l'écran */
+    const nav = document.createElement('nav');
+    nav.className = 'hotspots';
+    nav.setAttribute('aria-label', 'Accès aux sections depuis la cible');
+    const links = papers.map((p, i) => {
+      const a = document.createElement('a');
+      a.className = 'hotspot';
+      a.href = p.it.href;
+      a.setAttribute('aria-label', p.it.label);
+      a.title = p.it.label;
+      const hover = on => { p.mesh.material.emissiveIntensity = on ? 0.16 : 0; if (over) renderFinal(); };
+      a.addEventListener('pointerenter', () => hover(true));
+      a.addEventListener('pointerleave', () => hover(false));
+      a.addEventListener('focus', () => hover(true));
+      a.addEventListener('blur', () => hover(false));
+      nav.appendChild(a);
+      return a;
+    });
+    hero.appendChild(nav);
+    const corner = V();
+    function placeLinks() {
+      papers.forEach((p, i) => {
+        p.mesh.updateMatrixWorld(true);
+        let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(c => {
+          corner.set(c[0] * p.it.w / 2, c[1] * p.it.h / 2, 0.004).applyMatrix4(p.mesh.matrixWorld).project(camera);
+          const x = (corner.x * 0.5 + 0.5) * view.w, y = (-corner.y * 0.5 + 0.5) * view.h;
+          x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+        });
+        const s = links[i].style;
+        s.left = x0 + 'px'; s.top = y0 + 'px'; s.width = (x1 - x0) + 'px'; s.height = (y1 - y0) + 'px';
+      });
+    }
+
     function renderFinal() {
-      darts.forEach((d, i) => { d.visible = true; setDart(d, ends[i], dirEnds[i]); });
+      darts.forEach((d, i) => { d.visible = true; setLayer(d, 0); setDart(d, ends[i], dirEnds[i]); });
       papers.forEach(p => { p.mesh.rotation.z = p.it.rot * DEG; });
       camera.position.copy(camEnd.pos);
       camera.quaternion.copy(camEnd.quat);
       camera.fov = FOV_END;
       camera.updateProjectionMatrix();
+      camera.updateMatrixWorld(true);
       canvas.style.filter = '';
-      renderer.render(scene, camera);
+      S.render(0);
     }
 
     fit();
@@ -648,13 +1149,20 @@
 
     let over = !root.classList.contains('intro');
     let raf = 0;
-    window.addEventListener('resize', () => { fit(); if (over) renderFinal(); });
+    window.addEventListener('resize', () => { fit(); if (over) { renderFinal(); placeLinks(); } });
 
-    // La vraie photo des vainqueurs remplace le visuel provisoire dès qu'elle est disponible
+    // La photo des vainqueurs arrive dans le polaroid dès qu'elle est chargée
     const photo = papers.find(p => p.it.id === 'photo');
     if (photo) {
       const img = new Image();
       img.onload = () => {
+        try {
+          const probe = document.createElement('canvas');
+          probe.width = probe.height = 2;
+          const pg = probe.getContext('2d');
+          pg.drawImage(img, 0, 0, 2, 2);
+          pg.getImageData(0, 0, 1, 1);
+        } catch (e) { return; }
         DRAW.photo(photo.canvas.getContext('2d'), photo.canvas.width, photo.canvas.height, img);
         photo.map.needsUpdate = true;
         if (over) renderFinal();
@@ -662,21 +1170,20 @@
       img.src = 'assets/vainqueurs-edition-1.jpg';
     }
 
-    if (over) { renderFinal(); return; }
+    if (over) { renderFinal(); placeLinks(); return; }
 
     /* --- Séquence --- */
-    const AIM = 1050, WIND = 400, FLY = 900, HOLD = 170, BACK = 1250;
+    const AIM = 1150, WIND = 420, FLY = 920, HOLD = 190, BACK = 1300;
     const T_WIND = AIM, T_FLY = T_WIND + WIND, T_HIT = T_FLY + FLY, T_BACK = T_HIT + HOLD;
     const VOLLEY = 430;                                             // durée de vol des fléchettes suivantes
-    const launch = darts.map((d, i) => i === 0 ? T_FLY : T_BACK + 330 + (i - 1) * 215);
+    const launch = darts.map((d, i) => i === 0 ? T_FLY : T_BACK + 280 + (i - 1) * 185);
     const hits = darts.map((d, i) => i === 0 ? T_HIT : launch[i] + VOLLEY);
     const T_POSE = hits[N - 1] + 260, T_END = T_POSE + 900;
-    const done = darts.map(() => false);
-    let posed = false;
+    let struck = false, posed = false;
     const camHit = { pos: V(), quat: new THREE.Quaternion() };
 
     // Les fléchettes suivantes partent de derrière la caméra et traversent le champ
-    const OFFSETS = [null, V(-0.30, -0.24, 0.22), V(-0.26, 0.20, 0.18), V(0.32, -0.20, 0.24), V(0.20, -0.30, 0.20)];
+    const OFFSETS = [null, V(-0.28, -0.22, 0.20), V(-0.32, 0.06, 0.22), V(0.30, -0.16, 0.22), V(-0.12, -0.32, 0.20), V(0.24, -0.30, 0.20)];
     const starts = darts.map((d, i) => i === 0 ? PW : V());
 
     function end() {
@@ -685,9 +1192,9 @@
       cancelAnimationFrame(raf);
       clearTimeout(window.__introSafety);
       root.classList.remove('intro', 'intro-impact', 'intro-pose');
-      if (lines) { lines.style.opacity = ''; lines.style.transform = ''; }
       ['wheel', 'touchmove', 'keydown'].forEach(ev => window.removeEventListener(ev, onUserSkip));
       renderFinal();
+      placeLinks();
     }
     function onUserSkip(e) {
       if (e.type === 'keydown' && e.key !== 'Escape') return;
@@ -696,13 +1203,14 @@
     if (skip) skip.addEventListener('click', end);
     ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, onUserSkip, { passive: true }));
 
+    setLayer(darts[0], 1);
     for (let i = 1; i < N; i++) darts[i].visible = false;
 
     const t0 = performance.now();
     function frame(now) {
       if (over) return;
       const t = now - t0, s = t / 1000;
-      let blur = 0;
+      let blur = 0, motion = 0;
 
       /* La fléchette que l'on incarne */
       if (t < T_FLY) {
@@ -717,52 +1225,51 @@
         const yaw = YAW_AIM + (YAW_W - YAW_AIM) * w + 0.4 * DEG * Math.sin(TAU * 0.7 * s + 2) * calm;
         setDart(darts[0], tip, dirFrom(pitch, yaw, dir));
         camera.fov = FOV_POV;
-        povCamera();
+        povCamera(dir);
+        blur = 3.4;
       } else if (t < T_HIT) {
-        // Vol : elle accélère, monte, redescend, et tangue en se stabilisant
+        // Vol : elle accélère, monte, redescend, tourne sur elle-même et tangue en se stabilisant
         const u = (t - T_FLY) / FLY;
         const e = Math.pow(u, 1.55);
         pathPos(PW, TARGET, ARC, e, tip);
         tip.x += 0.012 * Math.sin(TAU * e) * (1 - e);
         pathDir(PW, TARGET, ARC, e, dir);
-        dir.lerp(dirEnds[0], smooth((u - 0.5) / 0.5)).normalize();
+        dir.lerp(dirEnds[0], smooth((u - 0.55) / 0.45)).normalize();
         const damp = Math.pow(1 - u, 1.6);
-        setDart(darts[0], tip, dir, 3.2 * DEG * Math.sin(TAU * 3.1 * u) * damp, 1.6 * DEG * Math.sin(TAU * 2.3 * u + 1) * damp);
-        camera.fov = FOV_POV + 9 * u * u;
-        povCamera();
-        blur = 2.6 * u * u * u;
-        if (lines) {
-          lines.style.opacity = String(0.85 * u * u);
-          lines.style.transform = `scale(${0.8 + 1.8 * u * u})`;
-        }
-      } else if (!done[0]) {
-        done[0] = true;
+        setDart(darts[0], tip, dir,
+          3.2 * DEG * Math.sin(TAU * 3.1 * u) * damp, 1.6 * DEG * Math.sin(TAU * 2.3 * u + 1) * damp,
+          TAU * 2 * easeOut(u, 2));
+        camera.fov = FOV_POV + 8 * u * u;
+        povCamera(dir);
+        blur = 3.4 - 2.6 * e;
+        motion = 2.2 * u * u * u;
+      } else if (!struck) {
+        struck = true;
+        setLayer(darts[0], 0);
         setDart(darts[0], TARGET, dirEnds[0]);
-        povCamera();
+        povCamera(dirEnds[0]);
         camHit.pos.copy(camera.position);
         camHit.quat.copy(camera.quaternion);
         for (let i = 1; i < N; i++) starts[i].copy(camEnd.pos).add(OFFSETS[i]);
         root.classList.add('intro-impact');
-        if (flash && flash.animate) flash.animate([{ opacity: 0 }, { opacity: 0.6, offset: 0.18 }, { opacity: 0 }], { duration: 360 });
-        if (lines && lines.animate) lines.animate([{ opacity: 0.85 }, { opacity: 0 }], { duration: 260 });
-        if (lines) lines.style.opacity = '0';
+        if (flash && flash.animate) flash.animate([{ opacity: 0 }, { opacity: 0.35, offset: 0.18 }, { opacity: 0 }], { duration: 300 });
       }
 
       if (t >= T_HIT) {
-        /* Les fléchettes suivantes : chacune vient clouer son papier */
+        /* Les fléchettes suivantes : chacune vient clouer sa section */
         for (let i = 1; i < N; i++) {
-          if (t < launch[i]) continue;
-          if (t < hits[i]) {
-            const u = (t - launch[i]) / VOLLEY;
-            const e = Math.pow(u, 1.2);
-            darts[i].visible = true;
-            pathPos(starts[i], ends[i], 0.035, e, tip);
-            pathDir(starts[i], ends[i], 0.035, e, dir);
-            dir.lerp(dirEnds[i], smooth((u - 0.35) / 0.65)).normalize();
-            setDart(darts[i], tip, dir, 2.5 * DEG * Math.sin(TAU * 2.4 * u) * (1 - u));
-          } else {
-            done[i] = true;
-          }
+          if (t < launch[i] || t >= hits[i]) continue;
+          const u = (t - launch[i]) / VOLLEY;
+          const e = Math.pow(u, 1.2);
+          darts[i].visible = true;
+          pathPos(starts[i], ends[i], 0.035, e, tip);
+          pathDir(starts[i], ends[i], 0.035, e, dir);
+          dir.lerp(dirEnds[i], smooth((u - 0.35) / 0.65)).normalize();
+          setDart(darts[i], tip, dir, 2.5 * DEG * Math.sin(TAU * 2.4 * u) * (1 - u), 0, TAU * easeOut(u, 2));
+          // proche de la caméra, elle est hors de la zone de netteté
+          const near = u < 0.42;
+          setLayer(darts[i], near ? 1 : 0);
+          if (near) blur = Math.max(blur, 5 * (1 - u / 0.42) + 1.2);
         }
 
         /* Vibration des fléchettes plantées, sursaut des papiers, secousses de caméra */
@@ -772,6 +1279,7 @@
           const th = (t - hits[i]) / 1000;
           const vib = Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th);
           darts[i].visible = true;
+          setLayer(darts[i], 0);
           setDart(darts[i], ends[i], dirEnds[i], 5.5 * DEG * vib, 2.2 * DEG * vib);
           papers[i].mesh.rotation.z = papers[i].it.rot * DEG + 1.4 * DEG * Math.exp(-th / 0.16) * Math.sin(TAU * 8 * th);
           shake += (i === 0 ? 0.006 : 0.0022) * Math.exp(-th / 0.085) * Math.sin(71 * th + i);
@@ -779,20 +1287,29 @@
 
         /* La caméra se détache et recule jusqu'au cadrage final */
         const kb = clamp01((t - T_BACK) / BACK);
-        camera.position.lerpVectors(camHit.pos, camEnd.pos, easeOut(kb, 3.4));
-        camera.quaternion.copy(camHit.quat).slerp(camEnd.quat, easeOut(clamp01(kb * 1.9), 2.4));
-        camera.fov = (FOV_POV + 9) + (FOV_END - FOV_POV - 9) * easeOut(kb, 2.2);
+        camera.position.lerpVectors(camHit.pos, camEnd.pos, easeInOut(kb));
+        camera.quaternion.copy(camHit.quat).slerp(camEnd.quat, easeInOut(clamp01(kb * 1.5)));
+        camera.fov = (FOV_POV + 8) + (FOV_END - FOV_POV - 8) * easeInOut(kb);
         camera.position.x += shake;
         camera.position.y += shake * 0.7;
 
-        if (!posed && t >= T_POSE) { posed = true; root.classList.add('intro-pose'); }
+        if (!posed && t >= T_POSE) { posed = true; root.classList.add('intro-pose'); placeLinksAtEnd(); }
         if (t >= T_END) { end(); return; }
       }
 
-      canvas.style.filter = blur > 0.15 ? `blur(${blur.toFixed(2)}px)` : '';
+      canvas.style.filter = motion > 0.2 ? `blur(${motion.toFixed(2)}px)` : '';
       camera.updateProjectionMatrix();
-      renderer.render(scene, camera);
+      S.render(blur);
       raf = requestAnimationFrame(frame);
+    }
+    // les liens sont posés avec le cadrage final, même si la caméra finit encore de se caler
+    function placeLinksAtEnd() {
+      const p = camera.position.clone(), q = camera.quaternion.clone(), f = camera.fov;
+      camera.position.copy(camEnd.pos); camera.quaternion.copy(camEnd.quat); camera.fov = FOV_END;
+      camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
+      placeLinks();
+      camera.position.copy(p); camera.quaternion.copy(q); camera.fov = f;
+      camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
     }
     raf = requestAnimationFrame(frame);
   }
@@ -804,6 +1321,7 @@
       Promise.all([
         document.fonts.load('300 64px Archivo', '20'),
         document.fonts.load('600 32px Archivo', 'FLÉCHETTES'),
+        document.fonts.load('italic 500 32px Archivo', 'Les vainqueurs'),
         document.fonts.load('italic 800 extra-condensed 64px Archivo', '12 JUIN'),
         document.fonts.load('800 extra-condensed 64px Archivo', 'CUP')
       ]),
@@ -817,6 +1335,9 @@
       if (window.THREE) S = build();
     } catch (err) {
       S = null;
+      if (window.console) console.error('Scène 3D indisponible :', err);
+      const stale = hero.querySelector('canvas.scene');
+      if (stale) stale.remove();
     }
     if (!S) { fallback2D(); return; }
     start(S);
