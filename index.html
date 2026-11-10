@@ -18,7 +18,7 @@
     var c = document.documentElement.classList;
     c.add('intro');
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-    window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 9000);
+    window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 14000);
   } catch (e) {}
 })();
 </script>
@@ -63,6 +63,7 @@
   <!-- ====================== HERO : la cible, rien que la cible ====================== -->
   <section class="hero" id="accueil">
     <div class="hero-pattern" aria-hidden="true"></div>
+    <div class="hero-light" aria-hidden="true"></div>
     <div class="speedlines" aria-hidden="true"></div>
 
     <div class="hero-stage">
@@ -70,7 +71,7 @@
       <div class="board-wrap" aria-hidden="true">
         <div id="dartboard"></div>
 
-        <!-- La fléchette plantée dans le bull (révélée à l'impact) -->
+        <!-- Fléchette plantée, version dessinée : seulement en repli sans WebGL -->
         <svg class="stuck-dart" viewBox="0 0 300 80" focusable="false">
           <defs>
             <linearGradient id="acier-v" x1="0" y1="0" x2="0" y2="1">
@@ -87,7 +88,7 @@
           <path d="M228 12 L282 8 M224 20 L284 17 M220 28 L286 26 M228 68 L282 72 M224 60 L284 63 M220 52 L286 54" stroke="#1E0766" stroke-width="1.2" opacity="0.4"/>
         </svg>
 
-        <!-- Éléments punaisés sur la cible -->
+        <!-- Éléments punaisés, version HTML : seulement en repli sans WebGL (sinon ce sont de vrais papiers dans la scène 3D) -->
         <div class="pinned pinned-logo" style="--rot:-4deg; --i:0">
           <svg class="logo logo-hero" viewBox="0 0 120 86" focusable="false">
             <g class="logo-ink">
@@ -117,27 +118,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Vue subjective : la pointe de la fléchette pendant l'intro -->
-    <svg class="pov-tip" viewBox="0 0 200 420" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="acier-h" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#2E2E34"/><stop offset="0.34" stop-color="#F1F1F5"/><stop offset="0.6" stop-color="#9A9AA4"/><stop offset="1" stop-color="#232328"/>
-        </linearGradient>
-      </defs>
-      <path d="M100 0 L107 152 L93 152 Z" fill="url(#acier-h)"/>
-      <path d="M92 150 L108 150 L150 420 L50 420 Z" fill="url(#acier-h)"/>
-      <g stroke="#17171B" opacity="0.5" fill="none">
-        <path d="M84 200 H116" stroke-width="3"/>
-        <path d="M81 222 H119" stroke-width="3.5"/>
-        <path d="M77 246 H123" stroke-width="4"/>
-        <path d="M73 272 H127" stroke-width="4.5"/>
-        <path d="M69 300 H131" stroke-width="5"/>
-        <path d="M64 330 H136" stroke-width="5.5"/>
-        <path d="M59 362 H141" stroke-width="6"/>
-        <path d="M54 396 H146" stroke-width="7"/>
-      </g>
-    </svg>
 
     <div class="impact-flash" aria-hidden="true"></div>
 
@@ -443,6 +423,8 @@
   <p class="footer-base">Fléchettes Cup 2027 · twitch.tv/lebouseuh</p>
 </footer>
 
+<script src="js/vendor/three.min.js"></script>
+<script src="js/scene.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
