@@ -28,3 +28,7 @@ Servir le dossier avec n'importe quel serveur statique, par exemple `python3 -m 
 ## Phase 2 (à venir, mars 2027)
 
 Billetterie (quotas, e-billet QR code, file d'attente) et boutique (un maillot par équipe, stock limité sans réassort), en pages dédiées ou via un outil externe selon la recommandation.
+
+## Idées à creuser plus tard
+
+- **Carte des bars à fléchettes** : cartographier les bars où l'on peut jouer aux fléchettes. Lien naturel avec le tournoi amateur, dont les qualifications se jouent dans des bars partenaires : la carte pourrait montrer où se qualifier, avec les dates des soirées. À cadrer le moment venu : d'où viennent les données (bars partenaires seulement ou tous les bars à fléchettes), qui les tient à jour, et le fond de carte utilisé.
