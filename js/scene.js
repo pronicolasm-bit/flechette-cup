@@ -226,16 +226,28 @@
   }
 
   /* ---------- Ce que les fléchettes viennent clouer : les sections du site ----------
-     Positions en mètres dans le plan de la cible (x vers la droite, y vers le haut).
-     pin : point où la fléchette transperce le papier, par rapport à son centre.
-     aim : inclinaison finale de la fléchette (piqué, lacet) en degrés. */
+     Chaque fléchette arrive à un endroit qui a un sens :
+       la date (billetterie)  dans le secteur 12, pour le 12 juin
+       les équipes            en plein centre
+       les vainqueurs         dans le triple 20
+       le tournoi amateur et le compteur de score : ratées, plantées dans le bois à côté de la cible
+     at  : point d'impact de la fléchette dans le plan de la cible, en mètres (x à droite, y en haut)
+     atP : variante pour un écran en hauteur, où il n'y a de la place qu'au-dessus et en dessous
+     pin : ce même point vu depuis le centre du papier (là où le papier est transpercé)
+     off : la fléchette a manqué la cible, le papier est sur le fond du meuble
+     aim : inclinaison finale de la fléchette (piqué, lacet) en degrés */
+  const SECTOR = (number, radius) => {
+    const a = NUMBERS.indexOf(number) * 18 * DEG;
+    return [Math.sin(a) * radius, Math.cos(a) * radius];
+  };
   const ITEMS = [
-    { id: 'billetterie', href: '#billetterie', label: 'Billetterie', w: 0.176, h: 0.070, x: 0.108, y: 0.122, rot: -6, pin: [0.004, 0.024], aim: [-20, 13], fins: [0x6A2CF0, 0x4A16D6] },
-    { id: 'equipes', href: '#equipes', label: 'Les équipes', w: 0.126, h: 0.090, x: -0.116, y: 0.116, rot: 6, pin: [0, 0.034], aim: [-16, -20], fins: [0xF48227, 0xF7B531] },
-    { id: 'photo', href: '#best-of', label: 'Édition 1 : les vainqueurs', w: 0.122, h: 0.146, x: -0.150, y: -0.046, rot: 7, pin: [0, 0.063], aim: [-24, 22], fins: [0xFE628A, 0xD10146] },
-    { id: 'boutique', href: '#boutique', label: 'Boutique', w: 0.094, h: 0.120, x: 0.158, y: -0.016, rot: -8, pin: [0, 0.050], aim: [-15, -24], fins: [0x25DA4E, 0xB7E83A] },
-    { id: 'amateur', href: '#tournoi-amateur', label: 'Tournoi amateur', w: 0.128, h: 0.086, x: -0.058, y: -0.172, rot: -4, pin: [0, 0.032], aim: [-22, -14], fins: [0x00D1FF, 0x1487B8] },
-    { id: 'programme', href: '#programme', label: 'Programme et infos pratiques', w: 0.094, h: 0.094, x: 0.104, y: -0.148, rot: 9, pin: [0, 0.034], aim: [-18, 16], fins: [0xFFCA00, 0xFF366D], round: true }
+    { id: 'billetterie', href: '#billetterie', label: 'Billetterie : 12 juin 2027', w: 0.176, h: 0.070, rot: 4, at: SECTOR(12, 0.070), pin: [0.080, 0], aim: [-14, 9], fins: [0x6A2CF0, 0x4A16D6] },
+    { id: 'equipes', href: '#equipes', label: 'Les équipes', w: 0.126, h: 0.090, rot: -3, at: [0, 0], pin: [0, 0.041], aim: [-17, -6], fins: [0xFF5A1F, 0xF48227] },
+    { id: 'photo', href: '#best-of', label: 'Édition 1 : les vainqueurs', w: 0.122, h: 0.146, rot: -5, at: SECTOR(20, 0.103), pin: [-0.055, -0.067], aim: [-17, 4], fins: [0xFE628A, 0xD10146] },
+    { id: 'boutique', href: '#boutique', label: 'Boutique', w: 0.094, h: 0.120, rot: -6, at: SECTOR(6, 0.135), pin: [0, 0.050], aim: [-16, 9], fins: [0x25DA4E, 0xB7E83A] },
+    { id: 'programme', href: '#programme', label: 'Programme et infos pratiques', w: 0.094, h: 0.094, rot: 8, at: SECTOR(19, 0.135), pin: [0, 0.034], aim: [-16, 28], fins: [0xFFCA00, 0xFF366D], round: true },
+    { id: 'amateur', href: '#tournoi-amateur', label: 'Tournoi amateur', w: 0.110, h: 0.074, rot: -7, at: [-0.268, -0.080], atP: [-0.100, -0.250], pin: [0, 0.028], aim: [-27, 18], fins: [0x00D1FF, 0x1487B8], off: true },
+    { id: 'score', href: 'jouer.html', label: 'Règles et compteur de score', w: 0.098, h: 0.084, rot: 6, at: [0.276, -0.020], atP: [0.110, -0.248], pin: [0, 0.033], aim: [-24, -20], fins: [0xDD2991, 0x8A1466], off: true }
   ];
   const TEAM_GRADS = [['#F48227', '#F7CB3E'], ['#25DA4E', '#F0F048'], ['#446DBB', '#323950'], ['#F03B2B', '#FF6D00'],
     ['#FE628A', '#D10146'], ['#00D1FF', '#124E67'], ['#FFCA00', '#FF366D'], ['#DD2991', '#630053']];
@@ -381,6 +393,27 @@
       g.font = TEXT(H * 0.095, 700);
       fitText(g, 'INSCRIS TON DUO', W * 0.075, H * 0.89, W * 0.6);
       grain(g, W, H, 0.2, 11);
+    },
+
+    score(g, W, H) {
+      // une petite ardoise de marque, comme celles du meuble
+      g.fillStyle = '#3A2413'; g.fillRect(0, 0, W, H);
+      const f = W * 0.045;
+      g.fillStyle = '#1B2420'; g.fillRect(f, f, W - 2 * f, H - 2 * f);
+      const dust = g.createRadialGradient(W * 0.4, H * 0.45, 0, W * 0.4, H * 0.45, W * 0.6);
+      dust.addColorStop(0, 'rgba(235,238,228,0.10)'); dust.addColorStop(1, 'rgba(235,238,228,0)');
+      g.fillStyle = dust; g.fillRect(f, f, W - 2 * f, H - 2 * f);
+      g.fillStyle = 'rgba(240,240,230,0.92)'; g.textBaseline = 'alphabetic';
+      g.font = `italic 500 ${H * 0.4}px Archivo, "Helvetica Neue", Arial, sans-serif`;
+      fitText(g, '301', W / 2, H * 0.5, W * 0.6, 'center');
+      g.fillRect(W * 0.24, H * 0.56, W * 0.52, H * 0.012);
+      g.fillStyle = '#D9FBB3';
+      g.font = DISPLAY(H * 0.19);
+      fitText(g, 'RÈGLES ET SCORE', W / 2, H * 0.77, W * 0.78, 'center');
+      g.fillStyle = 'rgba(240,240,230,0.85)';
+      g.font = TEXT(H * 0.075, 600);
+      fitText(g, 'COMPTE TES POINTS', W / 2, H * 0.89, W * 0.7, 'center');
+      grain(g, W, H, 0.16, 15);
     },
 
     programme(g, W, H) {
@@ -910,20 +943,26 @@
         map, bumpMap: crease, bumpScale: 0.0007, roughness: it.id === 'photo' ? 0.45 : 0.82, metalness: 0, envMapIntensity: 0.28, side: THREE.DoubleSide,
         emissive: 0xFFFFFF, emissiveMap: map, emissiveIntensity: 0
       }));
-      mesh.position.set(it.x, it.y, 0);
       mesh.rotation.z = it.rot * DEG;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       scene.add(mesh);
 
-      const r = it.rot * DEG;
-      const pinWorld = new THREE.Vector3(
-        it.x + it.pin[0] * Math.cos(r) - it.pin[1] * Math.sin(r),
-        it.y + it.pin[0] * Math.sin(r) + it.pin[1] * Math.cos(r),
-        -0.008
-      );
-      return { it, mesh, map, canvas: c, pinWorld };
+      return { it, mesh, map, canvas: c, pinWorld: new THREE.Vector3(), x: 0, y: 0, z0: 0 };
     });
+    const OFF_Z = WALL_Z + 0.0375;                    // surface du fond du meuble
+    function layout(portrait) {
+      papers.forEach(p => {
+        const it = p.it, at = portrait && it.atP ? it.atP : it.at;
+        const r = it.rot * DEG, cr = Math.cos(r), sr = Math.sin(r);
+        p.x = at[0] - (it.pin[0] * cr - it.pin[1] * sr);
+        p.y = at[1] - (it.pin[0] * sr + it.pin[1] * cr);
+        p.z0 = it.off ? OFF_Z : 0;
+        p.mesh.position.set(p.x, p.y, p.z0);
+        p.pinWorld.set(at[0], at[1], p.z0 - 0.008);
+      });
+    }
+    layout(false);
 
     /* --- Les fléchettes : pointe à l'origine, corps vers +Z, elles volent vers -Z --- */
     const alongZ = (geo, z) => { geo.rotateX(Math.PI / 2); geo.translate(0, 0, z); return geo; };
@@ -1101,7 +1140,7 @@
       camera.layers.set(0);
     }
 
-    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize };
+    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize, layout };
 
   }
 
@@ -1128,6 +1167,8 @@
       d.userData.rear.traverse(o => o.layers.set(mode === 'sharp' ? 0 : 1));
     }
 
+    const isPortrait = () => { const r = hero.getBoundingClientRect(); return r.width / r.height < 0.8; };
+    S.layout(isPortrait());
     const N = darts.length;
     const ends = papers.map(p => p.pinWorld);
     const dirEnds = papers.map(p => dirFrom(p.it.aim[0] * DEG, p.it.aim[1] * DEG, V()));
@@ -1202,6 +1243,7 @@
     function fit() {
       const hr = hero.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
       view.w = hr.width; view.h = hr.height;
+      S.layout(hr.width / hr.height < 0.8);
       S.resize(hr.width, hr.height);
       camera.aspect = hr.width / hr.height;
       const wpp = 2 * BOARD_R / wr.width;
@@ -1240,7 +1282,7 @@
         let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
         [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(c => {
           const lx = c[0] * p.it.w / 2, ly = c[1] * p.it.h / 2;
-          corner.set(p.it.x + lx * cr - ly * sr, p.it.y + lx * sr + ly * cr, 0.004).project(camera);
+          corner.set(p.x + lx * cr - ly * sr, p.y + lx * sr + ly * cr, p.z0 + 0.004).project(camera);
           const x = (corner.x * 0.5 + 0.5) * view.w, y = (-corner.y * 0.5 + 0.5) * view.h;
           x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
         });
@@ -1250,7 +1292,7 @@
     }
     // survol : le papier se décolle de la cible
     function setLift(p, v) {
-      p.mesh.position.z = v * 0.013;
+      p.mesh.position.z = p.z0 + v * 0.013;
       p.mesh.rotation.x = -v * 0.07;
       p.mesh.material.emissiveIntensity = v * 0.1;
     }
@@ -1333,10 +1375,12 @@
       try { window.scrollTo({ top: y, behavior: 'instant' }); } catch (e) { window.scrollTo(0, y); }
     }
     function openSection(i) {
-      const it = papers[i].it;
-      const target = document.querySelector(it.href);
-      if (!target) return;
+      const paper = papers[i], it = paper.it;
+      const otherPage = it.href.charAt(0) !== '#';
+      const target = otherPage ? null : document.querySelector(it.href);
+      if (!otherPage && !target) return;
       const land = () => {
+        if (otherPage) { window.location.href = it.href; return; }
         jumpTo(target.getBoundingClientRect().top + window.scrollY - topbarH());
         try { history.pushState(null, '', it.href); } catch (e) { /* cadre isolé : pas d'historique */ }
         if (target.focus) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
@@ -1346,9 +1390,10 @@
       zoom = {
         t0: null, dur: 560, veilAt: 0.4, ease: x => x * x * (1.6 - 0.6 * x),
         p0: camera.position.clone(), q0: camera.quaternion.clone(),
-        p1: V(it.x, it.y, dist), q1: new THREE.Quaternion(),
+        p1: V(paper.x, paper.y, paper.z0 + dist), q1: new THREE.Quaternion(),
         done: () => {
           land();
+          if (otherPage) return;                       // le voile reste jusqu'au changement de page
           lifts.forEach(l => { l.v = 0; l.t = 0; });
           par.x = par.tx = REST.x; par.y = par.ty = REST.y;
           applyRest();
@@ -1358,6 +1403,14 @@
       };
       requestTick();
     }
+    // retour arrière depuis une autre page : le navigateur peut ressortir celle-ci telle qu'on l'a quittée
+    window.addEventListener('pageshow', e => {
+      if (!e.persisted || !over) return;
+      zoom = null;
+      veil.classList.remove('on');
+      applyRest();
+      drawRest();
+    });
     // Retour à la cible depuis le reste de la page : on recule depuis tout près
     window.FCBoard = {
       returnHome() {
@@ -1407,14 +1460,14 @@
     const AIM = 1150, WIND = 420, FLY = 920, HOLD = 190, BACK = 1300;
     const T_WIND = AIM, T_FLY = T_WIND + WIND, T_HIT = T_FLY + FLY, T_BACK = T_HIT + HOLD;
     const VOLLEY = 430;                                             // durée de vol des fléchettes suivantes
-    const launch = darts.map((d, i) => i === 0 ? T_FLY : T_BACK + 280 + (i - 1) * 185);
+    const launch = darts.map((d, i) => i === 0 ? T_FLY : T_BACK + 280 + (i - 1) * 185 + (papers[i].it.off ? 240 : 0));
     const hits = darts.map((d, i) => i === 0 ? T_HIT : launch[i] + VOLLEY);
     const T_POSE = hits[N - 1] + 260, T_END = T_POSE + 900;
     let struck = false, posed = false;
     const camHit = { pos: V(), quat: new THREE.Quaternion() };
 
     // Les fléchettes suivantes partent de derrière la caméra et traversent le champ
-    const OFFSETS = [null, V(-0.28, -0.22, 0.20), V(-0.32, 0.06, 0.22), V(0.30, -0.16, 0.22), V(-0.12, -0.32, 0.20), V(0.24, -0.30, 0.20)];
+    const OFFSETS = [null, V(-0.28, -0.22, 0.20), V(-0.32, 0.06, 0.22), V(0.30, -0.16, 0.22), V(-0.12, -0.32, 0.20), V(-0.30, -0.24, 0.20), V(0.32, 0.12, 0.22)];
     const starts = darts.map((d, i) => i === 0 ? PW : V());
 
     function end() {
