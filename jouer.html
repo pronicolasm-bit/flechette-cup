@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Règles et compteur de score</title>
+<meta name="description" content="Compte les points de ta partie de fléchettes (301, 501, Cricket, en solo ou en duo) et retrouve les règles expliquées simplement. Par la Fléchettes Cup.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<a class="skip" href="#compteur">Aller au compteur</a>
+
+<header class="topbar" id="haut">
+  <a class="topbar-logo" href="index.html" aria-label="Fléchettes Cup, retour à l'accueil">
+    <svg class="logo" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+      <g class="logo-ink">
+        <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+        <text x="0" y="74" class="logo-line2">CUP</text>
+        <path d="M88 52 L112 58 L88 66 Z"></path>
+      </g>
+    </svg>
+  </a>
+  <nav class="topnav" aria-label="Navigation">
+    <button class="burger" aria-expanded="false" aria-controls="menu-ancres">
+      <span class="burger-bar"></span><span class="burger-bar"></span><span class="burger-bar"></span>
+      <span class="visually-hidden">Menu</span>
+    </button>
+    <ul class="anchors" id="menu-ancres">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="jouer.html" aria-current="page">Règles et compteur</a></li>
+      <li><a href="bars.html">Bars à fléchettes</a></li>
+      <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+    </ul>
+  </nav>
+  <div class="topbar-cta">
+    <a class="btn btn-anis" href="index.html#billetterie">Billetterie</a>
+    <a class="btn btn-ghost" href="index.html#boutique">Boutique</a>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="page-head">
+    <div class="wrap">
+      <h1 class="display page-title">Compte tes points</h1>
+      <p class="page-lead">Pose ton téléphone près de la cible, touche le secteur atteint après chaque fléchette : le compteur fait les soustractions, repère les bust et te souffle les finish.</p>
+      <ul class="subnav" aria-label="Sur cette page">
+        <li><a href="#compteur">Le compteur</a></li>
+        <li><a href="#regles">Les règles</a></li>
+        <li><a href="bars.html">Trouver un bar</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====================== COMPTEUR ====================== -->
+  <section class="scorer-section" id="compteur" aria-label="Compteur de score">
+    <div class="scorer" id="scorer">
+      <p class="scorer-fallback">Le compteur a besoin de JavaScript pour fonctionner. Les règles restent lisibles juste en dessous.</p>
+    </div>
+  </section>
+
+  <!-- ====================== RÈGLES ====================== -->
+  <section class="section section-paper" id="regles">
+    <div class="wrap">
+      <h2 class="display section-title">Les règles</h2>
+      <div class="rules">
+
+        <article class="rule" id="regle-cible">
+          <div>
+            <h3 class="display rule-title">La cible</h3>
+            <svg class="board-diagram" viewBox="0 0 200 200" role="img" aria-label="Schéma d'une cible : vingt secteurs, un anneau des doubles à l'extérieur, un anneau des triples au milieu, et le bull au centre">
+              <circle cx="100" cy="100" r="99" fill="#181512"/>
+              <circle cx="100" cy="100" r="85" fill="#E0D2AD"/>
+              <g transform="rotate(-99 100 100)" fill="none">
+                <circle cx="100" cy="100" r="46.5" stroke="#1C1A17" stroke-width="77" stroke-dasharray="14.608 14.608"/>
+                <circle cx="100" cy="100" r="82" stroke="#0F6A3A" stroke-width="6"/>
+                <circle cx="100" cy="100" r="82" stroke="#B32A20" stroke-width="6" stroke-dasharray="25.761 25.761"/>
+                <circle cx="100" cy="100" r="51" stroke="#0F6A3A" stroke-width="6"/>
+                <circle cx="100" cy="100" r="51" stroke="#B32A20" stroke-width="6" stroke-dasharray="16.022 16.022"/>
+              </g>
+              <circle cx="100" cy="100" r="8" fill="#0F6A3A"/>
+              <circle cx="100" cy="100" r="3.4" fill="#B32A20"/>
+              <g fill="#E8E8E8" font-family="Archivo, sans-serif" font-size="9" font-weight="600" text-anchor="middle">
+                <text x="100" y="10.5">20</text><text x="193" y="103">6</text><text x="100" y="197">3</text><text x="8" y="103">11</text>
+              </g>
+            </svg>
+          </div>
+          <div class="rule-body">
+            <p>Vingt secteurs numérotés de 1 à 20, et un centre. La valeur d'une fléchette dépend du secteur et de la zone touchée :</p>
+            <ul class="zones">
+              <li><i style="background:#E0D2AD"></i><span><strong>Simple</strong> : les grandes zones claires et sombres. La fléchette vaut le numéro du secteur.</span></li>
+              <li><i style="background:#B32A20"></i><span><strong>Double</strong> : l'anneau étroit tout au bord. Elle vaut deux fois le numéro. Le double 20 fait 40.</span></li>
+              <li><i style="background:#0F6A3A"></i><span><strong>Triple</strong> : l'anneau étroit à mi-distance. Elle vaut trois fois le numéro. Le triple 20 fait 60, c'est le maximum pour une fléchette.</span></li>
+              <li><i style="background:#0F6A3A"></i><span><strong>Bull extérieur</strong> : l'anneau vert du centre vaut 25.</span></li>
+              <li><i style="background:#B32A20"></i><span><strong>Bull</strong> : le rond rouge du centre vaut 50, et compte comme un double.</span></li>
+            </ul>
+            <p>Une fléchette qui rebondit, tombe de la cible ou se plante en dehors des secteurs vaut zéro, et elle ne se relance pas.</p>
+            <p>Côté installation : le centre de la cible est à 1,73 m du sol, et on lance depuis une ligne située à 2,37 m de la cible (2,44 m sur une cible électronique).</p>
+          </div>
+        </article>
+
+        <article class="rule" id="regle-301">
+          <h3 class="display rule-title">Le 301 et le 501</h3>
+          <div class="rule-body">
+            <p>Chacun part de 301 (ou 501) et doit arriver <strong>exactement à zéro</strong> avant l'autre.</p>
+            <ol>
+              <li>On joue à tour de rôle, par volées de trois fléchettes.</li>
+              <li>Le total de la volée est retiré de ton score.</li>
+              <li>Pour finir en <strong>double out</strong>, la dernière fléchette doit être un double (ou le bull) qui t'amène pile à zéro. En simple out, n'importe quelle fléchette fait l'affaire.</li>
+            </ol>
+            <p><strong>Le bust.</strong> Si tu dépasses zéro, si tu tombes à 1 en double out, ou si tu arrives à zéro sans double, la volée est annulée : tu reviens au score que tu avais avant de lancer, et c'est à l'adversaire.</p>
+            <p><strong>Qui commence ?</strong> Chacun lance une fléchette vers le centre : le plus proche du bull ouvre la partie. Sur plusieurs manches, on alterne ensuite.</p>
+            <p><strong>En duo.</strong> Les deux équipiers partagent le même score et lancent une volée chacun, à tour de rôle avec l'équipe d'en face.</p>
+            <p class="cup-note"><strong>À la Fléchettes Cup</strong>, les duos de créateurs s'affrontent en 301. Choisis « 301 » et « En duo » dans le compteur pour jouer comme eux.</p>
+          </div>
+        </article>
+
+        <article class="rule" id="regle-cricket">
+          <h3 class="display rule-title">Le Cricket</h3>
+          <div class="rule-body">
+            <p>Ici on ne vise que sept cases : les secteurs 15 à 20 et le bull.</p>
+            <ol>
+              <li>Il faut toucher une case <strong>trois fois</strong> pour la fermer. Un simple compte pour une touche, un double pour deux, un triple pour trois. Au centre, l'anneau vert compte pour une touche et le rouge pour deux.</li>
+              <li>Une fois ta case fermée, chaque touche en plus te rapporte la valeur de la case, tant qu'un adversaire ne l'a pas fermée lui aussi.</li>
+              <li>Quand tout le monde a fermé une case, elle ne rapporte plus rien à personne.</li>
+            </ol>
+            <p>Le premier qui a <strong>tout fermé en ayant au moins autant de points que les autres</strong> gagne. Si tu as tout fermé mais que tu es derrière aux points, il faut continuer à marquer sur les cases encore ouvertes en face.</p>
+          </div>
+        </article>
+
+        <article class="rule" id="regle-lexique">
+          <h3 class="display rule-title">Le vocabulaire</h3>
+          <div class="rule-body">
+            <dl>
+              <div><dt>Volée</dt><dd>Les trois fléchettes que tu lances à ton tour.</dd></div>
+              <div><dt>Bust</dt><dd>Une volée annulée parce qu'elle t'a fait dépasser zéro ou finir sans double.</dd></div>
+              <div><dt>Finish (ou checkout)</dt><dd>La combinaison qui te fait arriver à zéro. Le plus gros finish possible est 170 : triple 20, triple 20, bull.</dd></div>
+              <div><dt>180</dt><dd>Trois triples 20 dans la même volée, le score maximum. C'est le moment où la salle se lève.</dd></div>
+              <div><dt>Manche (ou leg)</dt><dd>Une partie complète, de 301 ou 501 jusqu'à zéro. Un match se joue souvent en plusieurs manches gagnantes.</dd></div>
+              <div><dt>Pas de tir (ou oche)</dt><dd>La ligne derrière laquelle tu dois rester pour lancer.</dd></div>
+            </dl>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <svg class="logo logo-footer" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+        <g class="logo-ink">
+          <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+          <text x="0" y="74" class="logo-line2">CUP</text>
+          <path d="M88 52 L112 58 L88 66 Z"></path>
+        </g>
+      </svg>
+      <p>Un événement porté par LeBouseuh, organisé par Webedia.</p>
+    </div>
+    <nav class="footer-nav" aria-label="Pied de page">
+      <ul>
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="jouer.html">Règles et compteur</a></li>
+        <li><a href="bars.html">Bars à fléchettes</a></li>
+        <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+        <li><a href="index.html#billetterie">Billetterie</a></li>
+      </ul>
+      <ul>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Mentions légales</a></li>
+        <li><a href="#">Confidentialité et cookies</a></li>
+      </ul>
+    </nav>
+  </div>
+  <p class="footer-base">Fléchettes Cup 2027 · twitch.tv/lebouseuh</p>
+</footer>
+
+<script src="js/scorer-engine.js"></script>
+<script src="js/scorer.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

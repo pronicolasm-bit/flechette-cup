@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bars à fléchettes</title>
+<meta name="description" content="La carte des bars où jouer aux fléchettes : trouve une cible près de chez toi et propose les adresses que tu connais.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/vendor/leaflet.css">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
+<style>
+/* Compléments propres à la carte */
+.bars-map { z-index: 0; }                       /* la carte garde ses calques pour elle, sous le menu */
+.anchors a[aria-current="page"] { color: var(--anis); }
+.bar-btn[aria-current="true"] { background: #1B0A52; box-shadow: inset 4px 0 0 var(--anis); }
+.bar-dist { color: var(--anis); font-weight: 700; }
+.me-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--anis); border: 3px solid var(--dark);
+  box-shadow: 0 0 0 6px rgba(217, 251, 179, 0.35);
+}
+.leaflet-container a.pop-link { color: var(--violet); }
+/* Leaflet espace largement les paragraphes de ses bulles : on resserre */
+.leaflet-popup-content p { margin: 0 0 6px; }
+.leaflet-popup-content p.pop-name { margin: 0 18px 4px 0; }
+.leaflet-popup-content p:last-child { margin-bottom: 0; }
+.pop-badges .badge { margin-right: 0; }
+.pop-badges .badge.mine { color: var(--ink); border-color: var(--ink); }
+.field select option { color: var(--white); background: #0A0124; }
+dialog.sheet { max-height: 92svh; overflow-y: auto; }
+.sheet-form .optional { font-weight: 500; color: #9C90CC; }
+.map-banner .btn { padding: 6px 12px; font-size: 14px; }
+/* en mode placement, un clic sur un marqueur existant doit aussi poser le bar */
+.bars-map.placing .leaflet-marker-icon { pointer-events: none !important; }
+@media (max-width: 860px) {
+  .bars { min-height: 0; }
+  .map-cta { white-space: nowrap; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#carte">Aller à la carte</a>
+
+<header class="topbar" id="haut">
+  <a class="topbar-logo" href="index.html" aria-label="Fléchettes Cup, retour à l'accueil">
+    <svg class="logo" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+      <g class="logo-ink">
+        <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+        <text x="0" y="74" class="logo-line2">CUP</text>
+        <path d="M88 52 L112 58 L88 66 Z"></path>
+      </g>
+    </svg>
+  </a>
+  <nav class="topnav" aria-label="Navigation principale">
+    <button class="burger" aria-expanded="false" aria-controls="menu-ancres">
+      <span class="burger-bar"></span><span class="burger-bar"></span><span class="burger-bar"></span>
+      <span class="visually-hidden">Menu</span>
+    </button>
+    <ul class="anchors" id="menu-ancres">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="bars.html" aria-current="page">Bars à fléchettes</a></li>
+      <li><a href="jouer.html">Règles et compteur</a></li>
+      <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+    </ul>
+  </nav>
+  <div class="topbar-cta">
+    <a class="btn btn-anis" href="index.html#billetterie">Billetterie</a>
+    <a class="btn btn-ghost" href="index.html#boutique">Boutique</a>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="page-head">
+    <div class="wrap">
+      <h1 class="display page-title">Bars à fléchettes</h1>
+      <p class="page-lead">Trouve une cible près de chez toi, et ajoute les bars que tu connais. Les bars où se qualifier pour le tournoi amateur seront signalés ici dès leur annonce.</p>
+      <div class="page-actions">
+        <button type="button" class="btn btn-anis btn-big" id="btn-locate">Autour de moi</button>
+        <button type="button" class="btn btn-outline btn-big" id="btn-propose">Proposer un bar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bars" id="carte" aria-label="Carte et liste des bars">
+    <div class="bars-side">
+      <div class="bars-tools">
+        <div class="field">
+          <label for="bar-search">Chercher par nom ou par ville</label>
+          <input id="bar-search" type="search" placeholder="Lille, Le Bull, rue de Gand…" autocomplete="off">
+        </div>
+        <div class="chips" role="group" aria-label="Filtrer les adresses">
+          <button type="button" class="chip" data-filter="tous" aria-pressed="true">Tous</button>
+          <button type="button" class="chip" data-filter="partenaires" aria-pressed="false">Partenaires des qualifs</button>
+          <button type="button" class="chip" data-filter="osm" aria-pressed="false">OpenStreetMap</button>
+          <button type="button" class="chip" data-filter="mine" aria-pressed="false">Mes propositions</button>
+        </div>
+        <p class="bars-status" id="bars-status" role="status" aria-live="polite"></p>
+      </div>
+      <ul class="bar-list" id="bar-list"></ul>
+    </div>
+
+    <div class="bars-map-wrap">
+      <div id="map" class="bars-map" role="application" aria-label="Carte des bars à fléchettes"></div>
+      <button type="button" class="btn btn-anis map-cta" id="btn-zone" hidden>Chercher dans cette zone</button>
+      <div class="map-banner" id="map-banner" hidden>
+        <span>Touche la carte à l'emplacement du bar</span>
+        <button type="button" class="btn btn-dark" id="btn-cancel-place">Annuler</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="sheet" id="propose-dialog" aria-labelledby="propose-title">
+    <form class="sheet-form" id="propose-form" novalidate>
+      <h2 class="display sheet-title" id="propose-title">Proposer un bar</h2>
+      <p class="sheet-note">Pour l'instant, ta proposition reste enregistrée sur cet appareil : l'envoi à l'équipe n'est pas encore branché.</p>
+      <div class="field">
+        <label for="p-name">Nom du bar</label>
+        <input id="p-name" name="name" maxlength="60" autocomplete="off" required aria-describedby="propose-error">
+      </div>
+      <div class="field">
+        <label for="p-city">Ville <span class="optional">(facultatif)</span></label>
+        <input id="p-city" name="city" maxlength="60" autocomplete="address-level2">
+      </div>
+      <div class="field">
+        <label for="p-address">Adresse <span class="optional">(facultatif)</span></label>
+        <input id="p-address" name="address" maxlength="100" autocomplete="street-address">
+      </div>
+      <div class="field">
+        <label for="p-boards">Type de cibles</label>
+        <select id="p-boards" name="boards">
+          <option value="steel">Traditionnelles (pointes acier)</option>
+          <option value="soft">Électroniques</option>
+          <option value="both">Les deux</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="p-count">Nombre de cibles <span class="optional">(facultatif)</span></label>
+        <input id="p-count" name="count" type="number" inputmode="numeric" min="1" max="50" step="1">
+      </div>
+      <div class="field">
+        <label for="p-note">Un mot sur le lieu <span class="optional">(facultatif)</span></label>
+        <textarea id="p-note" name="note" rows="2" maxlength="240"></textarea>
+      </div>
+      <p class="sheet-error" id="propose-error" role="alert" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-ghost" id="btn-propose-cancel">Annuler</button>
+        <button type="submit" class="btn btn-anis">Enregistrer le bar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <section class="bars-about">
+    <div class="wrap">
+      <h2 class="display">D'où viennent ces adresses</h2>
+      <p><strong>Les bars partenaires des qualifications.</strong> Ce sont les bars où se jouent les soirées de qualification du tournoi amateur. L'équipe de la Fléchettes Cup les annonce et les ajoute elle-même à la carte.</p>
+      <p><strong>Les lieux référencés sur OpenStreetMap.</strong> La communauté OpenStreetMap signale les bars, pubs et clubs qui proposent des fléchettes. Ces données (© contributeurs OpenStreetMap, sous licence ODbL) peuvent être incomplètes ou datées : passe un coup de fil avant de te déplacer.</p>
+      <p><strong>Tes propositions.</strong> Tu connais un bar avec une cible qui n'apparaît pas ? Ajoute-le avec le bouton « Proposer un bar ». Pour l'instant il reste enregistré sur ton appareil uniquement.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <svg class="logo logo-footer" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+        <g class="logo-ink">
+          <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+          <text x="0" y="74" class="logo-line2">CUP</text>
+          <path d="M88 52 L112 58 L88 66 Z"></path>
+        </g>
+      </svg>
+      <p>Un événement porté par LeBouseuh, organisé par Webedia.</p>
+    </div>
+    <nav class="footer-nav" aria-label="Pied de page">
+      <ul>
+        <li><a href="index.html#concept">Le concept</a></li>
+        <li><a href="index.html#equipes">Les équipes</a></li>
+        <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+        <li><a href="bars.html">Bars à fléchettes</a></li>
+        <li><a href="jouer.html">Règles et compteur</a></li>
+        <li><a href="index.html#billetterie">Billetterie</a></li>
+        <li><a href="index.html#boutique">Boutique</a></li>
+      </ul>
+      <ul>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Mentions légales</a></li>
+        <li><a href="#">CGV billetterie</a></li>
+        <li><a href="#">CGV boutique</a></li>
+        <li><a href="#">Confidentialité et cookies</a></li>
+      </ul>
+    </nav>
+  </div>
+  <p class="footer-base">Fléchettes Cup 2027 · twitch.tv/lebouseuh</p>
+</footer>
+
+<script src="js/vendor/leaflet.js"></script>
+<script src="js/bars.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

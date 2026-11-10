@@ -200,6 +200,27 @@ html.gl .hero::before {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
+/* Transition d'ouverture d'une section, et retour à la cible */
+.veil {
+  position: fixed; inset: 0; z-index: 250;
+  background: var(--dark);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.26s ease;
+}
+.veil.on { opacity: 1; }
+.back-board {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px 10px 12px;
+  font: 700 14.5px var(--font); color: var(--ink);
+  background: var(--anis); border: 0; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0; translate: 0 12px; pointer-events: none;
+  transition: opacity 0.2s ease, translate 0.2s ease;
+}
+.back-board.show { opacity: 1; translate: 0 0; pointer-events: auto; }
+.back-board svg { width: 20px; height: 20px; }
+
 /* Un lien par papier cloué sur la cible */
 .hotspots { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 .hotspot { position: absolute; pointer-events: auto; border-radius: 4px; cursor: pointer; }
@@ -758,13 +779,7 @@ html.intro.intro-pose .scroll-hint { opacity: 1; transition: opacity 0.5s 0.9s; 
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (max-width: 900px) {
-  .intro-grid { grid-template-columns: 1fr; }
-  .concept-grid, .programme-grid, .phase2-grid, .watch-grid { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-nav { justify-content: flex-start; }
-
+@media (max-width: 1240px) {
   .burger {
     display: grid; gap: 5px;
     background: none; border: 0; padding: 10px;
@@ -785,6 +800,15 @@ html.intro.intro-pose .scroll-hint { opacity: 1; transition: opacity 0.5s 0.9s; 
   }
   .anchors.open { display: flex; }
   .anchors a { display: block; padding: 10px 0; font-size: 17px; }
+}
+
+@media (max-width: 900px) {
+  .intro-grid { grid-template-columns: 1fr; }
+  .concept-grid, .programme-grid, .phase2-grid, .watch-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-nav { justify-content: flex-start; }
+
 }
 
 @media (max-width: 560px) {
@@ -808,6 +832,6 @@ html.intro.intro-pose .scroll-hint { opacity: 1; transition: opacity 0.5s 0.9s; 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .marquee-track { animation: none; }
-  .btn, .team-visual, .jersey, .watch-twitch, .topbar { transition: none; }
+  .btn, .team-visual, .jersey, .watch-twitch, .topbar, .veil, .back-board { transition: none; }
   .scroll-hint::after { animation: none; }
 }

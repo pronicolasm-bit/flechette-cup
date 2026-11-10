@@ -59,3 +59,19 @@
     form.querySelector('.form-done').hidden = false;
   });
 })();
+
+/* ---------- Retour à la cible ---------- */
+(function retourCible() {
+  const hero = document.querySelector('.hero');
+  if (!hero || !('IntersectionObserver' in window)) return;
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'back-board';
+  b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#160444"/><circle cx="12" cy="12" r="6.2" fill="#D9FBB3"/><circle cx="12" cy="12" r="2.6" fill="#160444"/></svg>La cible';
+  document.body.appendChild(b);
+  new IntersectionObserver(es => b.classList.toggle('show', !es[0].isIntersecting), { threshold: 0.12 }).observe(hero);
+  b.addEventListener('click', () => {
+    if (window.FCBoard && window.FCBoard.returnHome) window.FCBoard.returnHome();
+    else window.scrollTo({ top: 0 });
+  });
+})();
