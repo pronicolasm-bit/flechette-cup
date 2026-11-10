@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fléchettes Cup 2</title>
 <meta name="description" content="La Fléchettes Cup revient pour une édition 2 le 12 juin 2027. Tournoi de fléchettes entre duos de créateurs, porté par LeBouseuh. Billetterie, boutique, tournoi amateur et live Twitch.">
+<!-- Aperçu de partage : remplacer par des adresses absolues une fois le domaine connu -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Fléchettes Cup 2, le 12 juin 2027">
+<meta property="og:description" content="Huit duos de créateurs, 3 000 personnes, un trophée. Billetterie, boutique, tournoi amateur et live Twitch.">
+<meta property="og:image" content="assets/partage.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#160444">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,8 +23,9 @@
 /* Intro en vue subjective : pas de lien profond, pas de mouvement réduit */
 (function () {
   try {
-    if (location.hash || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var c = document.documentElement.classList;
+    c.add('js');
+    if (location.hash || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     c.add('intro');
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 14000);
@@ -67,6 +76,7 @@
   <section class="hero" id="accueil">
     <div class="hero-pattern" aria-hidden="true"></div>
     <div class="hero-light" aria-hidden="true"></div>
+    <div class="hero-loader" aria-hidden="true"><span class="loader-target"></span><span>On accroche la cible</span></div>
     <div class="speedlines" aria-hidden="true"></div>
 
     <div class="hero-stage">

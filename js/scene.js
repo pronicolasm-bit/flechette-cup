@@ -14,6 +14,83 @@
   if (!hero || !wrap || !host) return;
 
   const TAU = Math.PI * 2, DEG = Math.PI / 180;
+
+  /* ---------- Son ----------
+     Tout est synthétisé (aucun fichier à charger) : le souffle de la fléchette, le choc
+     dans le sisal, le choc plus sec dans le bois. Un navigateur ne laisse jouer du son
+     qu'après un geste du visiteur : c'est le lancer qui l'active. */
+  const Sound = (function () {
+    const KEY = 'fc-son';
+    let ctx = null, muted = false;
+    try { muted = localStorage.getItem(KEY) === '0'; } catch (e) { /* stockage indisponible */ }
+    function unlock() {
+      if (muted) return null;
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!ctx) ctx = new AC();
+        if (ctx.state === 'suspended') ctx.resume();
+      } catch (e) { ctx = null; }
+      return ctx;
+    }
+    function noise(c, dur) {
+      const n = Math.max(1, Math.floor(c.sampleRate * dur));
+      const buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      return src;
+    }
+    function thunk(wood, level) {
+      const c = ctx;
+      if (!c || muted) return;
+      const t = c.currentTime, v = level === undefined ? 1 : level;
+      const out = c.createGain();
+      out.gain.value = 0.9 * v;
+      out.connect(c.destination);
+      // le corps du choc : une note grave qui s'effondre
+      const o = c.createOscillator(), og = c.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(wood ? 240 : 150, t);
+      o.frequency.exponentialRampToValueAtTime(wood ? 110 : 52, t + (wood ? 0.07 : 0.1));
+      og.gain.setValueAtTime(0.9, t);
+      og.gain.exponentialRampToValueAtTime(0.001, t + (wood ? 0.12 : 0.2));
+      o.connect(og); og.connect(out);
+      o.start(t); o.stop(t + 0.25);
+      // l'attaque : un souffle très bref, étouffé dans le sisal, plus claquant dans le bois
+      const n = noise(c, 0.08), f = c.createBiquadFilter(), ng = c.createGain();
+      f.type = 'lowpass';
+      f.frequency.value = wood ? 3200 : 1300;
+      ng.gain.setValueAtTime(wood ? 0.7 : 0.5, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t + (wood ? 0.05 : 0.07));
+      n.connect(f); f.connect(ng); ng.connect(out);
+      n.start(t);
+    }
+    function whoosh(dur, level) {
+      const c = ctx;
+      if (!c || muted) return;
+      const t = c.currentTime, v = level === undefined ? 1 : level;
+      const n = noise(c, dur + 0.05), f = c.createBiquadFilter(), g = c.createGain();
+      f.type = 'bandpass';
+      f.Q.value = 0.9;
+      f.frequency.setValueAtTime(320, t);
+      f.frequency.exponentialRampToValueAtTime(2100, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.22 * v, t + dur * 0.8);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      n.connect(f); f.connect(g); g.connect(c.destination);
+      n.start(t);
+    }
+    return {
+      unlock, thunk, whoosh,
+      isMuted: () => muted,
+      setMuted(m) {
+        muted = !!m;
+        try { localStorage.setItem(KEY, muted ? '0' : '1'); } catch (e) { /* tant pis */ }
+        if (!muted) unlock();
+      }
+    };
+  })();
   const NUMBERS = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
   // Cotes réelles d'une cible, en mètres
   const BOARD_R = 0.2255;
@@ -1140,7 +1217,7 @@
       camera.layers.set(0);
     }
 
-    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize, layout };
+    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize, layout, makeDart, offZ: OFF_Z };
 
   }
 
@@ -1307,7 +1384,7 @@
       camera.fov = FOV_END;
       camera.updateProjectionMatrix();
       camera.updateMatrixWorld(true);
-      S.render(DOF_PLANTED);
+      S.render(restBlur);
       placeLinks();
     }
 
@@ -1328,6 +1405,7 @@
         if (Math.abs(d) > 0.004) { l.v += d * 0.24; moving = true; } else l.v = l.t;
         setLift(papers[i], l.v);
       });
+      if (stepThrows(now)) moving = true;
       if (zoom) {
         if (zoom.t0 === null) zoom.t0 = now;
         const k = clamp01((now - zoom.t0) / zoom.dur);
@@ -1403,6 +1481,144 @@
       };
       requestTick();
     }
+    /* --- Interface du hero : son, invitation à lancer, résultat des lancers --- */
+    const soundBtn = document.createElement('button');
+    soundBtn.type = 'button';
+    soundBtn.className = 'sound-toggle';
+    function paintSound() {
+      const on = !Sound.isMuted();
+      soundBtn.setAttribute('aria-pressed', String(on));
+      soundBtn.textContent = on ? 'Son activé' : 'Son coupé';
+    }
+    soundBtn.addEventListener('click', () => { Sound.setMuted(!Sound.isMuted()); paintSound(); if (!Sound.isMuted()) Sound.thunk(false, 0.6); });
+    paintSound();
+    const throwHint = document.createElement('p');
+    throwHint.className = 'throw-hint';
+    throwHint.textContent = window.matchMedia && window.matchMedia('(hover: none)').matches
+      ? 'Touche l’écran pour lancer' : 'Clique pour lancer la fléchette';
+    const playHint = document.createElement('p');
+    playHint.className = 'play-hint';
+    playHint.textContent = 'La cible est jouable : vise et clique pour lancer';
+    const volleyBox = document.createElement('p');
+    volleyBox.className = 'volley-total';
+    volleyBox.setAttribute('role', 'status');
+    volleyBox.setAttribute('aria-live', 'polite');
+    hero.append(soundBtn, throwHint, playHint, volleyBox);
+    const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* pas de vibreur */ } };
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(TAU * Math.random());
+
+    /* --- La cible est jouable : un clic lance une fléchette là où l'on vise --- */
+    const SHOT = 380;                              // durée de vol, en millisecondes
+    const shots = [];
+    let playerDarts = null, restBlur = DOF_PLANTED, volley = 0;
+    function scoreAt(x, y) {
+      const r = Math.hypot(x, y);
+      if (r > BOARD_R) return { label: 'Dans le bois', pts: 0 };
+      if (r <= DIM.bullI) return { label: 'Bull', pts: 50 };
+      if (r <= DIM.bullO) return { label: '25', pts: 25 };
+      if (r > DIM.dOut) return { label: 'Hors zone', pts: 0 };
+      let a = Math.atan2(x, y) / DEG;
+      if (a < 0) a += 360;
+      const n = NUMBERS[Math.round(a / 18) % 20];
+      if (r >= DIM.tIn && r <= DIM.tOut) return { label: 'Triple ' + n, pts: 3 * n };
+      if (r >= DIM.dIn) return { label: 'Double ' + n, pts: 2 * n };
+      return { label: 'Simple ' + n, pts: n };
+    }
+    function hitLabel(sh, sc) {
+      corner.set(sh.x, sh.y, 0.03).project(camera);
+      const el = document.createElement('span');
+      el.className = 'hit-label';
+      el.style.left = ((corner.x * 0.5 + 0.5) * view.w) + 'px';
+      el.style.top = ((-corner.y * 0.5 + 0.5) * view.h) + 'px';
+      const big = document.createElement('strong');
+      big.textContent = sc.pts ? String(sc.pts) : 'Raté';
+      el.append(big, document.createTextNode(sc.label));
+      hero.appendChild(el);
+      setTimeout(() => el.remove(), 1700);
+    }
+    function onShotLanded(sh) {
+      const sc = scoreAt(sh.x, sh.y);
+      Sound.thunk(!sh.onBoard, 0.9);
+      buzz(14);
+      volley += sc.pts;
+      hitLabel(sh, sc);
+      if (shots.length === 3 && shots.every(s => s.hit)) {
+        volleyBox.textContent = '';
+        const b = document.createElement('strong');
+        b.textContent = volley === 180 ? 'Cent quatre-vingts !' : `Ta volée : ${volley}`;
+        const a = document.createElement('a');
+        a.href = 'jouer.html';
+        a.textContent = 'Compter une vraie partie';
+        volleyBox.append(b, a);
+        volleyBox.classList.add('show');
+      }
+    }
+    function stepThrows(now) {
+      let active = false;
+      restBlur = DOF_PLANTED;
+      shots.forEach(sh => {
+        if (sh.t0 === null) sh.t0 = now;
+        const el = now - sh.t0;
+        if (el < SHOT) {
+          const u = el / SHOT, e = Math.pow(u, 1.2);
+          pathPos(sh.from, sh.to, 0.03, e, tip);
+          pathDir(sh.from, sh.to, 0.03, e, dir);
+          dir.lerp(sh.dirEnd, smooth((u - 0.35) / 0.65)).normalize();
+          setDart(sh.dart, tip, dir, 2.5 * DEG * Math.sin(TAU * 2.4 * u) * (1 - u), 0, TAU * easeOut(u, 2));
+          const near = u < 0.4;
+          setDepth(sh.dart, near ? 'blur' : 'planted');
+          if (near) restBlur = Math.max(restBlur, 5 * (1 - u / 0.4) + DOF_PLANTED);
+          active = true;
+          return;
+        }
+        if (!sh.hit) { sh.hit = true; onShotLanded(sh); }
+        const th = (el - SHOT) / 1000;
+        const vib = th < 1 ? Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th) : 0;
+        setDepth(sh.dart, 'planted');
+        setDart(sh.dart, sh.to, sh.dirEnd, 5.5 * DEG * vib, 2.2 * DEG * vib);
+        if (th < 1) active = true;
+      });
+      return active;
+    }
+    function throwAt(x, y) {
+      if (!playerDarts) {
+        playerDarts = [0, 1, 2].map(() => { const d = S.makeDart([0xE8FFC4, 0xB7F277]); d.visible = false; return d; });
+      }
+      if (shots.length === 3) {                    // nouvelle volée : on retire les trois précédentes
+        shots.forEach(s => { s.dart.visible = false; });
+        shots.length = 0;
+        volley = 0;
+        volleyBox.classList.remove('show');
+      }
+      const onBoard = Math.hypot(x, y) <= BOARD_R;
+      const dart = playerDarts[shots.length];
+      dart.visible = true;
+      setDepth(dart, 'blur');
+      const from = V(0.09 + Math.random() * 0.07, -0.17, 0.15).add(camera.position);
+      setDart(dart, from, FWD);
+      shots.push({
+        dart, t0: null, hit: false, x, y, onBoard, from,
+        to: V(x, y, (onBoard ? 0 : S.offZ) - 0.008),
+        dirEnd: dirFrom((-13 - Math.random() * 9) * DEG, (Math.random() * 30 - 15) * DEG, V())
+      });
+      Sound.unlock();
+      Sound.whoosh(SHOT / 1000, 0.8);
+      playHint.classList.add('gone');
+      requestTick();
+    }
+    hero.addEventListener('click', e => {
+      if (!over || zoom || (e.target.closest && e.target.closest('a, button'))) return;
+      const hr = hero.getBoundingClientRect();
+      tmp.set(((e.clientX - hr.left) / hr.width) * 2 - 1, -(((e.clientY - hr.top) / hr.height) * 2 - 1), 0.5)
+        .unproject(camera).sub(camera.position).normalize();
+      if (tmp.z > -0.05) return;
+      const k = -camera.position.z / tmp.z;
+      const x = camera.position.x + tmp.x * k + gauss() * 0.006;
+      const y = camera.position.y + tmp.y * k + gauss() * 0.006;
+      if (Math.abs(x) > 0.31 || Math.abs(y) > 0.31) return;         // en dehors du meuble
+      throwAt(x, y);
+    });
+
     // retour arrière depuis une autre page : le navigateur peut ressortir celle-ci telle qu'on l'a quittée
     window.addEventListener('pageshow', e => {
       if (!e.persisted || !over) return;
@@ -1481,20 +1697,53 @@
       applyRest();
       drawRest();
     }
+    let touchY = null;
     function onUserSkip(e) {
       if (e.type === 'keydown' && e.key !== 'Escape') return;
+      if (e.type === 'touchmove') {
+        // un doigt qui tremble en touchant l'écran n'est pas un défilement
+        const y = e.touches && e.touches[0] ? e.touches[0].clientY : null;
+        if (touchY === null || y === null || Math.abs(y - touchY) < 28) return;
+      }
       end();
     }
+    window.addEventListener('touchstart', e => { touchY = e.touches && e.touches[0] ? e.touches[0].clientY : null; }, { passive: true });
     if (skip) skip.addEventListener('click', end);
     ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, onUserSkip, { passive: true }));
 
     setDepth(darts[0], 'blur');
     for (let i = 1; i < N; i++) darts[i].visible = false;
 
-    const t0 = performance.now();
+    // La fléchette attend le geste du visiteur ; sans geste, elle part toute seule
+    const AUTO_THROW = 3600;
+    let launchAt = AUTO_THROW, launched = false, flying = false;
+    const aired = darts.map(() => false), landed = darts.map(() => false);
+    function onThrowGesture(e) {
+      if (over || launched) return;
+      if (e.type === 'keydown') {
+        if (e.key !== ' ' && e.key !== 'Enter') return;
+        if (e.target.closest && e.target.closest('a, button, input, textarea')) return;
+        e.preventDefault();
+      } else if (e.target.closest && e.target.closest('a, button')) return;
+      launched = true;
+      launchAt = Math.max(350, clock);
+      throwHint.classList.add('gone');
+      Sound.unlock();
+    }
+    hero.addEventListener('pointerdown', onThrowGesture);
+    window.addEventListener('keydown', onThrowGesture);
+
+    // L'horloge de la séquence avance au rythme des images affichées, avec un pas plafonné :
+    // sur un appareil lent l'intro ralentit, elle ne saute pas d'un coup à la fin
+    let clock = 0, lastNow = null;
     function frame(now) {
       if (over) return;
-      const t = now - t0, s = t / 1000;
+      clock += lastNow === null ? 0 : Math.min(now - lastNow, 60);
+      lastNow = now;
+      const real = clock, s = real / 1000;
+      if (!launched && real >= launchAt) { launched = true; throwHint.classList.add('gone'); }
+      // tant qu'on vise, le temps de la séquence reste à zéro ; il démarre au lancer
+      const t = real < launchAt ? 0 : AIM + (real - launchAt);
       let blur = 0, motion = 0;
 
       /* La fléchette que l'on incarne */
@@ -1516,6 +1765,7 @@
         // Vol : elle accélère, monte, redescend, tourne sur elle-même et tangue en se stabilisant
         const u = (t - T_FLY) / FLY;
         const e = Math.pow(u, 1.55);
+        if (!flying) { flying = true; Sound.whoosh(FLY / 1000, 1); }
         pathPos(PW, TARGET, ARC, e, tip);
         tip.x += 0.012 * Math.sin(TAU * e) * (1 - e);
         pathDir(PW, TARGET, ARC, e, dir);
@@ -1530,6 +1780,8 @@
         motion = 2.2 * u * u * u;
       } else if (!struck) {
         struck = true;
+        Sound.thunk(false, 1);
+        buzz(22);
         setDepth(darts[0], 'planted');
         setDart(darts[0], TARGET, dirEnds[0]);
         povCamera(dirEnds[0]);
@@ -1548,6 +1800,7 @@
           const u = (t - launch[i]) / VOLLEY;
           const e = Math.pow(u, 1.2);
           darts[i].visible = true;
+          if (!aired[i]) { aired[i] = true; Sound.whoosh(VOLLEY / 1000, 0.5); }
           pathPos(starts[i], ends[i], 0.035, e, tip);
           pathDir(starts[i], ends[i], 0.035, e, dir);
           dir.lerp(dirEnds[i], smooth((u - 0.35) / 0.65)).normalize();
@@ -1565,6 +1818,7 @@
           const th = (t - hits[i]) / 1000;
           const vib = Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th);
           darts[i].visible = true;
+          if (i > 0 && !landed[i]) { landed[i] = true; Sound.thunk(!!papers[i].it.off, 0.75); buzz(10); }
           setDepth(darts[i], 'planted');
           setDart(darts[i], ends[i], dirEnds[i], 5.5 * DEG * vib, 2.2 * DEG * vib);
           papers[i].mesh.rotation.z = papers[i].it.rot * DEG + 1.4 * DEG * Math.exp(-th / 0.16) * Math.sin(TAU * 8 * th);
