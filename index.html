@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/da.css">
 <script>
 /* Intro en vue subjective : pas de lien profond, pas de mouvement réduit */
 (function () {
@@ -35,7 +35,21 @@
 </head>
 <body>
 
-<a class="skip" href="#concept">Aller au contenu</a>
+<a class="skip" href="#edition-2">Aller au contenu</a>
+
+<aside class="rail">
+  <a class="rail-logo" href="#haut" aria-label="Fléchettes Cup, retour en haut">
+    <svg class="logo" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+      <g class="logo-ink">
+        <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+        <text x="0" y="74" class="logo-line2">CUP</text>
+        <path d="M88 52 L112 58 L88 66 Z"></path>
+      </g>
+    </svg>
+  </a>
+  <div class="rail-words" aria-hidden="true"><span class="tag">Flechettes</span><span class="tag">Cup</span><span class="tag">2027</span></div>
+  <div class="rail-foot"></div>
+</aside>
 
 <header class="topbar" id="haut">
   <a class="topbar-logo" href="#haut" aria-label="Fléchettes Cup, retour en haut">
@@ -53,20 +67,18 @@
       <span class="visually-hidden">Menu</span>
     </button>
     <ul class="anchors" id="menu-ancres">
-      <li><a href="#concept">Le concept</a></li>
-      <li><a href="#equipes">Les équipes</a></li>
-      <li><a href="#tournoi-amateur">Tournoi amateur</a></li>
-      <li><a href="#programme">Programme</a></li>
-      <li><a href="#ou-regarder">Où regarder</a></li>
-      <li><a href="#best-of">Édition 1</a></li>
-      <li><a href="#faq">FAQ</a></li>
-      <li><a href="bars.html">Bars</a></li>
-      <li><a href="jouer.html">Jouer</a></li>
+      <li><a class="tag" href="#concept">Concept</a></li>
+      <li><a class="tag" href="#equipes">Équipes</a></li>
+      <li><a class="tag" href="#tournoi-amateur">Tournoi amateur</a></li>
+      <li><a class="tag" href="#programme">Programme</a></li>
+      <li><a class="tag" href="#best-of">Édition 1</a></li>
+      <li><a class="tag" href="bars.html">Bars</a></li>
+      <li><a class="tag" href="jouer.html">Jouer</a></li>
     </ul>
   </nav>
   <div class="topbar-cta">
-    <a class="btn btn-anis" href="#billetterie">Billetterie</a>
-    <a class="btn btn-ghost" href="#boutique">Boutique</a>
+    <a class="cta cta-anis tag" href="#billetterie">Billetterie</a>
+    <a class="cta cta-violet tag" href="#boutique">Boutique</a>
   </div>
 </header>
 
@@ -138,303 +150,321 @@
     <button class="skip-intro" type="button">Passer l'intro</button>
   </section>
 
-  <!-- ====================== ÉDITION 2 : titre, alertes, compte à rebours ====================== -->
-  <section class="intro-band" id="edition-2">
-    <div class="wrap intro-grid">
-      <div>
-        <p class="hero-kicker">Fléchettes <span>Cup</span> <span>Édition 2</span></p>
-        <h2 class="display hero-title">La revanche<br>se joue à<br>trois fléchettes</h2>
-      </div>
-      <div class="intro-side">
-        <p class="hero-sub">Huit duos de créateurs, une salle de 3 000 personnes, un trophée à reprendre à Elian et Raska. Rendez-vous le 12 juin 2027, sur place ou en live.</p>
-        <div class="hero-actions">
+  <!-- ====================== ÉDITION 2 : la date et le compte à rebours ====================== -->
+  <section class="s s-kick" id="edition-2">
+    <span class="ghost" aria-hidden="true">Édition 2</span>
+    <div class="s-in kick-grid">
+      <div class="kick-copy">
+        <h2 class="lockup"><span class="lk-a">La revanche</span><span class="lk-b">12 juin 2027</span></h2>
+        <p class="kick-sub">Huit duos de créateurs, une salle de 3 000 personnes, un trophée à reprendre à Elian et Raska. Sur place ou en live.</p>
+        <div class="kick-actions">
           <a class="btn btn-anis btn-big" href="#billetterie">Être alerté pour les billets</a>
           <a class="btn btn-outline btn-big" href="#concept">Découvrir le concept</a>
         </div>
-        <div class="countdown" role="timer" aria-label="Compte à rebours avant l'événement">
-          <div class="count-cell"><span class="count-num" data-count="j">000</span><span class="count-label">jours</span></div>
-          <div class="count-cell"><span class="count-num" data-count="h">00</span><span class="count-label">heures</span></div>
-          <div class="count-cell"><span class="count-num" data-count="m">00</span><span class="count-label">minutes</span></div>
-          <div class="count-cell"><span class="count-num" data-count="s">00</span><span class="count-label">secondes</span></div>
+      </div>
+      <div class="board-panel" role="timer" aria-label="Compte à rebours avant l'événement">
+        <p class="bp-label">Coup <br>d'envoi <br>dans</p>
+        <div class="bp-nums">
+          <p class="bp-days"><span data-count="j">000</span><i class="tag">jours</i></p>
+          <p class="bp-clock">
+            <span><b data-count="h">00</b><i class="tag">h</i></span>
+            <span><b data-count="m">00</b><i class="tag">min</i></span>
+            <span><b data-count="s">00</b><i class="tag">s</i></span>
+          </p>
         </div>
+        <span class="sq3" aria-hidden="true"><i></i><i></i><i></i></span>
       </div>
     </div>
+    <span class="shard shard-a" aria-hidden="true"></span>
   </section>
 
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span>Fléchettes Cup Édition 2&ensp;🎯&ensp;12 juin 2027&ensp;🎯&ensp;8 duos de créateurs&ensp;🎯&ensp;En live sur Twitch&ensp;🎯&ensp;</span>
-      <span>Fléchettes Cup Édition 2&ensp;🎯&ensp;12 juin 2027&ensp;🎯&ensp;8 duos de créateurs&ensp;🎯&ensp;En live sur Twitch&ensp;🎯&ensp;</span>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Édition 2<i></i>12 juin 2027<i></i>8 duos de créateurs<i></i>En live sur Twitch<i></i>3 000 places<i></i></span>
+      <span>Édition 2<i></i>12 juin 2027<i></i>8 duos de créateurs<i></i>En live sur Twitch<i></i>3 000 places<i></i></span>
     </div>
   </div>
 
   <!-- ====================== CONCEPT ====================== -->
-  <section class="section section-paper" id="concept">
-    <div class="wrap">
-      <h2 class="display section-title">Le concept</h2>
-      <div class="concept-grid">
-        <div class="concept-text">
-          <p class="lead">Des duos de créateurs s'affrontent aux fléchettes dans un vrai show à l'anglaise : walk-ons, public debout, matchs en 301 et une finale pour le trophée.</p>
-          <p>La Fléchettes Cup, c'est le tournoi lancé par LeBouseuh qui a transformé un jeu de bar en événement. Pour l'édition 2, tout prend de l'ampleur : une salle trois fois plus grande, un tournoi amateur ouvert à tous en parallèle, des maillots officiels pour chaque équipe et toujours le même objectif, mettre la fléchette au centre.</p>
-        </div>
-        <ul class="concept-facts">
-          <li><span class="display fact-num">8</span><span class="fact-label">duos de créateurs</span></li>
-          <li><span class="display fact-num">301</span><span class="fact-label">le format des matchs</span></li>
-          <li><span class="display fact-num">3&nbsp;000</span><span class="fact-label">personnes sur place</span></li>
-          <li><span class="display fact-num">1</span><span class="fact-label">trophée à soulever</span></li>
-        </ul>
+  <section class="s s-concept" id="concept">
+    <span class="ghost" aria-hidden="true">301</span>
+    <div class="s-in concept-grid">
+      <h2 class="lockup lockup-ink"><span class="lk-a">Le</span><span class="lk-b">Concept</span></h2>
+      <div class="concept-copy">
+        <p class="lead">Des duos de créateurs s'affrontent aux fléchettes dans un vrai show à l'anglaise : walk-ons, public debout, matchs en 301 et une finale pour le trophée.</p>
+        <p>La Fléchettes Cup, c'est le tournoi lancé par LeBouseuh qui a transformé un jeu de bar en événement. Pour l'édition 2, tout prend de l'ampleur : une salle trois fois plus grande, un tournoi amateur ouvert à tous, des maillots officiels pour chaque équipe et toujours le même objectif, mettre la fléchette au centre.</p>
       </div>
     </div>
+    <ul class="facts">
+      <li><b>8</b><span class="tag">duos de créateurs</span></li>
+      <li><b>301</b><span class="tag">le format des matchs</span></li>
+      <li><b>3&nbsp;000</b><span class="tag">personnes sur place</span></li>
+      <li><b>1</b><span class="tag">trophée à soulever</span></li>
+    </ul>
   </section>
 
   <!-- ====================== ÉQUIPES ====================== -->
-  <section class="section section-violet" id="equipes">
-    <div class="wrap">
-      <h2 class="display section-title">Les équipes</h2>
-      <p class="section-intro">Huit capitaines, huit duos. Les coéquipiers sont dévoilés au fil des annonces sur les réseaux des créateurs : reviens souvent, ça bouge vite.</p>
+  <section class="s s-teams" id="equipes">
+    <span class="ghost" aria-hidden="true">Duos</span>
+    <div class="s-in">
+      <div class="head-row">
+        <h2 class="lockup"><span class="lk-a">Les</span><span class="lk-b">Équipes</span></h2>
+        <p class="head-note">Huit capitaines, huit duos. Les coéquipiers sont dévoilés au fil des annonces sur les réseaux des créateurs : reviens souvent, ça bouge vite.</p>
+      </div>
       <ul class="teams">
         <li class="team" style="--tg-a:#F48227; --tg-b:#F7CB3E">
-          <div class="team-visual"><span class="display team-name">LeBouseuh</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 1</span><b class="team-no" aria-hidden="true">01</b><span class="team-name">LeBouseuh</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#25DA4E; --tg-b:#F0F048">
-          <div class="team-visual"><span class="display team-name">Michou</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 2</span><b class="team-no" aria-hidden="true">02</b><span class="team-name">Michou</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#446DBB; --tg-b:#323950">
-          <div class="team-visual"><span class="display team-name">Ihlan</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 3</span><b class="team-no" aria-hidden="true">03</b><span class="team-name">Ihlan</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#F03B2B; --tg-b:#FF6D00">
-          <div class="team-visual"><span class="display team-name">Domingo</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 4</span><b class="team-no" aria-hidden="true">04</b><span class="team-name">Domingo</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#FE628A; --tg-b:#D10146">
-          <div class="team-visual"><span class="display team-name">Inox</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 5</span><b class="team-no" aria-hidden="true">05</b><span class="team-name">Inox</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#FFCA00; --tg-b:#FF366D">
-          <div class="team-visual"><span class="display team-name">Valouzz</span></div>
-          <p class="team-status">Capitaine confirmé · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 6</span><b class="team-no" aria-hidden="true">06</b><span class="team-name">Valouzz</span></div>
+          <p class="team-status">Capitaine confirmé, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team" style="--tg-a:#DD2991; --tg-b:#630053">
-          <div class="team-visual"><span class="display team-name">Natoo</span></div>
-          <p class="team-status">Capitaine confirmée · coéquipier bientôt dévoilé</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 7</span><b class="team-no" aria-hidden="true">07</b><span class="team-name">Natoo</span></div>
+          <p class="team-status">Capitaine confirmée, coéquipier bientôt dévoilé</p>
         </li>
         <li class="team team-mystere" style="--tg-a:#00D1FF; --tg-b:#124E67">
-          <div class="team-visual"><span class="display team-name">???</span></div>
-          <p class="team-status">Huitième duo · révélation à venir</p>
+          <div class="team-visual"><span class="tag team-tag">Équipe 8</span><b class="team-no" aria-hidden="true">08</b><span class="team-name">???</span></div>
+          <p class="team-status">Huitième duo, révélation à venir</p>
         </li>
       </ul>
     </div>
   </section>
 
   <!-- ====================== TOURNOI AMATEUR ====================== -->
-  <section class="section section-anis" id="tournoi-amateur">
-    <div class="wrap">
-      <h2 class="display section-title">Tournoi amateur</h2>
-      <p class="section-intro">Tu joues aux fléchettes, même juste au bar avec les potes ? Cette fois tu peux viser la même scène que les créateurs.</p>
-      <ol class="steps">
-        <li class="step">
-          <p class="step-when">D'ici le printemps 2027</p>
-          <h3 class="display step-title">Qualifications</h3>
-          <p>Des soirées de qualification organisées dans des bars partenaires, partout en France. Tu t'inscris en équipe de deux, tu joues, les meilleurs duos décrochent leur place.</p>
+  <section class="s s-amateur" id="tournoi-amateur">
+    <span class="ghost" aria-hidden="true">Amateur</span>
+    <span class="shard shard-b" aria-hidden="true"></span>
+    <div class="s-in">
+      <div class="head-row">
+        <h2 class="lockup lockup-ink"><span class="lk-a">Tournoi</span><span class="lk-b">Amateur</span></h2>
+        <p class="head-note">Tu joues aux fléchettes, même juste au bar avec les potes ? Cette fois tu peux viser la même scène que les créateurs.</p>
+      </div>
+      <ol class="track">
+        <li>
+          <span class="tag">D'ici le printemps 2027</span>
+          <h3>Qualifications</h3>
+          <p>Des soirées de qualification dans des bars partenaires, partout en France. Tu t'inscris en équipe de deux, tu joues, les meilleurs duos décrochent leur place.</p>
         </li>
-        <li class="step">
-          <p class="step-when">12 juin 2027, en journée</p>
-          <h3 class="display step-title">Tournoi du jour J</h3>
+        <li>
+          <span class="tag">12 juin 2027, en journée</span>
+          <h3>Le jour J</h3>
           <p>Les duos qualifiés s'affrontent sur place, avant le show du soir. Du vrai 301, un arbitrage officiel et le public qui commence à chauffer la salle.</p>
         </li>
-        <li class="step">
-          <p class="step-when">Le soir même</p>
-          <h3 class="display step-title">La scène</h3>
+        <li>
+          <span class="tag">Le soir même</span>
+          <h3>La scène</h3>
           <p>Le duo vainqueur monte sur la scène de la Fléchettes Cup devant 3 000 personnes. Oui, la vraie scène, celle du live.</p>
         </li>
       </ol>
-      <div class="amateur-cta">
+      <div class="amateur-foot">
         <p>Les inscriptions ouvrent bientôt. Le règlement complet sera téléchargeable ici.</p>
         <a class="btn btn-dark btn-big" href="#alertes">Être prévenu de l'ouverture</a>
       </div>
-      <div class="tools-links">
-        <a class="tool-link" href="bars.html">
-          <span class="display">Trouver un bar à fléchettes</span>
-          <span>La carte des bars où jouer près de chez toi, et bientôt ceux où se qualifier.</span>
+      <div class="tools">
+        <a class="tool" href="bars.html">
+          <span class="tag">La carte</span>
+          <b>Trouver un bar à fléchettes</b>
+          <span>Les bars où jouer près de chez toi, et bientôt ceux où se qualifier.</span>
+          <span class="tri3" aria-hidden="true"><i></i><i></i><i></i></span>
         </a>
-        <a class="tool-link" href="jouer.html">
-          <span class="display">Règles et compteur de score</span>
+        <a class="tool" href="jouer.html">
+          <span class="tag">L'appli</span>
+          <b>Règles et compteur de score</b>
           <span>Le 301, le 501 et le Cricket expliqués simplement, et un compteur à poser près de la cible.</span>
+          <span class="tri3" aria-hidden="true"><i></i><i></i><i></i></span>
         </a>
       </div>
     </div>
   </section>
 
   <!-- ====================== PROGRAMME ====================== -->
-  <section class="section section-paper" id="programme">
-    <div class="wrap">
-      <h2 class="display section-title">Programme et infos pratiques</h2>
-      <div class="programme-grid">
-        <ol class="timeline">
-          <li><span class="time display">13:30</span><div><h3>Ouverture des portes</h3><p>Village fléchettes, animations et finales du tournoi amateur.</p></div></li>
-          <li><span class="time display">18:00</span><div><h3>Pré-show</h3><p>Présentation des duos, walk-ons et derniers pronostics.</p></div></li>
-          <li><span class="time display">19:15</span><div><h3>Début du live</h3><p>Coup d'envoi du tournoi principal, en direct sur Twitch et à la télévision.</p></div></li>
-          <li><span class="time display">22:30</span><div><h3>Finale</h3><p>Les deux derniers duos, le trophée, et une salle debout.</p></div></li>
+  <section class="s s-prog" id="programme">
+    <span class="ghost" aria-hidden="true">12.06</span>
+    <div class="s-in">
+      <h2 class="lockup"><span class="lk-a">Le</span><span class="lk-b">Programme</span></h2>
+      <div class="prog-grid">
+        <ol class="slots">
+          <li class="slot"><p class="slot-time"><b>13</b><b>30</b></p><div><h3>Ouverture des portes</h3><p>Village fléchettes, animations et finales du tournoi amateur.</p></div></li>
+          <li class="slot"><p class="slot-time"><b>18</b><b>00</b></p><div><h3>Pré-show</h3><p>Présentation des duos, walk-ons et derniers pronostics.</p></div></li>
+          <li class="slot"><p class="slot-time"><b>19</b><b>15</b></p><div><h3>Début du live</h3><p>Coup d'envoi du tournoi principal, en direct sur Twitch et à la télévision.</p></div></li>
+          <li class="slot"><p class="slot-time"><b>22</b><b>30</b></p><div><h3>Finale</h3><p>Les deux derniers duos, le trophée, et une salle debout.</p></div></li>
         </ol>
-        <aside class="infos-pratiques">
-          <h3 class="display infos-title">Le 12 juin 2027</h3>
+        <aside class="infos">
+          <h3 class="tag">Infos pratiques</h3>
           <dl>
             <div><dt>Lieu</dt><dd>Annonce très bientôt. Une salle d'environ 3 000 places, pensée pour le show.</dd></div>
             <div><dt>Horaires</dt><dd>Programme indicatif : les horaires définitifs seront confirmés avec la billetterie.</dd></div>
             <div><dt>Accès</dt><dd>Toutes les infos transport et accessibilité seront publiées avec l'annonce du lieu.</dd></div>
           </dl>
+          <span class="sq3" aria-hidden="true"><i></i><i></i><i></i></span>
         </aside>
       </div>
     </div>
   </section>
 
   <!-- ====================== OÙ REGARDER ====================== -->
-  <section class="section section-dark" id="ou-regarder">
-    <div class="wrap">
-      <h2 class="display section-title">Où regarder</h2>
-      <div class="watch-grid">
-        <a class="watch-card watch-twitch" href="https://www.twitch.tv/lebouseuh" rel="noopener">
-          <span class="watch-kicker">En direct et gratuit</span>
-          <span class="display watch-name">twitch.tv/lebouseuh</span>
-          <span class="watch-note">Le player sera intégré ici le jour J</span>
-        </a>
-        <div class="watch-card watch-tv">
-          <span class="watch-kicker">Et à la télévision</span>
-          <span class="display watch-name">Chaîne à confirmer</span>
-          <span class="watch-note">L'édition 1 était diffusée sur RMC Découverte</span>
-        </div>
-      </div>
+  <section class="s-watch" id="ou-regarder">
+    <a class="watch-live" href="https://www.twitch.tv/lebouseuh" rel="noopener">
+      <span class="ghost" aria-hidden="true">En direct</span>
+      <span class="tag">Où regarder : en direct et gratuit</span>
+      <span class="lockup"><span class="lk-a">twitch.tv</span><span class="lk-b">LeBouseuh</span></span>
+      <span class="watch-note">Le player sera intégré ici le jour J</span>
+      <span class="tri3" aria-hidden="true"><i></i><i></i><i></i></span>
+    </a>
+    <div class="watch-tv">
+      <span class="tag">Et à la télévision</span>
+      <b>Chaîne à confirmer</b>
+      <span class="watch-note">L'édition 1 était diffusée sur RMC Découverte</span>
     </div>
   </section>
 
   <!-- ====================== BILLETTERIE ====================== -->
-  <section class="section section-violet" id="billetterie">
-    <div class="wrap">
-      <h2 class="display section-title">Billetterie</h2>
-      <div class="phase2-grid">
-        <div class="phase2-text">
-          <p class="lead">Ouverture en mars 2027. Environ 3 000 places, et l'édition 1 affichait complet.</p>
-          <p>Achat rapide pensé pour le mobile, e-billet avec QR code et limite de billets par personne pour laisser une chance à tout le monde. Quand c'est complet, c'est complet.</p>
-        </div>
-        <form class="alert-form" id="alertes" novalidate>
-          <label for="email-alerte">Sois prévenu avant tout le monde</label>
-          <p class="form-hint">Ouverture de la billetterie, mise en vente des maillots, inscriptions au tournoi amateur : une alerte par mail, rien d'autre.</p>
-          <div class="form-row">
-            <input id="email-alerte" name="email" type="email" required placeholder="ton@email.fr" autocomplete="email">
-            <button class="btn btn-anis" type="submit">M'alerter</button>
-          </div>
-          <p class="form-done" hidden>C'est noté ! Tu recevras les alertes de la Fléchettes Cup.</p>
-        </form>
+  <section class="s s-tickets" id="billetterie">
+    <span class="ghost" aria-hidden="true">Billets</span>
+    <div class="s-in tickets-grid">
+      <div>
+        <h2 class="lockup lockup-ink"><span class="lk-a">La</span><span class="lk-b">Billetterie</span></h2>
+        <p class="lead">Ouverture en mars 2027. Environ 3 000 places, et l'édition 1 affichait complet.</p>
+        <p>Achat rapide pensé pour le mobile, e-billet avec QR code et limite de billets par personne pour laisser une chance à tout le monde. Quand c'est complet, c'est complet.</p>
       </div>
+      <form class="alert-form" id="alertes" novalidate>
+        <label for="email-alerte">Sois prévenu en premier</label>
+        <p class="form-hint">Ouverture de la billetterie, mise en vente des maillots, inscriptions au tournoi amateur : une alerte par mail, rien d'autre.</p>
+        <div class="form-row">
+          <input id="email-alerte" name="email" type="email" required placeholder="ton@email.fr" autocomplete="email">
+          <button class="btn btn-anis" type="submit">M'alerter</button>
+        </div>
+        <p class="form-done" hidden>C'est noté ! Tu recevras les alertes de la Fléchettes Cup.</p>
+      </form>
     </div>
   </section>
 
   <!-- ====================== BOUTIQUE ====================== -->
-  <section class="section section-paper" id="boutique">
-    <div class="wrap">
-      <h2 class="display section-title">Boutique</h2>
-      <div class="shop-intro">
-        <p class="lead">Un maillot officiel par équipe, en édition unique. Quand ton équipe est en rupture, elle le reste.</p>
-        <p>Mise en vente en mars 2027, en ligne et en retrait sur place le jour J. Production limitée, pas de réassort.</p>
+  <section class="s s-shop" id="boutique">
+    <span class="ghost" aria-hidden="true">Merch</span>
+    <div class="s-in">
+      <div class="head-row">
+        <h2 class="lockup"><span class="lk-a">La</span><span class="lk-b">Boutique</span></h2>
+        <div class="head-note">
+          <p class="lead">Un maillot officiel par équipe, en édition unique. Quand ton équipe est en rupture, elle le reste.</p>
+          <p>Mise en vente en mars 2027, en ligne et en retrait sur place le jour J.</p>
+        </div>
       </div>
       <ul class="jerseys">
-        <li style="--tg-a:#F48227; --tg-b:#F7CB3E"><span class="jersey"></span><span class="jersey-team">LeBouseuh</span></li>
-        <li style="--tg-a:#25DA4E; --tg-b:#F0F048"><span class="jersey"></span><span class="jersey-team">Michou</span></li>
-        <li style="--tg-a:#446DBB; --tg-b:#323950"><span class="jersey"></span><span class="jersey-team">Ihlan</span></li>
-        <li style="--tg-a:#F03B2B; --tg-b:#FF6D00"><span class="jersey"></span><span class="jersey-team">Domingo</span></li>
-        <li style="--tg-a:#FE628A; --tg-b:#D10146"><span class="jersey"></span><span class="jersey-team">Inox</span></li>
-        <li style="--tg-a:#FFCA00; --tg-b:#FF366D"><span class="jersey"></span><span class="jersey-team">Valouzz</span></li>
-        <li style="--tg-a:#DD2991; --tg-b:#630053"><span class="jersey"></span><span class="jersey-team">Natoo</span></li>
-        <li style="--tg-a:#00D1FF; --tg-b:#124E67"><span class="jersey jersey-mystere"></span><span class="jersey-team">???</span></li>
+        <li style="--tg-a:#F48227; --tg-b:#F7CB3E"><span class="jersey"></span><span class="tag">LeBouseuh</span></li>
+        <li style="--tg-a:#25DA4E; --tg-b:#F0F048"><span class="jersey"></span><span class="tag">Michou</span></li>
+        <li style="--tg-a:#446DBB; --tg-b:#323950"><span class="jersey"></span><span class="tag">Ihlan</span></li>
+        <li style="--tg-a:#F03B2B; --tg-b:#FF6D00"><span class="jersey"></span><span class="tag">Domingo</span></li>
+        <li style="--tg-a:#FE628A; --tg-b:#D10146"><span class="jersey"></span><span class="tag">Inox</span></li>
+        <li style="--tg-a:#FFCA00; --tg-b:#FF366D"><span class="jersey"></span><span class="tag">Valouzz</span></li>
+        <li style="--tg-a:#DD2991; --tg-b:#630053"><span class="jersey"></span><span class="tag">Natoo</span></li>
+        <li class="jersey-mystere" style="--tg-a:#00D1FF; --tg-b:#124E67"><span class="jersey"></span><span class="tag">???</span></li>
       </ul>
+      <p class="stamp">Production limitée, pas de réassort</p>
     </div>
   </section>
 
-  <!-- ====================== BEST OF ÉDITION 1 ====================== -->
-  <section class="section section-dark" id="best-of">
-    <div class="wrap">
-      <h2 class="display section-title">L'édition 1 en chiffres</h2>
-      <p class="section-intro">Le 16 mai 2026, au Théâtre Barrière de Lille, personne ne savait encore que des fléchettes pouvaient faire ça.</p>
-      <ul class="stats">
-        <li><span class="display stat-num">1,9&nbsp;M</span><span class="stat-label">de vues sur Twitch</span></li>
-        <li><span class="display stat-num">109&nbsp;000</span><span class="stat-label">spectateurs en pic</span></li>
-        <li><span class="display stat-num">2,6&nbsp;M</span><span class="stat-label">de téléspectateurs en cumulé</span></li>
-        <li><span class="display stat-num">122&nbsp;M</span><span class="stat-label">de vues et impressions</span></li>
-        <li><span class="display stat-num">14</span><span class="stat-label">matchs entre 8 duos</span></li>
-        <li><span class="display stat-num">1&nbsp;000</span><span class="stat-label">personnes dans la salle</span></li>
-      </ul>
-      <p class="bestof-note">Le trophée est reparti avec Elian et Raska. Les meilleurs moments arriveront ici, en attendant le replay reste disponible sur les chaînes des créateurs.</p>
+  <!-- ====================== ÉDITION 1 ====================== -->
+  <section class="s s-past" id="best-of">
+    <span class="ghost" aria-hidden="true">2026</span>
+    <div class="s-in past-grid">
+      <figure class="winners">
+        <img src="assets/vainqueurs-edition-1.jpg" alt="Elian et Raska soulèvent le trophée de la Fléchettes Cup sur scène" loading="lazy" width="485" height="635">
+        <figcaption><span class="tag">Vainqueurs 2026</span><b>Elian et Raska</b></figcaption>
+      </figure>
+      <div class="past-copy">
+        <h2 class="lockup"><span class="lk-a">L'édition 1</span><span class="lk-b">en chiffres</span></h2>
+        <p class="past-intro">Le 16 mai 2026, au Théâtre Barrière de Lille, personne ne savait encore que des fléchettes pouvaient faire ça.</p>
+        <p class="past-hero"><b class="stat-num">1,9&nbsp;M</b><span class="tag">de vues sur Twitch</span></p>
+        <ul class="past-list">
+          <li><b class="stat-num">109&nbsp;000</b><span class="tag">spectateurs en pic</span></li>
+          <li><b class="stat-num">2,6&nbsp;M</b><span class="tag">de téléspectateurs en cumulé</span></li>
+          <li><b class="stat-num">122&nbsp;M</b><span class="tag">de vues et impressions</span></li>
+          <li><b class="stat-num">14</b><span class="tag">matchs entre 8 duos</span></li>
+          <li><b class="stat-num">1&nbsp;000</b><span class="tag">personnes dans la salle</span></li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <!-- ====================== PARTENAIRES ====================== -->
-  <section class="section section-paper" id="partenaires">
-    <div class="wrap">
-      <h2 class="display section-title">Partenaires</h2>
-      <p class="section-intro">Ils rendent la Fléchettes Cup possible. Les partenaires de l'édition 2 seront annoncés prochainement.</p>
-      <ul class="partners">
-        <li>Partenaire</li><li>Partenaire</li><li>Partenaire</li><li>Partenaire</li><li>Partenaire</li><li>Partenaire</li>
-      </ul>
-    </div>
+  <section class="s-partners" id="partenaires">
+    <h2 class="tag">Partenaires</h2>
+    <p>Les partenaires de l'édition 2 seront annoncés prochainement.</p>
+    <span class="sq3" aria-hidden="true"><i></i><i></i><i></i></span>
   </section>
 
   <!-- ====================== FAQ ====================== -->
-  <section class="section section-violet" id="faq">
-    <div class="wrap wrap-narrow">
-      <h2 class="display section-title">FAQ</h2>
-      <details>
-        <summary>Quand est-ce que je peux acheter mes billets ?</summary>
-        <p>La billetterie ouvre en mars 2027. Inscris-toi aux alertes pour recevoir la date et l'heure exactes : l'édition 1 était complète, ça devrait partir vite.</p>
-      </details>
-      <details>
-        <summary>Où a lieu l'édition 2 ?</summary>
-        <p>Le lieu sera annoncé très bientôt. Ce qu'on peut dire : une salle d'environ 3 000 places, et toutes les infos d'accès seront publiées ici au même moment.</p>
-      </details>
-      <details>
-        <summary>Comment participer au tournoi amateur ?</summary>
-        <p>Les qualifications se jouent en bars, en équipe de deux, avant le tournoi du jour J. Les inscriptions et le règlement complet arrivent sur cette page.</p>
-      </details>
-      <details>
-        <summary>Les maillots seront réassortis ?</summary>
-        <p>Non. Un maillot par équipe, une seule production, stock limité. Une fois épuisé, c'est définitif.</p>
-      </details>
-      <details>
-        <summary>Je ne peux pas venir, je rate tout ?</summary>
-        <p>Non : tout le tournoi est diffusé gratuitement en direct sur la chaîne Twitch de LeBouseuh, et à la télévision. Le player sera intégré sur cette page le jour J.</p>
-      </details>
-      <details>
-        <summary>L'événement est accessible à tous ?</summary>
-        <p>Oui, l'événement est ouvert à tous les âges. Les infos d'accessibilité détaillées (PMR, transports) seront publiées avec l'annonce du lieu.</p>
-      </details>
+  <section class="s s-faq" id="faq">
+    <span class="ghost" aria-hidden="true">FAQ</span>
+    <div class="s-in faq-grid">
+      <h2 class="lockup"><span class="lk-a">Questions</span><span class="lk-b">Réponses</span></h2>
+      <div class="faq-list">
+        <details>
+          <summary>Quand est-ce que je peux acheter mes billets ?</summary>
+          <p>La billetterie ouvre en mars 2027. Inscris-toi aux alertes pour recevoir la date et l'heure exactes : l'édition 1 était complète, ça devrait partir vite.</p>
+        </details>
+        <details>
+          <summary>Où a lieu l'édition 2 ?</summary>
+          <p>Le lieu sera annoncé très bientôt. Ce qu'on peut dire : une salle d'environ 3 000 places, et toutes les infos d'accès seront publiées ici au même moment.</p>
+        </details>
+        <details>
+          <summary>Comment participer au tournoi amateur ?</summary>
+          <p>Les qualifications se jouent en bars, en équipe de deux, avant le tournoi du jour J. Les inscriptions et le règlement complet arrivent sur cette page.</p>
+        </details>
+        <details>
+          <summary>Les maillots seront réassortis ?</summary>
+          <p>Non. Un maillot par équipe, une seule production, stock limité. Une fois épuisé, c'est définitif.</p>
+        </details>
+        <details>
+          <summary>Je ne peux pas venir, je rate tout ?</summary>
+          <p>Non : tout le tournoi est diffusé gratuitement en direct sur la chaîne Twitch de LeBouseuh, et à la télévision. Le player sera intégré sur cette page le jour J.</p>
+        </details>
+        <details>
+          <summary>L'événement est accessible à tous ?</summary>
+          <p>Oui, l'événement est ouvert à tous les âges. Les infos d'accessibilité détaillées (PMR, transports) seront publiées avec l'annonce du lieu.</p>
+        </details>
+      </div>
     </div>
   </section>
 
 </main>
 
 <footer class="footer">
-  <div class="wrap footer-grid">
-    <div class="footer-brand">
-      <svg class="logo logo-footer" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
-        <g class="logo-ink">
-          <text x="2" y="24" class="logo-line1">FLECHETTES</text>
-          <text x="0" y="74" class="logo-line2">CUP</text>
-          <path d="M88 52 L112 58 L88 66 Z"></path>
-        </g>
-      </svg>
-      <p>Un événement porté par LeBouseuh, organisé par Webedia.</p>
-    </div>
+  <div class="footer-in">
+    <p class="footer-line">Un événement porté par LeBouseuh, organisé par Webedia.</p>
     <nav class="footer-nav" aria-label="Pied de page">
       <ul>
         <li><a href="#concept">Le concept</a></li>
         <li><a href="#equipes">Les équipes</a></li>
         <li><a href="#tournoi-amateur">Tournoi amateur</a></li>
+        <li><a href="#programme">Programme</a></li>
+        <li><a href="#ou-regarder">Où regarder</a></li>
+      </ul>
+      <ul>
         <li><a href="#billetterie">Billetterie</a></li>
         <li><a href="#boutique">Boutique</a></li>
         <li><a href="bars.html">Bars à fléchettes</a></li>
         <li><a href="jouer.html">Règles et compteur</a></li>
+        <li><a href="#faq">Questions</a></li>
       </ul>
       <ul>
         <li><a href="#">Contact</a></li>
@@ -445,7 +475,8 @@
       </ul>
     </nav>
   </div>
-  <p class="footer-base">Fléchettes Cup 2027 · twitch.tv/lebouseuh</p>
+  <p class="footer-ghost" aria-hidden="true">Fléchettes Cup</p>
+  <div class="footer-strip"><span>Fléchettes</span><span>Cup</span><span>2027</span></div>
 </footer>
 
 <script src="js/vendor/three.min.js"></script>

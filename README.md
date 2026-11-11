@@ -19,16 +19,27 @@ Site one-page de la deuxième édition de la Fléchettes Cup (12 juin 2027), le 
 - La cible est jouable après l'intro : un clic lance une fléchette là où l'on vise (avec un peu de dispersion), le score du lancer s'affiche, et le total de la volée après trois fléchettes
 - Son synthétisé dans le navigateur, sans fichier audio : souffle du lancer, choc dans le sisal, choc plus sec dans le bois. Il ne joue qu'après un geste du visiteur (règle des navigateurs) et se coupe avec le bouton en bas à gauche de la cible ; le choix est mémorisé
 - Écran de chargement dans la pénombre du bar le temps que la scène se construise
-- Dans la page : une fléchette vient se planter dans chaque titre de section à son arrivée à l'écran, les chiffres de l'édition 1 montent jusqu'à leur valeur, les cartes des équipes s'inclinent sous le pointeur
+- Dans la page : les chiffres de l'édition 1 montent jusqu'à leur valeur, les cartes des équipes s'inclinent sous le pointeur
 - Aperçu de partage (`assets/partage.jpg` et balises Open Graph) : les adresses sont relatives, à rendre absolues une fois le domaine connu
 - Repli sans WebGL : la même cible peinte à plat avec les éléments en HTML, sans intro
 - Sections dans l'ordre du cahier des charges : concept, équipes (révélation progressive), tournoi amateur, programme et infos pratiques, où regarder, billetterie (teaser phase 2), boutique (teaser phase 2), best of édition 1, partenaires, FAQ
 - Compte à rebours jusqu'au 12 juin 2027, formulaire d'alertes (front seul en phase 1)
-- Mobile first, sans framework : HTML, CSS et JS vanilla, aucune étape de build. three.js r128 est embarqué dans `js/vendor/` (licence MIT), la scène est dans `js/scene.js`. Les styles des pages outils sont dans `css/app.css`
+- Mobile first, sans framework : HTML, CSS et JS vanilla, aucune étape de build. three.js r128 est embarqué dans `js/vendor/` (licence MIT), la scène est dans `js/scene.js`
 
 ## DA
 
-Reprise de la brand guideline 2026 : violet #5B1DDA, dégradé #5012D4 → #210666, dark violet #160444, vert anis, pattern soleil denté (`assets/pattern.svg`, généré par script), dégradés officiels des 8 équipes. Typo Baikal VAR remplacée par Archivo variable (largeur 62 %, extra bold, italique) via Google Fonts.
+L'habillage des pages applique le système de la brand guideline 2026, tel qu'il apparaît dans ses visuels :
+
+- le rail à gauche (bloc logo vert anis, colonne grise, « Flechettes Cup 2027 » à la verticale) et la barre du haut en blocs de couleur pleins ;
+- les titres en bloc incliné sur deux lignes, posés sur un mot géant qui déborde du cadre ;
+- les chiffres empilés en deux couleurs dans un panneau gris souligné d'une bande (compte à rebours, horaires du programme, score du compteur) ;
+- les cartes d'équipes : bloc aux couleurs de l'équipe (emplacement du futur portrait), numéro en dégradé, nom incliné ;
+- les ponctuations : libellés en petites capitales larges, trois carrés, trois triangles, éclats en dents de scie ;
+- aucun arrondi, aucune ombre portée, aucune grille de cartes identiques.
+
+Couleurs : violet #5B1DDA, dégradé #5012D4 vers #210666, dark violet #160444, gris #E3E3E3, vert anis, dégradés officiels des 8 équipes. Typo Baikal VAR remplacée par Archivo variable (condensée pour les titres et les chiffres, large pour les libellés).
+
+Fichiers : `css/styles.css` (socle et hero), `css/da.css` (habillage commun aux trois pages), `css/app.css` (compteur, règles, carte).
 
 ## Photo des vainqueurs
 

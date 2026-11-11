@@ -10,11 +10,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/da.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
 <a class="skip" href="#compteur">Aller au compteur</a>
+
+<aside class="rail">
+  <a class="rail-logo" href="index.html" aria-label="Fléchettes Cup, retour à l'accueil">
+    <svg class="logo" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
+      <g class="logo-ink">
+        <text x="2" y="24" class="logo-line1">FLECHETTES</text>
+        <text x="0" y="74" class="logo-line2">CUP</text>
+        <path d="M88 52 L112 58 L88 66 Z"></path>
+      </g>
+    </svg>
+  </a>
+  <div class="rail-words" aria-hidden="true"><span class="tag">Flechettes</span><span class="tag">Cup</span><span class="tag">2027</span></div>
+  <div class="rail-foot"></div>
+</aside>
 
 <header class="topbar" id="haut">
   <a class="topbar-logo" href="index.html" aria-label="Fléchettes Cup, retour à l'accueil">
@@ -32,29 +47,32 @@
       <span class="visually-hidden">Menu</span>
     </button>
     <ul class="anchors" id="menu-ancres">
-      <li><a href="index.html">Accueil</a></li>
-      <li><a href="jouer.html" aria-current="page">Règles et compteur</a></li>
-      <li><a href="bars.html">Bars à fléchettes</a></li>
-      <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+      <li><a class="tag" href="index.html">Accueil</a></li>
+      <li><a class="tag" href="jouer.html" aria-current="page">Règles et compteur</a></li>
+      <li><a class="tag" href="bars.html">Bars à fléchettes</a></li>
+      <li><a class="tag" href="index.html#tournoi-amateur">Tournoi amateur</a></li>
     </ul>
   </nav>
   <div class="topbar-cta">
-    <a class="btn btn-anis" href="index.html#billetterie">Billetterie</a>
-    <a class="btn btn-ghost" href="index.html#boutique">Boutique</a>
+    <a class="cta cta-anis tag" href="index.html#billetterie">Billetterie</a>
+    <a class="cta cta-violet tag" href="index.html#boutique">Boutique</a>
   </div>
 </header>
 
 <main class="page">
 
-  <section class="page-head">
-    <div class="wrap">
-      <h1 class="display page-title">Compte tes points</h1>
-      <p class="page-lead">Pose ton téléphone près de la cible, touche le secteur atteint après chaque fléchette : le compteur fait les soustractions, repère les bust et te souffle les finish.</p>
-      <ul class="subnav" aria-label="Sur cette page">
-        <li><a href="#compteur">Le compteur</a></li>
-        <li><a href="#regles">Les règles</a></li>
-        <li><a href="bars.html">Trouver un bar</a></li>
-      </ul>
+  <section class="s page-head">
+    <span class="ghost" aria-hidden="true">Game on</span>
+    <div class="s-in head-row">
+      <h1 class="lockup"><span class="lk-a">Compte</span><span class="lk-b">tes points</span></h1>
+      <div class="head-note">
+        <p>Pose ton téléphone près de la cible et touche le secteur atteint après chaque fléchette. Le compteur fait les soustractions, repère les bust et te souffle les finish.</p>
+        <ul class="subnav" aria-label="Sur cette page">
+          <li><a class="tag" href="#compteur">Le compteur</a></li>
+          <li><a class="tag" href="#regles">Les règles</a></li>
+          <li><a class="tag" href="bars.html">Trouver un bar</a></li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -66,14 +84,15 @@
   </section>
 
   <!-- ====================== RÈGLES ====================== -->
-  <section class="section section-paper" id="regles">
-    <div class="wrap">
-      <h2 class="display section-title">Les règles</h2>
+  <section class="s s-rules" id="regles">
+    <span class="ghost" aria-hidden="true">Règles</span>
+    <div class="s-in">
+      <h2 class="lockup lockup-ink"><span class="lk-a">Les</span><span class="lk-b">Règles</span></h2>
       <div class="rules">
 
         <article class="rule" id="regle-cible">
           <div>
-            <h3 class="display rule-title">La cible</h3>
+            <h3 class="rule-title">La cible</h3>
             <svg class="board-diagram" viewBox="0 0 200 200" role="img" aria-label="Schéma d'une cible : vingt secteurs, un anneau des doubles à l'extérieur, un anneau des triples au milieu, et le bull au centre">
               <circle cx="100" cy="100" r="99" fill="#181512"/>
               <circle cx="100" cy="100" r="85" fill="#E0D2AD"/>
@@ -106,7 +125,7 @@
         </article>
 
         <article class="rule" id="regle-301">
-          <h3 class="display rule-title">Le 301 et le 501</h3>
+          <h3 class="rule-title">Le 301 et le 501</h3>
           <div class="rule-body">
             <p>Chacun part de 301 (ou 501) et doit arriver <strong>exactement à zéro</strong> avant l'autre.</p>
             <ol>
@@ -122,7 +141,7 @@
         </article>
 
         <article class="rule" id="regle-cricket">
-          <h3 class="display rule-title">Le Cricket</h3>
+          <h3 class="rule-title">Le Cricket</h3>
           <div class="rule-body">
             <p>Ici on ne vise que sept cases : les secteurs 15 à 20 et le bull.</p>
             <ol>
@@ -135,7 +154,7 @@
         </article>
 
         <article class="rule" id="regle-lexique">
-          <h3 class="display rule-title">Le vocabulaire</h3>
+          <h3 class="rule-title">Le vocabulaire</h3>
           <div class="rule-body">
             <dl>
               <div><dt>Volée</dt><dd>Les trois fléchettes que tu lances à ton tour.</dd></div>
@@ -155,24 +174,20 @@
 </main>
 
 <footer class="footer">
-  <div class="wrap footer-grid">
-    <div class="footer-brand">
-      <svg class="logo logo-footer" viewBox="0 0 120 86" aria-hidden="true" focusable="false">
-        <g class="logo-ink">
-          <text x="2" y="24" class="logo-line1">FLECHETTES</text>
-          <text x="0" y="74" class="logo-line2">CUP</text>
-          <path d="M88 52 L112 58 L88 66 Z"></path>
-        </g>
-      </svg>
-      <p>Un événement porté par LeBouseuh, organisé par Webedia.</p>
-    </div>
+  <div class="footer-in">
+    <p class="footer-line">Un événement porté par LeBouseuh, organisé par Webedia.</p>
     <nav class="footer-nav" aria-label="Pied de page">
       <ul>
         <li><a href="index.html">Accueil</a></li>
-        <li><a href="jouer.html">Règles et compteur</a></li>
-        <li><a href="bars.html">Bars à fléchettes</a></li>
+        <li><a href="index.html#equipes">Les équipes</a></li>
         <li><a href="index.html#tournoi-amateur">Tournoi amateur</a></li>
+        <li><a href="index.html#programme">Programme</a></li>
+      </ul>
+      <ul>
         <li><a href="index.html#billetterie">Billetterie</a></li>
+        <li><a href="index.html#boutique">Boutique</a></li>
+        <li><a href="bars.html">Bars à fléchettes</a></li>
+        <li><a href="jouer.html">Règles et compteur</a></li>
       </ul>
       <ul>
         <li><a href="#">Contact</a></li>
@@ -181,7 +196,8 @@
       </ul>
     </nav>
   </div>
-  <p class="footer-base">Fléchettes Cup 2027 · twitch.tv/lebouseuh</p>
+  <p class="footer-ghost" aria-hidden="true">Fléchettes Cup</p>
+  <div class="footer-strip"><span>Fléchettes</span><span>Cup</span><span>2027</span></div>
 </footer>
 
 <script src="js/scorer-engine.js"></script>

@@ -76,31 +76,12 @@
   });
 })();
 
-/* ---------- Le motif de la page : fléchettes dans les titres, chiffres qui montent, cartes qui s'inclinent ---------- */
+/* ---------- Dans la page : chiffres qui montent, cartes d'équipes qui s'inclinent ---------- */
 (function motifs() {
   const root = document.documentElement;
   root.classList.add('js');
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const watch = 'IntersectionObserver' in window && !calm;
-
-  const DART = '<svg class="title-dart" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' +
-    '<path d="M2 30 L12 20" stroke="#C9C9D2" stroke-width="1.6" stroke-linecap="round"/>' +
-    '<path d="M11 21 L19 13" stroke="#8E8F97" stroke-width="3.8" stroke-linecap="round"/>' +
-    '<path d="M19 13 L23.5 8.5" stroke="var(--dart-b)" stroke-width="1.9"/>' +
-    '<path d="M22 10 L22.5 1.5 L30.5 1.5 Z" fill="var(--dart-a)"/>' +
-    '<path d="M22 10 L30.5 1.5 L30.5 9.5 Z" fill="var(--dart-b)"/></svg>';
-  const titles = Array.from(document.querySelectorAll('.section-title'));
-  titles.forEach(t => t.insertAdjacentHTML('afterbegin', DART));
-  if (watch) {
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      if (!e.isIntersecting) return;
-      e.target.classList.add('landed');
-      io.unobserve(e.target);
-    }), { threshold: 0.7 });
-    titles.forEach(t => io.observe(t));
-  } else {
-    titles.forEach(t => t.classList.add('landed', 'still'));
-  }
 
   // Les chiffres de l'édition 1 montent jusqu'à leur valeur, dans leur écriture d'origine
   const nums = Array.from(document.querySelectorAll('.stat-num'));
@@ -140,8 +121,6 @@
         const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
         v.style.setProperty('--ry', ((x - 0.5) * 16).toFixed(1) + 'deg');
         v.style.setProperty('--rx', ((0.5 - y) * 14).toFixed(1) + 'deg');
-        v.style.setProperty('--mx', (x * 100).toFixed(0) + '%');
-        v.style.setProperty('--my', (y * 100).toFixed(0) + '%');
       });
       card.addEventListener('pointerleave', () => { v.style.setProperty('--rx', '0deg'); v.style.setProperty('--ry', '0deg'); });
     });
