@@ -1,9 +1,8 @@
-/* Fléchettes Cup 2 : la cible dans son bar, et l'intro 3D en vue subjective.
-   On chevauche la première fléchette (caméra derrière les ailettes, mise au point
-   sur la cible) : visée, armé, vol, impact sur le ticket de la billetterie.
-   La caméra se détache et recule pour se caler sur l'emplacement de la cible dans
-   la page, pendant que les autres fléchettes viennent clouer chacune une section
-   du site. Chaque papier est ensuite un lien vers sa section. */
+/* Fléchettes Cup 2 : la cible dans son bar, en 3D.
+   Intro : plan large, LeBouseuh enchaîne les fléchettes de loin. Aucune ne touche la cible,
+   elles se plantent dans le bois autour en clouant chacune une section du site (« Raté ! »).
+   La caméra vient ensuite se caler sur la cible, restée vide : le visiteur peut jouer
+   (viseur, partie et classement sont dans game.js). Chaque papier est un lien vers sa section. */
 (function () {
   'use strict';
 
@@ -302,29 +301,21 @@
     host.appendChild(c);
   }
 
-  /* ---------- Ce que les fléchettes viennent clouer : les sections du site ----------
-     Chaque fléchette arrive à un endroit qui a un sens :
-       la date (billetterie)  dans le secteur 12, pour le 12 juin
-       les équipes            en plein centre
-       les vainqueurs         dans le triple 20
-       le tournoi amateur et le compteur de score : ratées, plantées dans le bois à côté de la cible
-     at  : point d'impact de la fléchette dans le plan de la cible, en mètres (x à droite, y en haut)
-     atP : variante pour un écran en hauteur, où il n'y a de la place qu'au-dessus et en dessous
-     pin : ce même point vu depuis le centre du papier (là où le papier est transpercé)
-     off : la fléchette a manqué la cible, le papier est sur le fond du meuble
-     aim : inclinaison finale de la fléchette (piqué, lacet) en degrés */
-  const SECTOR = (number, radius) => {
-    const a = NUMBERS.indexOf(number) * 18 * DEG;
-    return [Math.sin(a) * radius, Math.cos(a) * radius];
-  };
+  /* ---------- Ce que les fléchettes de LeBouseuh viennent clouer : les sections du site ----------
+     Aucune ne touche la cible : elles se plantent toutes dans le bois autour, et la cible reste
+     libre pour le jeu du visiteur.
+     pos  : centre du papier dans le plan du tableau, en mètres (x à droite, y en haut)
+     posP : variante pour un écran en hauteur, où la place est au-dessus et en dessous de la cible
+     pin  : point où la fléchette transperce le papier, par rapport à son centre
+     aim  : inclinaison finale de la fléchette (piqué, lacet) en degrés */
   const ITEMS = [
-    { id: 'billetterie', href: '#billetterie', label: 'Billetterie : 12 juin 2027', w: 0.176, h: 0.070, rot: 4, at: SECTOR(12, 0.070), pin: [0.080, 0], aim: [-14, 9], fins: [0x6A2CF0, 0x4A16D6] },
-    { id: 'equipes', href: '#equipes', label: 'Les équipes', w: 0.126, h: 0.090, rot: -3, at: [0, 0], pin: [0, 0.041], aim: [-17, -6], fins: [0xFF5A1F, 0xF48227] },
-    { id: 'photo', href: '#best-of', label: 'Édition 1 : les vainqueurs', w: 0.122, h: 0.146, rot: -5, at: SECTOR(20, 0.103), pin: [-0.055, -0.067], aim: [-17, 4], fins: [0xFE628A, 0xD10146] },
-    { id: 'boutique', href: '#boutique', label: 'Boutique', w: 0.094, h: 0.120, rot: -6, at: SECTOR(6, 0.135), pin: [0, 0.050], aim: [-16, 9], fins: [0x25DA4E, 0xB7E83A] },
-    { id: 'programme', href: '#programme', label: 'Programme et infos pratiques', w: 0.094, h: 0.094, rot: 8, at: SECTOR(19, 0.135), pin: [0, 0.034], aim: [-16, 28], fins: [0xFFCA00, 0xFF366D], round: true },
-    { id: 'amateur', href: '#tournoi-amateur', label: 'Tournoi amateur', w: 0.110, h: 0.074, rot: -7, at: [-0.268, -0.080], atP: [-0.100, -0.250], pin: [0, 0.028], aim: [-27, 18], fins: [0x00D1FF, 0x1487B8], off: true },
-    { id: 'score', href: 'jouer.html', label: 'Règles et compteur de score', w: 0.098, h: 0.084, rot: 6, at: [0.276, -0.020], atP: [0.110, -0.248], pin: [0, 0.033], aim: [-24, -20], fins: [0xDD2991, 0x8A1466], off: true }
+    { id: 'billetterie', href: '#billetterie', label: 'Billetterie : 12 juin 2027', w: 0.176, h: 0.070, rot: 4, pos: [0.385, 0.228], posP: [-0.125, 0.505], pin: [0.004, 0.024], aim: [-17, 12], fins: [0x6A2CF0, 0x4A16D6] },
+    { id: 'photo', href: '#best-of', label: 'Édition 1 : les vainqueurs', w: 0.122, h: 0.146, rot: -5, pos: [-0.378, 0.168], posP: [0.200, 0.398], pin: [0, 0.063], aim: [-20, -14], fins: [0xFE628A, 0xD10146] },
+    { id: 'boutique', href: '#boutique', label: 'Boutique', w: 0.094, h: 0.120, rot: -5, pos: [0.334, 0.058], posP: [-0.192, -0.372], pin: [0, 0.050], aim: [-15, 20], fins: [0x25DA4E, 0xB7E83A] },
+    { id: 'equipes', href: '#equipes', label: 'Les équipes', w: 0.126, h: 0.090, rot: 4, pos: [-0.352, -0.036], posP: [-0.150, 0.340], pin: [0, 0.034], aim: [-12, -22], fins: [0xFF5A1F, 0xF48227] },
+    { id: 'score', href: 'jouer.html', label: 'Règles et compteur de score', w: 0.098, h: 0.084, rot: 6, pos: [0.474, 0.010], posP: [0.052, 0.500], pin: [0, 0.033], aim: [-19, -18], fins: [0xDD2991, 0x8A1466] },
+    { id: 'amateur', href: '#tournoi-amateur', label: 'Tournoi amateur', w: 0.110, h: 0.074, rot: -6, pos: [-0.398, -0.214], posP: [0.192, -0.346], pin: [0, 0.028], aim: [-26, 16], fins: [0x00D1FF, 0x1487B8] },
+    { id: 'programme', href: '#programme', label: 'Programme et infos pratiques', w: 0.094, h: 0.094, rot: 8, pos: [0.378, -0.186], posP: [0.018, -0.338], pin: [0, 0.034], aim: [-21, -6], fins: [0xFFCA00, 0xFF366D], round: true }
   ];
   const TEAM_GRADS = [['#F48227', '#F7CB3E'], ['#25DA4E', '#F0F048'], ['#446DBB', '#323950'], ['#F03B2B', '#FF6D00'],
     ['#FE628A', '#D10146'], ['#00D1FF', '#124E67'], ['#FFCA00', '#FF366D'], ['#DD2991', '#630053']];
@@ -792,13 +783,13 @@
     mkSpot(1.65, -0.60, 1.12, 1.86);
     mkSpot(1.15, -0.40, 1.28, 1.94);
     const lampGlow = new THREE.PointLight(0xFFC27A, 0.75, 1.5, 1.6);
-    lampGlow.position.set(0, 0.42, 0.24);
+    lampGlow.position.set(0, 0.56, 0.24);
     const neonGlow = new THREE.PointLight(0x7A45FF, 1.3, 2.6, 1.5);
-    neonGlow.position.set(0, 0.78, 0.28);
+    neonGlow.position.set(0, 0.92, 0.28);
     const sconceL = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
-    sconceL.position.set(-2.05, 0.5, 0.22);
+    sconceL.position.set(-2.45, 0.5, 0.22);
     const sconceR = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
-    sconceR.position.set(2.05, 0.5, 0.22);
+    sconceR.position.set(2.45, 0.5, 0.22);
     // un peu de lumière de la salle renvoyée par la droite, pour ne pas boucher les ombres
     const fill = new THREE.PointLight(0xFFD0A0, 0.32, 5, 1.2);
     fill.position.set(1.0, -0.35, 1.3);
@@ -835,13 +826,13 @@
     scene.add(rail);
 
     // le meuble à fléchettes : fond en bois, portes ouvertes avec leurs ardoises
-    const CAB = 0.66;
-    const cabMat = wood(0xB09A88, [1.5, 0.75], woodB);
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(CAB, CAB, 0.037), cabMat);
+    const CAB_W = 1.02, CAB_H = 1.10;
+    const cabMat = wood(0xB09A88, [2.3, 1.25], woodB);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(CAB_W, CAB_H, 0.037), cabMat);
     cab.position.set(0, 0, WALL_Z + 0.0185);
     cab.castShadow = true; cab.receiveShadow = true;
     scene.add(cab);
-    [[0, CAB / 2 + 0.014, CAB + 0.056, 0.028], [0, -CAB / 2 - 0.014, CAB + 0.056, 0.028]].forEach(d => {
+    [[0, CAB_H / 2 + 0.014, CAB_W + 0.056, 0.028], [0, -CAB_H / 2 - 0.014, CAB_W + 0.056, 0.028]].forEach(d => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(d[2], d[3], 0.07), cabMat);
       m.position.set(d[0], d[1], WALL_Z + 0.035);
       m.castShadow = true; m.receiveShadow = true;
@@ -849,12 +840,12 @@
     });
     [['LEBOUSEUH', 'MICHOU', 31, -1], ['DOMINGO', 'INOX', 32, 1]].forEach(d => {
       const pivot = new THREE.Group();
-      pivot.position.set(d[3] * CAB / 2, 0, WALL_Z + 0.04);
+      pivot.position.set(d[3] * CAB_W / 2, 0, WALL_Z + 0.04);
       pivot.rotation.y = -d[3] * 0.34;
       const mats = [cabMat, cabMat, cabMat, cabMat,
         new THREE.MeshStandardMaterial({ map: canvasTex(chalkTexture([d[0], d[1]], d[2])), roughness: 0.9, envMapIntensity: 0.2 }), cabMat];
-      const door = new THREE.Mesh(new THREE.BoxGeometry(CAB / 2, CAB, 0.02), mats);
-      door.position.x = d[3] * CAB / 4;
+      const door = new THREE.Mesh(new THREE.BoxGeometry(CAB_W / 2, CAB_H, 0.02), mats);
+      door.position.x = d[3] * CAB_W / 4;
       door.castShadow = true; door.receiveShadow = true;
       pivot.add(door);
       scene.add(pivot);
@@ -864,16 +855,16 @@
     const brass = new THREE.MeshStandardMaterial({ color: 0xB08A3C, metalness: 1, roughness: 0.3, envMapIntensity: 1.3 });
     const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 20), brass);
     shade.rotation.z = Math.PI / 2;
-    shade.position.set(0, 0.485, 0.2);
+    shade.position.set(0, 0.640, 0.2);
     scene.add(shade);
     const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.44, 10), new THREE.MeshBasicMaterial({ color: 0xFFE9C4, toneMapped: false }));
     tube.rotation.z = Math.PI / 2;
-    tube.position.set(0, 0.462, 0.2);
+    tube.position.set(0, 0.617, 0.2);
     scene.add(tube);
     [-0.14, 0.14].forEach(x => {
       const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.28, 8), brass);
       arm.rotation.x = Math.PI / 2;
-      arm.position.set(x, 0.485, WALL_Z + 0.14);
+      arm.position.set(x, 0.640, WALL_Z + 0.14);
       scene.add(arm);
     });
 
@@ -881,12 +872,12 @@
     const neon = new THREE.Mesh(new THREE.PlaneGeometry(0.98, 0.275), new THREE.MeshBasicMaterial({
       map: canvasTex(neonTexture()), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false
     }));
-    neon.position.set(0, 0.78, WALL_Z + 0.03);
+    neon.position.set(0, 0.92, WALL_Z + 0.03);
     scene.add(neon);
 
     // appliques murales, avec leur halo
     const halo = canvasTex(haloTexture('rgba(255,236,200,1)', 'rgba(255,170,80,0.35)'));
-    [-2.05, 2.05].forEach(x => {
+    [-2.45, 2.45].forEach(x => {
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), new THREE.MeshBasicMaterial({ color: 0xFFE2B5, toneMapped: false }));
       bulb.position.set(x, 0.5, WALL_Z + 0.12);
       scene.add(bulb);
@@ -901,7 +892,7 @@
 
     // étagère à bouteilles, à gauche
     const shelfMat = wood(0x7C6656, [2.4, 0.2]);
-    [[-1.3, 0.02], [-1.3, 0.47]].forEach((s, row) => {
+    [[-1.66, 0.02], [-1.66, 0.47]].forEach((s, row) => {
       const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.03, 0.17), shelfMat);
       shelf.position.set(s[0], s[1], WALL_Z + 0.085);
       scene.add(shelf);
@@ -928,7 +919,7 @@
     });
 
     // affiches encadrées, à droite
-    [[1.1, 0.22, 0.44, 0.59, TEAM_GRADS[1], 'MICHOU', 41], [1.66, 0.02, 0.36, 0.48, TEAM_GRADS[4], 'INOX', 42], [1.38, -0.42, 0.3, 0.4, TEAM_GRADS[0], 'LEBOUSEUH', 43]].forEach(f => {
+    [[1.44, 0.22, 0.44, 0.59, TEAM_GRADS[1], 'MICHOU', 41], [2.0, 0.02, 0.36, 0.48, TEAM_GRADS[4], 'INOX', 42], [1.72, -0.42, 0.3, 0.4, TEAM_GRADS[0], 'LEBOUSEUH', 43]].forEach(f => {
       const frame = new THREE.Mesh(new THREE.BoxGeometry(f[2] + 0.05, f[3] + 0.05, 0.03), new THREE.MeshStandardMaterial({ color: 0x15100C, roughness: 0.5, envMapIntensity: 0.6 }));
       frame.position.set(f[0], f[1], WALL_Z + 0.015);
       scene.add(frame);
@@ -1025,18 +1016,18 @@
       mesh.receiveShadow = true;
       scene.add(mesh);
 
-      return { it, mesh, map, canvas: c, pinWorld: new THREE.Vector3(), x: 0, y: 0, z0: 0 };
+      return { it, mesh, map, canvas: c, pinWorld: new THREE.Vector3(), x: 0, y: 0, z0: 0, k: 1 };
     });
     const OFF_Z = WALL_Z + 0.0375;                    // surface du fond du meuble
     function layout(portrait) {
       papers.forEach(p => {
-        const it = p.it, at = portrait && it.atP ? it.atP : it.at;
+        const it = p.it, c = portrait && it.posP ? it.posP : it.pos;
         const r = it.rot * DEG, cr = Math.cos(r), sr = Math.sin(r);
-        p.x = at[0] - (it.pin[0] * cr - it.pin[1] * sr);
-        p.y = at[1] - (it.pin[0] * sr + it.pin[1] * cr);
-        p.z0 = it.off ? OFF_Z : 0;
+        const k = p.k = portrait ? 1 : 1.22;          // en paysage il y a la place d'agrandir les papiers
+        p.x = c[0]; p.y = c[1]; p.z0 = OFF_Z;
         p.mesh.position.set(p.x, p.y, p.z0);
-        p.pinWorld.set(at[0], at[1], p.z0 - 0.008);
+        p.mesh.scale.setScalar(k);
+        p.pinWorld.set(p.x + k * (it.pin[0] * cr - it.pin[1] * sr), p.y + k * (it.pin[0] * sr + it.pin[1] * cr), OFF_Z - 0.008);
       });
     }
     layout(false);
@@ -1226,7 +1217,6 @@
     const { THREE, camera, canvas, papers, darts } = S;
     const V = (x, y, z) => new THREE.Vector3(x, y, z);
     const FWD = V(0, 0, -1), UP = V(0, 1, 0);
-    const flash = document.querySelector('.impact-flash');
     const skip = document.querySelector('.skip-intro');
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1235,6 +1225,7 @@
     const easeInOut = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
     const easeOut = (x, p) => 1 - Math.pow(1 - x, p);
     const dirFrom = (pitch, yaw, out) => out.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+    const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* pas de vibreur */ } };
 
     // Netteté d'une fléchette : 'sharp' tout net, 'blur' tout flou (elle passe près de la caméra),
     // 'planted' l'avant net et l'arrière légèrement flou (il dépasse vers la caméra)
@@ -1250,19 +1241,6 @@
     const ends = papers.map(p => p.pinWorld);
     const dirEnds = papers.map(p => dirFrom(p.it.aim[0] * DEG, p.it.aim[1] * DEG, V()));
 
-    // Caméra embarquée : en trois quarts arrière, décalée sur le côté et un peu au-dessus,
-    // comme sur l'affiche. On voit les ailettes au premier plan, la tige et le fût qui
-    // pointent vers la cible, nette au fond.
-    const RIG_POS = V(0.070, 0.046, 0.272);
-    const RIG_LOOK = V(0, 0, -3);
-    const LOOK_TARGET = 0.6;
-    const TARGET = ends[0];
-
-    // Trajectoire de la fléchette que l'on incarne
-    const P0 = V(TARGET.x * 0.35 + 0.012, TARGET.y - 0.16, 2.18);   // pointe pendant la visée
-    const PW = V(TARGET.x * 0.35 + 0.006, TARGET.y - 0.18, 2.30);   // pointe en fin d'armé
-    const ARC = 0.13;                                               // flèche de la cloche, en mètres
-
     const tA = V(), tB = V();
     function pathPos(from, to, arc, e, out) {
       out.lerpVectors(from, to, e);
@@ -1275,12 +1253,7 @@
       pathPos(from, to, arc, Math.max(0, e - d), tB);
       return out.subVectors(tA, tB).normalize();
     }
-
-    const dir0 = pathDir(PW, TARGET, ARC, 0, V());
-    const PITCH_W = Math.asin(dir0.y), YAW_W = Math.atan2(dir0.x, -dir0.z);
-    const PITCH_AIM = Math.atan2(TARGET.y - P0.y, P0.z) + 3 * DEG, YAW_AIM = Math.atan2(TARGET.x - P0.x, P0.z);
-
-    const tip = V(), dir = V(), tmp = V(), tmp2 = V();
+    const tip = V(), dir = V(), tmp = V(), corner = V();
     function setDart(d, tipPos, direction, pitchExtra, yawExtra, roll) {
       d.position.copy(tipPos);
       d.quaternion.setFromUnitVectors(FWD, direction);
@@ -1289,26 +1262,14 @@
       if (roll) d.rotateZ(roll);
       d.updateMatrixWorld(true);
     }
-    const rigQ = new THREE.Quaternion();
-    function povCamera(direction) {
-      // repère de la fléchette sans son roulis ni ses vibrations : la caméra reste stable
-      const d = darts[0];
-      rigQ.setFromUnitVectors(FWD, direction);
-      camera.position.copy(RIG_POS).multiplyScalar(d.scale.x).applyQuaternion(rigQ).add(d.position);
-      camera.up.set(0, 1, 0);
-      tmp2.copy(RIG_LOOK).applyQuaternion(rigQ).add(d.position).sub(camera.position).normalize();
-      tmp.copy(TARGET).sub(camera.position).normalize();
-      tmp2.lerp(tmp, LOOK_TARGET).normalize().add(camera.position);
-      camera.lookAt(tmp2);
-    }
 
     /* --- Cadrage au repos ---
        La cible 3D se superpose à son emplacement dans la page. La caméra se décale un peu
        avec le pointeur en continuant de viser le même point : le relief se voit, le cadrage tient. */
-    const FOV_POV = 50, FOV_END = 34;
+    const FOV_END = 34;
     const base = V(), aimAt = V();
     const camEnd = { pos: V(), quat: new THREE.Quaternion() };
-    const REST = { x: 0.32, y: 0.26 };
+    const REST = { x: 0.2, y: 0.2 };
     const par = { x: REST.x, y: REST.y, tx: REST.x, ty: REST.y };
     const m4 = new THREE.Matrix4();
     const view = { w: 1, h: 1 };
@@ -1334,7 +1295,7 @@
     /* --- Un lien par papier, calé sur sa projection à l'écran --- */
     const nav = document.createElement('nav');
     nav.className = 'hotspots';
-    nav.setAttribute('aria-label', 'Accès aux sections depuis la cible');
+    nav.setAttribute('aria-label', 'Accès aux sections depuis le tableau');
     const lifts = papers.map(() => ({ v: 0, t: 0 }));
     const links = papers.map((p, i) => {
       const a = document.createElement('a');
@@ -1351,14 +1312,13 @@
       return a;
     });
     hero.appendChild(nav);
-    const corner = V();
     function placeLinks() {
       papers.forEach((p, i) => {
         // position de repos du papier : la zone cliquable ne suit pas le soulèvement du survol
         const r = p.it.rot * DEG, cr = Math.cos(r), sr = Math.sin(r);
         let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
         [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(c => {
-          const lx = c[0] * p.it.w / 2, ly = c[1] * p.it.h / 2;
+          const lx = c[0] * p.k * p.it.w / 2, ly = c[1] * p.k * p.it.h / 2;
           corner.set(p.x + lx * cr - ly * sr, p.y + lx * sr + ly * cr, p.z0 + 0.004).project(camera);
           const x = (corner.x * 0.5 + 0.5) * view.w, y = (-corner.y * 0.5 + 0.5) * view.h;
           x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
@@ -1367,18 +1327,39 @@
         s.left = x0 + 'px'; s.top = y0 + 'px'; s.width = (x1 - x0) + 'px'; s.height = (y1 - y0) + 'px';
       });
     }
-    // survol : le papier se décolle de la cible
+    // survol : le papier se décolle du bois
     function setLift(p, v) {
       p.mesh.position.z = p.z0 + v * 0.013;
       p.mesh.rotation.x = -v * 0.07;
       p.mesh.material.emissiveIntensity = v * 0.1;
     }
 
+    /* --- Étiquette qui jaillit à un point de la scène : le score d'un lancer, ou « Raté ! » --- */
+    function popLabel(world, big, small, cls) {
+      corner.copy(world).project(camera);
+      const el = document.createElement('span');
+      el.className = 'hit-label' + (cls ? ' ' + cls : '');
+      el.style.left = ((corner.x * 0.5 + 0.5) * view.w) + 'px';
+      el.style.top = ((-corner.y * 0.5 + 0.5) * view.h) + 'px';
+      const b = document.createElement('strong');
+      b.textContent = big;
+      el.appendChild(b);
+      if (small) el.appendChild(document.createTextNode(small));
+      hero.appendChild(el);
+      setTimeout(() => el.remove(), 1700);
+    }
+
     function applyRest() {
       darts.forEach((d, i) => { d.visible = true; setDepth(d, 'planted'); setDart(d, ends[i], dirEnds[i]); });
-      papers.forEach((p, i) => { p.mesh.rotation.z = p.it.rot * DEG; setLift(p, lifts[i].v); });
+      papers.forEach((p, i) => {
+        p.mesh.visible = true;
+        p.mesh.scale.setScalar(p.k);
+        p.mesh.rotation.z = p.it.rot * DEG;
+        setLift(p, lifts[i].v);
+      });
       canvas.style.filter = '';
     }
+    let restBlur = DOF_PLANTED;
     function drawRest() {
       poseAt(par.x, par.y, camera.position, camera.quaternion);
       camera.fov = FOV_END;
@@ -1433,22 +1414,22 @@
 
     window.addEventListener('pointermove', e => {
       if (!over || zoom || !heroVisible || e.pointerType === 'touch') return;
-      par.tx = REST.x + ((e.clientX / window.innerWidth) * 2 - 1) * 0.9;
-      par.ty = REST.y + ((e.clientY / window.innerHeight) * 2 - 1) * 0.8;
+      par.tx = REST.x + ((e.clientX / window.innerWidth) * 2 - 1) * 0.6;
+      par.ty = REST.y + ((e.clientY / window.innerHeight) * 2 - 1) * 0.5;
       requestTick();
     }, { passive: true });
     document.documentElement.addEventListener('pointerleave', () => { par.tx = REST.x; par.ty = REST.y; requestTick(); });
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(es => { heroVisible = es[0].isIntersecting; }, { threshold: 0.05 }).observe(hero);
     }
-    window.addEventListener('resize', () => { fit(); if (over) drawRest(); });
+    window.addEventListener('resize', () => { fit(); if (over) { applyRest(); drawRest(); } });
 
     /* --- Ouvrir une section : la caméra plonge dans le papier, puis on est sur son contenu --- */
     const veil = document.createElement('div');
     veil.className = 'veil';
     veil.setAttribute('aria-hidden', 'true');
     document.body.appendChild(veil);
-    const topbarH = () => parseFloat(getComputedStyle(root).getPropertyValue('--topbar-h')) || 72;
+    const topbarH = () => parseFloat(getComputedStyle(root).getPropertyValue('--topbar-h')) || 62;
     function jumpTo(y) {
       try { window.scrollTo({ top: y, behavior: 'instant' }); } catch (e) { window.scrollTo(0, y); }
     }
@@ -1464,7 +1445,7 @@
         if (target.focus) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
       };
       if (!over || reduced || zoom) { land(); return; }
-      const dist = Math.max(0.2, (Math.max(it.h, it.w * view.h / view.w) / 0.5) / (2 * Math.tan(FOV_END * DEG / 2)));
+      const dist = Math.max(0.2, (paper.k * Math.max(it.h, it.w * view.h / view.w) / 0.5) / (2 * Math.tan(FOV_END * DEG / 2)));
       zoom = {
         t0: null, dur: 560, veilAt: 0.4, ease: x => x * x * (1.6 - 0.6 * x),
         p0: camera.position.clone(), q0: camera.quaternion.clone(),
@@ -1481,7 +1462,8 @@
       };
       requestTick();
     }
-    /* --- Interface du hero : son, invitation à lancer, résultat des lancers --- */
+
+    /* --- Bouton du son --- */
     const soundBtn = document.createElement('button');
     soundBtn.type = 'button';
     soundBtn.className = 'sound-toggle';
@@ -1492,66 +1474,28 @@
     }
     soundBtn.addEventListener('click', () => { Sound.setMuted(!Sound.isMuted()); paintSound(); if (!Sound.isMuted()) Sound.thunk(false, 0.6); });
     paintSound();
-    const throwHint = document.createElement('p');
-    throwHint.className = 'throw-hint';
-    throwHint.textContent = window.matchMedia && window.matchMedia('(hover: none)').matches
-      ? 'Touche l’écran pour lancer' : 'Clique pour lancer la fléchette';
-    const playHint = document.createElement('p');
-    playHint.className = 'play-hint';
-    playHint.textContent = 'La cible est jouable : vise et clique pour lancer';
-    const volleyBox = document.createElement('p');
-    volleyBox.className = 'volley-total';
-    volleyBox.setAttribute('role', 'status');
-    volleyBox.setAttribute('aria-live', 'polite');
-    hero.append(soundBtn, throwHint, playHint, volleyBox);
-    const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* pas de vibreur */ } };
-    const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(TAU * Math.random());
+    hero.appendChild(soundBtn);
+    // un navigateur ne joue du son qu'après un geste : le premier contact avec la page l'active
+    const unlockOnce = () => { Sound.unlock(); window.removeEventListener('pointerdown', unlockOnce); window.removeEventListener('keydown', unlockOnce); };
+    window.addEventListener('pointerdown', unlockOnce);
+    window.addEventListener('keydown', unlockOnce);
 
-    /* --- La cible est jouable : un clic lance une fléchette là où l'on vise --- */
+    /* --- Les lancers du visiteur (le jeu lui-même est dans game.js) --- */
     const SHOT = 380;                              // durée de vol, en millisecondes
     const shots = [];
-    let playerDarts = null, restBlur = DOF_PLANTED, volley = 0;
+    let playerDarts = null;
     function scoreAt(x, y) {
       const r = Math.hypot(x, y);
-      if (r > BOARD_R) return { label: 'Dans le bois', pts: 0 };
-      if (r <= DIM.bullI) return { label: 'Bull', pts: 50 };
-      if (r <= DIM.bullO) return { label: '25', pts: 25 };
-      if (r > DIM.dOut) return { label: 'Hors zone', pts: 0 };
+      if (r > BOARD_R) return { label: 'Dans le bois', pts: 0, onBoard: false };
+      if (r <= DIM.bullI) return { label: 'Bull', pts: 50, onBoard: true };
+      if (r <= DIM.bullO) return { label: '25', pts: 25, onBoard: true };
+      if (r > DIM.dOut) return { label: 'Hors zone', pts: 0, onBoard: true };
       let a = Math.atan2(x, y) / DEG;
       if (a < 0) a += 360;
       const n = NUMBERS[Math.round(a / 18) % 20];
-      if (r >= DIM.tIn && r <= DIM.tOut) return { label: 'Triple ' + n, pts: 3 * n };
-      if (r >= DIM.dIn) return { label: 'Double ' + n, pts: 2 * n };
-      return { label: 'Simple ' + n, pts: n };
-    }
-    function hitLabel(sh, sc) {
-      corner.set(sh.x, sh.y, 0.03).project(camera);
-      const el = document.createElement('span');
-      el.className = 'hit-label';
-      el.style.left = ((corner.x * 0.5 + 0.5) * view.w) + 'px';
-      el.style.top = ((-corner.y * 0.5 + 0.5) * view.h) + 'px';
-      const big = document.createElement('strong');
-      big.textContent = sc.pts ? String(sc.pts) : 'Raté';
-      el.append(big, document.createTextNode(sc.label));
-      hero.appendChild(el);
-      setTimeout(() => el.remove(), 1700);
-    }
-    function onShotLanded(sh) {
-      const sc = scoreAt(sh.x, sh.y);
-      Sound.thunk(!sh.onBoard, 0.9);
-      buzz(14);
-      volley += sc.pts;
-      hitLabel(sh, sc);
-      if (shots.length === 3 && shots.every(s => s.hit)) {
-        volleyBox.textContent = '';
-        const b = document.createElement('strong');
-        b.textContent = volley === 180 ? 'Cent quatre-vingts !' : `Ta volée : ${volley}`;
-        const a = document.createElement('a');
-        a.href = 'jouer.html';
-        a.textContent = 'Compter une vraie partie';
-        volleyBox.append(b, a);
-        volleyBox.classList.add('show');
-      }
+      if (r >= DIM.tIn && r <= DIM.tOut) return { label: 'Triple ' + n, pts: 3 * n, onBoard: true };
+      if (r >= DIM.dIn) return { label: 'Double ' + n, pts: 2 * n, onBoard: true };
+      return { label: 'Simple ' + n, pts: n, onBoard: true };
     }
     function stepThrows(now) {
       let active = false;
@@ -1571,7 +1515,13 @@
           active = true;
           return;
         }
-        if (!sh.hit) { sh.hit = true; onShotLanded(sh); }
+        if (!sh.hit) {
+          sh.hit = true;
+          Sound.thunk(!sh.sc.onBoard, 0.9);
+          buzz(14);
+          popLabel(sh.to, sh.sc.pts ? String(sh.sc.pts) : 'Raté', sh.sc.label);
+          document.dispatchEvent(new CustomEvent('fc:hit', { detail: { pts: sh.sc.pts, label: sh.sc.label, onBoard: sh.sc.onBoard } }));
+        }
         const th = (el - SHOT) / 1000;
         const vib = th < 1 ? Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th) : 0;
         setDepth(sh.dart, 'planted');
@@ -1580,44 +1530,40 @@
       });
       return active;
     }
-    function throwAt(x, y) {
+    function clearShots() {
+      shots.forEach(s => { s.dart.visible = false; });
+      shots.length = 0;
+      requestTick();
+    }
+    // Lance une fléchette vers un point de l'écran. Renvoie false si le lancer est impossible.
+    function throwAtClient(clientX, clientY) {
+      if (!over || zoom) return false;
+      const hr = hero.getBoundingClientRect();
+      tmp.set(((clientX - hr.left) / hr.width) * 2 - 1, -(((clientY - hr.top) / hr.height) * 2 - 1), 0.5)
+        .unproject(camera).sub(camera.position).normalize();
+      if (tmp.z > -0.05) return false;
+      const k = -camera.position.z / tmp.z;
+      const x = camera.position.x + tmp.x * k, y = camera.position.y + tmp.y * k;
       if (!playerDarts) {
         playerDarts = [0, 1, 2].map(() => { const d = S.makeDart([0xE8FFC4, 0xB7F277]); d.visible = false; return d; });
       }
-      if (shots.length === 3) {                    // nouvelle volée : on retire les trois précédentes
-        shots.forEach(s => { s.dart.visible = false; });
-        shots.length = 0;
-        volley = 0;
-        volleyBox.classList.remove('show');
-      }
-      const onBoard = Math.hypot(x, y) <= BOARD_R;
+      if (shots.length === 3) clearShots();
+      const sc = scoreAt(x, y);
       const dart = playerDarts[shots.length];
       dart.visible = true;
       setDepth(dart, 'blur');
       const from = V(0.09 + Math.random() * 0.07, -0.17, 0.15).add(camera.position);
       setDart(dart, from, FWD);
       shots.push({
-        dart, t0: null, hit: false, x, y, onBoard, from,
-        to: V(x, y, (onBoard ? 0 : S.offZ) - 0.008),
+        dart, t0: null, hit: false, sc, from,
+        to: V(x, y, (sc.onBoard ? 0 : S.offZ) - 0.008),
         dirEnd: dirFrom((-13 - Math.random() * 9) * DEG, (Math.random() * 30 - 15) * DEG, V())
       });
       Sound.unlock();
       Sound.whoosh(SHOT / 1000, 0.8);
-      playHint.classList.add('gone');
       requestTick();
+      return true;
     }
-    hero.addEventListener('click', e => {
-      if (!over || zoom || (e.target.closest && e.target.closest('a, button'))) return;
-      const hr = hero.getBoundingClientRect();
-      tmp.set(((e.clientX - hr.left) / hr.width) * 2 - 1, -(((e.clientY - hr.top) / hr.height) * 2 - 1), 0.5)
-        .unproject(camera).sub(camera.position).normalize();
-      if (tmp.z > -0.05) return;
-      const k = -camera.position.z / tmp.z;
-      const x = camera.position.x + tmp.x * k + gauss() * 0.006;
-      const y = camera.position.y + tmp.y * k + gauss() * 0.006;
-      if (Math.abs(x) > 0.31 || Math.abs(y) > 0.31) return;         // en dehors du meuble
-      throwAt(x, y);
-    });
 
     // retour arrière depuis une autre page : le navigateur peut ressortir celle-ci telle qu'on l'a quittée
     window.addEventListener('pageshow', e => {
@@ -1627,8 +1573,16 @@
       applyRest();
       drawRest();
     });
-    // Retour à la cible depuis le reste de la page : on recule depuis tout près
-    window.FCBoard = {
+
+    /* --- Ce que le reste de la page peut demander à la cible --- */
+    const api = window.FCBoard = {
+      ready: false,
+      throwAt: throwAtClient,
+      clearShots,
+      // la zone de jeu à l'écran, et l'échelle de la cible (pixels par mètre)
+      rect: () => wrap.getBoundingClientRect(),
+      scale: () => wrap.getBoundingClientRect().width / (2 * BOARD_R),
+      // retour à la cible depuis le reste de la page : on recule depuis tout près
       returnHome() {
         if (!over || reduced) { jumpTo(0); return; }
         veil.classList.add('on');
@@ -1647,9 +1601,14 @@
         }, 240);
       }
     };
+    function announceReady() {
+      if (api.ready) return;
+      api.ready = true;
+      document.dispatchEvent(new CustomEvent('fc:ready'));
+    }
 
+    root.classList.add('gl');      // la classe change la taille de la cible : on mesure après
     fit();
-    root.classList.add('gl');
 
     // La photo des vainqueurs arrive dans le polaroid dès qu'elle est chargée
     const photo = papers.find(p => p.it.id === 'photo');
@@ -1670,21 +1629,40 @@
       img.src = 'assets/vainqueurs-edition-1.jpg';
     }
 
-    if (over) { applyRest(); drawRest(); return; }
+    if (over) { applyRest(); drawRest(); announceReady(); return; }
 
-    /* --- Séquence d'intro --- */
-    const AIM = 1150, WIND = 420, FLY = 920, HOLD = 190, BACK = 1300;
-    const T_WIND = AIM, T_FLY = T_WIND + WIND, T_HIT = T_FLY + FLY, T_BACK = T_HIT + HOLD;
-    const VOLLEY = 430;                                             // durée de vol des fléchettes suivantes
-    const launch = darts.map((d, i) => i === 0 ? T_FLY : T_BACK + 280 + (i - 1) * 185 + (papers[i].it.off ? 240 : 0));
-    const hits = darts.map((d, i) => i === 0 ? T_HIT : launch[i] + VOLLEY);
-    const T_POSE = hits[N - 1] + 260, T_END = T_POSE + 900;
-    let struck = false, posed = false;
-    const camHit = { pos: V(), quat: new THREE.Quaternion() };
+    /* --- Intro : LeBouseuh ouvre le bal ---
+       Plan large du bar. Il enchaîne les fléchettes de loin : aucune ne touche la cible, elles se
+       plantent toutes dans le bois autour, chacune clouant un élément du site. Puis la caméra
+       s'approche de la cible, restée vide : c'est au visiteur de jouer. */
+    const portrait = isPortrait();
+    const WIDE_Z = portrait ? 3.5 : 2.6;
+    const FOV_WIDE = 40;
+    const camA = { pos: V(portrait ? 0.10 : 0.30, 0.10, WIDE_Z), quat: new THREE.Quaternion() };
+    const camB = { pos: V(portrait ? 0.06 : 0.18, 0.07, WIDE_Z * 0.82), quat: new THREE.Quaternion() };
+    const lookWide = V(0, portrait ? 0.02 : 0.14, 0), lookNear = V(0, 0.04, 0);
+    m4.lookAt(camA.pos, lookWide, UP); camA.quat.setFromRotationMatrix(m4);
+    m4.lookAt(camB.pos, lookNear, UP); camB.quat.setFromRotationMatrix(m4);
 
-    // Les fléchettes suivantes partent de derrière la caméra et traversent le champ
-    const OFFSETS = [null, V(-0.28, -0.22, 0.20), V(-0.32, 0.06, 0.22), V(0.30, -0.16, 0.22), V(-0.12, -0.32, 0.20), V(-0.30, -0.24, 0.20), V(0.32, 0.12, 0.22)];
-    const starts = darts.map((d, i) => i === 0 ? PW : V());
+    const FLIGHT = 520, BACK = 1250, T0 = 900;
+    const GAPS = [0, 430, 330, 300, 390, 260, 520, 300, 300];      // un rythme irrégulier : il s'acharne
+    const launch = [], hits = [];
+    let acc = T0;
+    for (let i = 0; i < N; i++) { acc += GAPS[i % GAPS.length]; launch.push(acc); hits.push(acc + FLIGHT); }
+    const T_BACK = hits[N - 1] + 700, T_POSE = T_BACK + BACK - 200, T_END = T_POSE + 450;
+    const starts = darts.map(() => V());
+    const aired = darts.map(() => false), landed = darts.map(() => false);
+    let posed = false, missed = 0;
+
+    // le carton de l'intro : qui lance, et où il en est
+    const card = document.createElement('div');
+    card.className = 'intro-card';
+    card.setAttribute('aria-hidden', 'true');
+    const cardTag = document.createElement('span'); cardTag.className = 'tag'; cardTag.textContent = 'Au lancer';
+    const cardName = document.createElement('b'); cardName.textContent = 'LeBouseuh';
+    const cardCount = document.createElement('span'); cardCount.className = 'tag ic-count'; cardCount.textContent = N + ' fléchettes en main';
+    card.append(cardTag, cardName, cardCount);
+    hero.appendChild(card);
 
     function end() {
       if (over) return;
@@ -1693,9 +1671,11 @@
       clearTimeout(window.__introSafety);
       root.classList.remove('intro', 'intro-impact', 'intro-pose');
       ['wheel', 'touchmove', 'keydown'].forEach(ev => window.removeEventListener(ev, onUserSkip));
+      card.remove();
       par.x = par.tx = REST.x; par.y = par.ty = REST.y;
       applyRest();
       drawRest();
+      announceReady();
     }
     let touchY = null;
     function onUserSkip(e) {
@@ -1711,27 +1691,8 @@
     if (skip) skip.addEventListener('click', end);
     ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, onUserSkip, { passive: true }));
 
-    setDepth(darts[0], 'blur');
-    for (let i = 1; i < N; i++) darts[i].visible = false;
-
-    // La fléchette attend le geste du visiteur ; sans geste, elle part toute seule
-    const AUTO_THROW = 3600;
-    let launchAt = AUTO_THROW, launched = false, flying = false;
-    const aired = darts.map(() => false), landed = darts.map(() => false);
-    function onThrowGesture(e) {
-      if (over || launched) return;
-      if (e.type === 'keydown') {
-        if (e.key !== ' ' && e.key !== 'Enter') return;
-        if (e.target.closest && e.target.closest('a, button, input, textarea')) return;
-        e.preventDefault();
-      } else if (e.target.closest && e.target.closest('a, button')) return;
-      launched = true;
-      launchAt = Math.max(350, clock);
-      throwHint.classList.add('gone');
-      Sound.unlock();
-    }
-    hero.addEventListener('pointerdown', onThrowGesture);
-    window.addEventListener('keydown', onThrowGesture);
+    darts.forEach(d => { d.visible = false; });
+    papers.forEach(p => { p.mesh.visible = false; });
 
     // L'horloge de la séquence avance au rythme des images affichées, avec un pas plafonné :
     // sur un appareil lent l'intro ralentit, elle ne saute pas d'un coup à la fin
@@ -1740,113 +1701,86 @@
       if (over) return;
       clock += lastNow === null ? 0 : Math.min(now - lastNow, 60);
       lastNow = now;
-      const real = clock, s = real / 1000;
-      if (!launched && real >= launchAt) { launched = true; throwHint.classList.add('gone'); }
-      // tant qu'on vise, le temps de la séquence reste à zéro ; il démarre au lancer
-      const t = real < launchAt ? 0 : AIM + (real - launchAt);
-      let blur = 0, motion = 0;
+      const t = clock, s = t / 1000;
+      let blur = 0;
 
-      /* La fléchette que l'on incarne */
-      if (t < T_FLY) {
-        // Visée puis armé : la main tremble un peu, puis recule
-        const w = easeInOut(clamp01((t - T_WIND) / WIND));
-        const calm = 1 - w;
-        const sx = (0.0055 * Math.sin(TAU * 0.62 * s) + 0.0026 * Math.sin(TAU * 1.7 * s + 1.1)) * calm;
-        const sy = (0.0045 * Math.sin(TAU * 0.48 * s + 0.6) + 0.0022 * Math.sin(TAU * 2.1 * s)) * calm;
-        tip.lerpVectors(P0, PW, w);
-        tip.x += sx; tip.y += sy;
-        const pitch = PITCH_AIM + (PITCH_W - PITCH_AIM) * w + 0.5 * DEG * Math.sin(TAU * 0.9 * s) * calm;
-        const yaw = YAW_AIM + (YAW_W - YAW_AIM) * w + 0.4 * DEG * Math.sin(TAU * 0.7 * s + 2) * calm;
-        setDart(darts[0], tip, dirFrom(pitch, yaw, dir));
-        camera.fov = FOV_POV;
-        povCamera(dir);
-        blur = 3.4;
-      } else if (t < T_HIT) {
-        // Vol : elle accélère, monte, redescend, tourne sur elle-même et tangue en se stabilisant
-        const u = (t - T_FLY) / FLY;
-        const e = Math.pow(u, 1.55);
-        if (!flying) { flying = true; Sound.whoosh(FLY / 1000, 1); }
-        pathPos(PW, TARGET, ARC, e, tip);
-        tip.x += 0.012 * Math.sin(TAU * e) * (1 - e);
-        pathDir(PW, TARGET, ARC, e, dir);
-        dir.lerp(dirEnds[0], smooth((u - 0.55) / 0.45)).normalize();
-        const damp = Math.pow(1 - u, 1.6);
-        setDart(darts[0], tip, dir,
-          3.2 * DEG * Math.sin(TAU * 3.1 * u) * damp, 1.6 * DEG * Math.sin(TAU * 2.3 * u + 1) * damp,
-          TAU * 2 * easeOut(u, 2));
-        camera.fov = FOV_POV + 8 * u * u;
-        povCamera(dir);
-        blur = 3.4 - 1.4 * e;
-        motion = 2.2 * u * u * u;
-      } else if (!struck) {
-        struck = true;
-        Sound.thunk(false, 1);
-        buzz(22);
-        setDepth(darts[0], 'planted');
-        setDart(darts[0], TARGET, dirEnds[0]);
-        povCamera(dirEnds[0]);
-        camHit.pos.copy(camera.position);
-        camHit.quat.copy(camera.quaternion);
-        for (let i = 1; i < N; i++) starts[i].copy(camEnd.pos).add(OFFSETS[i]);
-        root.classList.add('intro-impact');
-        if (flash && flash.animate) flash.animate([{ opacity: 0 }, { opacity: 0.35, offset: 0.18 }, { opacity: 0 }], { duration: 300 });
+      /* La caméra : plan large qui se resserre doucement, puis elle vient se caler sur la cible */
+      const kv = clamp01(t / T_BACK), kb = clamp01((t - T_BACK) / BACK);
+      if (kb <= 0) {
+        camera.position.lerpVectors(camA.pos, camB.pos, easeInOut(kv));
+        camera.quaternion.copy(camA.quat).slerp(camB.quat, easeInOut(kv));
+        camera.fov = FOV_WIDE;
+        // caméra à l'épaule
+        camera.position.x += 0.004 * Math.sin(TAU * 0.31 * s);
+        camera.position.y += 0.003 * Math.sin(TAU * 0.43 * s + 1);
+      } else {
+        camera.position.lerpVectors(camB.pos, camEnd.pos, easeInOut(kb));
+        camera.quaternion.copy(camB.quat).slerp(camEnd.quat, easeInOut(kb));
+        camera.fov = FOV_WIDE + (FOV_END - FOV_WIDE) * easeInOut(kb);
       }
 
-      if (t >= T_HIT) {
-        blur = DOF_PLANTED;
-        /* Les fléchettes suivantes : chacune vient clouer sa section */
-        for (let i = 1; i < N; i++) {
-          if (t < launch[i] || t >= hits[i]) continue;
-          const u = (t - launch[i]) / VOLLEY;
-          const e = Math.pow(u, 1.2);
-          darts[i].visible = true;
-          if (!aired[i]) { aired[i] = true; Sound.whoosh(VOLLEY / 1000, 0.5); }
-          pathPos(starts[i], ends[i], 0.035, e, tip);
-          pathDir(starts[i], ends[i], 0.035, e, dir);
-          dir.lerp(dirEnds[i], smooth((u - 0.35) / 0.65)).normalize();
-          setDart(darts[i], tip, dir, 2.5 * DEG * Math.sin(TAU * 2.4 * u) * (1 - u), 0, TAU * easeOut(u, 2));
-          // proche de la caméra, elle est hors de la zone de netteté
-          const near = u < 0.42;
-          setDepth(darts[i], near ? 'blur' : 'planted');
-          if (near) blur = Math.max(blur, 5 * (1 - u / 0.42) + DOF_PLANTED);
+      /* Les fléchettes de LeBouseuh */
+      let shake = 0;
+      for (let i = 0; i < N; i++) {
+        if (t < launch[i]) continue;
+        const d = darts[i];
+        if (t < hits[i]) {
+          const u = (t - launch[i]) / FLIGHT;
+          const e = Math.pow(u, 1.15);
+          if (!aired[i]) {
+            aired[i] = true;
+            // elles partent de sa main, juste à côté de nous
+            starts[i].set(0.20 + 0.05 * Math.sin(i * 2.3), -0.15, -0.28).add(camera.position);
+            Sound.whoosh(FLIGHT / 1000, 0.6);
+          }
+          d.visible = true;
+          pathPos(starts[i], ends[i], 0.11, e, tip);
+          pathDir(starts[i], ends[i], 0.11, e, dir);
+          dir.lerp(dirEnds[i], smooth((u - 0.5) / 0.5)).normalize();
+          setDart(d, tip, dir, 2.5 * DEG * Math.sin(TAU * 2.4 * u) * (1 - u), 0, TAU * 1.5 * easeOut(u, 2));
+          const near = u < 0.22;
+          setDepth(d, near ? 'blur' : 'sharp');
+          if (near) blur = Math.max(blur, 5 * (1 - u / 0.22) + 1);
+          continue;
         }
-
-        /* Vibration des fléchettes plantées, sursaut des papiers, secousses de caméra */
-        let shake = 0;
-        for (let i = 0; i < N; i++) {
-          if (t < hits[i]) continue;
-          const th = (t - hits[i]) / 1000;
-          const vib = Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th);
-          darts[i].visible = true;
-          if (i > 0 && !landed[i]) { landed[i] = true; Sound.thunk(!!papers[i].it.off, 0.75); buzz(10); }
-          setDepth(darts[i], 'planted');
-          setDart(darts[i], ends[i], dirEnds[i], 5.5 * DEG * vib, 2.2 * DEG * vib);
-          papers[i].mesh.rotation.z = papers[i].it.rot * DEG + 1.4 * DEG * Math.exp(-th / 0.16) * Math.sin(TAU * 8 * th);
-          shake += (i === 0 ? 0.006 : 0.0022) * Math.exp(-th / 0.085) * Math.sin(71 * th + i);
+        const th = (t - hits[i]) / 1000;
+        if (!landed[i]) {
+          landed[i] = true;
+          missed += 1;
+          Sound.thunk(true, 0.85);
+          buzz(10);
+          popLabel(ends[i], 'Raté !', '', 'miss-label');
+          cardCount.textContent = missed === N ? N + ' fléchettes, 0 point' : missed + (missed > 1 ? ' ratées' : ' ratée');
+          if (missed === N) card.classList.add('done');
         }
-
-        /* La caméra se détache et recule jusqu'au cadrage de repos */
-        const kb = clamp01((t - T_BACK) / BACK);
-        camera.position.lerpVectors(camHit.pos, camEnd.pos, easeInOut(kb));
-        camera.quaternion.copy(camHit.quat).slerp(camEnd.quat, easeInOut(clamp01(kb * 1.5)));
-        camera.fov = (FOV_POV + 8) + (FOV_END - FOV_POV - 8) * easeInOut(kb);
-        camera.position.x += shake;
-        camera.position.y += shake * 0.7;
-
-        if (!posed && t >= T_POSE) {
-          posed = true;
-          root.classList.add('intro-pose');
-          // les liens sont posés avec le cadrage de repos, même si la caméra finit encore de se caler
-          const p = camera.position.clone(), q = camera.quaternion.clone(), f = camera.fov;
-          camera.position.copy(camEnd.pos); camera.quaternion.copy(camEnd.quat); camera.fov = FOV_END;
-          camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
-          placeLinks();
-          camera.position.copy(p); camera.quaternion.copy(q); camera.fov = f;
-        }
-        if (t >= T_END) { end(); return; }
+        // la fléchette vibre dans le bois, et le papier qu'elle cloue se déplie d'un coup
+        const vib = Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th);
+        d.visible = true;
+        setDepth(d, kb > 0.35 ? 'planted' : 'sharp');
+        setDart(d, ends[i], dirEnds[i], 5.5 * DEG * vib, 2.2 * DEG * vib);
+        const p = papers[i];
+        p.mesh.visible = true;
+        p.mesh.scale.setScalar(p.k * easeOut(clamp01(th / 0.13), 2));
+        p.mesh.rotation.z = p.it.rot * DEG + 5 * DEG * Math.exp(-th / 0.22) * Math.sin(TAU * 5 * th);
+        p.mesh.rotation.x = -0.5 * Math.exp(-th / 0.16) * Math.cos(TAU * 4 * th);
+        shake += 0.0035 * Math.exp(-th / 0.085) * Math.sin(71 * th + i);
       }
+      camera.position.x += shake;
+      camera.position.y += shake * 0.7;
+      if (kb > 0.35) blur = Math.max(blur, DOF_PLANTED * kb);
 
-      canvas.style.filter = motion > 0.2 ? `blur(${motion.toFixed(2)}px)` : '';
+      if (!posed && t >= T_POSE) {
+        posed = true;
+        root.classList.add('intro-pose');
+        // les liens sont posés avec le cadrage de repos, même si la caméra finit encore de se caler
+        const p = camera.position.clone(), q = camera.quaternion.clone(), f = camera.fov;
+        camera.position.copy(camEnd.pos); camera.quaternion.copy(camEnd.quat); camera.fov = FOV_END;
+        camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
+        placeLinks();
+        camera.position.copy(p); camera.quaternion.copy(q); camera.fov = f;
+      }
+      if (t >= T_END) { end(); return; }
+
       camera.updateProjectionMatrix();
       camera.updateMatrixWorld(true);
       S.render(blur);
