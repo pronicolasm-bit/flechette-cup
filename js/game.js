@@ -243,8 +243,8 @@
       const pos = data.list.findIndex(e => e.at === mine.at);
       if (pos >= 10) list.appendChild(rankRow(String(pos + 1), mine.name, mine.score, 'me'));
     }
-    // il a ouvert le bal : sept fléchettes, toutes dans le bois
-    list.appendChild(rankRow('', 'LeBouseuh', 0, 'host', 'Organisateur, 7 ratées'));
+    // il a ouvert le bal : toutes ses fléchettes sont dans le mur
+    list.appendChild(rankRow('', 'LeBouseuh', 0, 'host', 'Organisateur, ' + ((window.FCBoard && window.FCBoard.misses) || 7) + ' ratées'));
     listTitle.textContent = data.shared ? 'Le classement' : 'Le classement sur cet appareil';
     note.textContent = data.shared ? '' : 'Pour l’instant, les scores sont gardés sur cet appareil : le classement commun à tous les joueurs arrive.';
     note.hidden = data.shared;

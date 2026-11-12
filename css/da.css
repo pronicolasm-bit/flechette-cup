@@ -527,6 +527,16 @@ html.gl .board-wrap { width: min(50vw, calc((100svh - var(--topbar-h)) * 0.56));
   html.gl .board-wrap { width: min(72vw, calc((100svh - var(--topbar-h)) * 0.42)); }
 }
 
+/* Les plans du teaser, plein cadre, coupés net */
+.intro-film {
+  position: absolute; inset: 0; z-index: 4;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0; pointer-events: none;
+  background: #06030A;
+}
+.intro-film.on { opacity: 1; }
+
 /* Le carton de l'intro */
 .intro-card {
   position: absolute; left: var(--pad); bottom: 70px; z-index: 8;

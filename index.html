@@ -28,7 +28,7 @@
     if (location.hash || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     c.add('intro');
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-    window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 14000);
+    window.__introSafety = setTimeout(function () { c.remove('intro', 'intro-impact', 'intro-pose'); }, 24000);
   } catch (e) {}
 })();
 </script>

@@ -1,8 +1,8 @@
-/* Fléchettes Cup 2 : la cible dans son bar, en 3D.
-   Intro : plan large, LeBouseuh enchaîne les fléchettes de loin. Aucune ne touche la cible,
-   elles se plantent dans le bois autour en clouant chacune une section du site (« Raté ! »).
-   La caméra vient ensuite se caler sur la cible, restée vide : le visiteur peut jouer
-   (viseur, partie et classement sont dans game.js). Chaque papier est un lien vers sa section. */
+/* Fléchettes Cup 2 : la cible en 3D, dans le décor et la lumière du teaser de l'édition 1.
+   Intro : un montage en champ-contrechamp. Les plans du teaser où LeBouseuh vise et lance
+   alternent avec notre mur, où ses fléchettes arrivent toutes à côté de la cible, certaines
+   en clouant une section du site (« Raté ! »). La caméra vient ensuite se caler sur la cible,
+   restée vide : le visiteur peut jouer (viseur, partie et classement sont dans game.js). */
 (function () {
   'use strict';
 
@@ -508,56 +508,106 @@
     }
   };
 
-  /* ---------- Textures du bar ---------- */
-  function brickTextures() {
-    const W = 2048, H = 1056, COLS = 8, ROWS = 11;
-    const bw = W / COLS, bh = H / ROWS, mortar = 9;
-    const col = document.createElement('canvas'); col.width = W; col.height = H;
-    const bmp = document.createElement('canvas'); bmp.width = W; bmp.height = H;
+  /* ---------- Textures du décor ---------- */
+  /* Enduit terracotta usé. size : côté de la texture en pixels ; meters : ce qu'elle couvre.
+     plain : sans les dégâts (pour le reste du mur, où elle est répétée). */
+  function plasterTexture(size, meters, plain) {
+    const col = document.createElement('canvas'); col.width = col.height = size;
+    const bmp = document.createElement('canvas'); bmp.width = bmp.height = size;
     const g = col.getContext('2d'), b = bmp.getContext('2d');
-    const rnd = mulberry32(404);
-    g.fillStyle = '#3B342F'; g.fillRect(0, 0, W, H);
-    b.fillStyle = '#2A2A2A'; b.fillRect(0, 0, W, H);
-    for (let r = 0; r < ROWS; r++) {
-      const off = (r % 2) * bw / 2;
-      for (let c = -1; c < COLS; c++) {
-        const x = c * bw + off + mortar / 2, y = r * bh + mortar / 2;
-        const hue = 10 + rnd() * 12, sat = 26 + rnd() * 14;
-        let lig = 21 + rnd() * 10;
-        const roll = rnd();
-        if (roll < 0.12) lig -= 8; else if (roll > 0.9) lig += 7;
-        const draw = (xx) => {
-          const gr = g.createLinearGradient(xx, y, xx, y + bh);
-          gr.addColorStop(0, `hsl(${hue},${sat}%,${lig + 3}%)`);
-          gr.addColorStop(1, `hsl(${hue},${sat}%,${lig - 3}%)`);
-          g.fillStyle = gr;
-          g.fillRect(xx, y, bw - mortar, bh - mortar);
-          const v = 150 + rnd() * 50 | 0;
-          b.fillStyle = `rgb(${v},${v},${v})`;
-          b.fillRect(xx, y, bw - mortar, bh - mortar);
-        };
-        draw(x);
-        if (x + bw > W) draw(x - W);      // raccord horizontal
-        // éclats
-        for (let k = 0; k < 3; k++) {
-          if (rnd() < 0.5) continue;
-          const ex = x + rnd() * (bw - mortar), ey = rnd() < 0.5 ? y : y + bh - mortar;
-          g.fillStyle = '#3B342F'; b.fillStyle = '#2A2A2A';
-          const er = 3 + rnd() * 7;
-          g.beginPath(); g.arc(ex, ey, er, 0, TAU); g.fill();
-          b.beginPath(); b.arc(ex, ey, er, 0, TAU); b.fill();
-        }
-      }
+    const rnd = mulberry32(plain ? 9090 : 1605);
+    const M = size / meters;                                   // pixels par mètre
+    const at = (x, y) => [(x / meters + 0.5) * size, (0.5 - (y - 0.2) / meters) * size];   // le panneau est centré en y = 0,2
+    g.fillStyle = '#7E4326'; g.fillRect(0, 0, size, size);
+    b.fillStyle = '#808080'; b.fillRect(0, 0, size, size);
+    // nuages de teinte : l'enduit n'est jamais uniforme
+    for (let i = 0; i < (plain ? 60 : 150); i++) {
+      const x = rnd() * size, y = rnd() * size, r = (0.08 + rnd() * 0.3) * size;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      const dark = rnd() < 0.6;
+      gr.addColorStop(0, dark ? `rgba(48,20,10,${0.05 + rnd() * 0.1})` : `rgba(214,140,84,${0.04 + rnd() * 0.07})`);
+      gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, size, size);
     }
+    // grain fin, en couleur et en relief
     const tile = noiseTile(rnd, 256);
-    [[g, 0.5, 1], [g, 0.3, 5], [b, 0.5, 1]].forEach(([ctx, a, s]) => {
+    [[g, 0.1, 1], [g, 0.2, 7], [b, 0.22, 1], [b, 0.3, 6]].forEach(([ctx, a, s]) => {
       ctx.save();
       ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = a;
       ctx.fillStyle = ctx.createPattern(tile, 'repeat');
-      ctx.scale(s, s); ctx.fillRect(0, 0, W / s, H / s);
+      ctx.scale(s, s); ctx.fillRect(0, 0, size / s, size / s);
       ctx.restore();
     });
-    return { col, bmp, tileW: 1.72, tileH: 0.825 };
+    // coups de taloche, rayures, traces de frottement
+    for (let i = 0; i < (plain ? 30 : 110); i++) {
+      const x = rnd() * size, y = rnd() * size, len = (0.02 + rnd() * 0.14) * size, a = rnd() * Math.PI;
+      const light = rnd() < 0.35;
+      g.strokeStyle = light ? `rgba(226,170,120,${0.05 + rnd() * 0.1})` : `rgba(40,16,8,${0.06 + rnd() * 0.12})`;
+      g.lineWidth = 0.6 + rnd() * 1.8;
+      g.beginPath(); g.moveTo(x, y);
+      g.quadraticCurveTo(x + Math.cos(a) * len * 0.5 + (rnd() - 0.5) * 30, y + Math.sin(a) * len * 0.5 + (rnd() - 0.5) * 30, x + Math.cos(a) * len, y + Math.sin(a) * len);
+      g.stroke();
+    }
+    if (plain) return { col, bmp };
+
+    // éclats : le plâtre blanc apparaît sous la peinture, en creux
+    const fleck = (x, y, r) => {
+      g.beginPath(); b.beginPath();
+      const n = 5 + Math.floor(rnd() * 4), a0 = rnd() * TAU;
+      for (let k = 0; k < n; k++) {
+        const a = a0 + k / n * TAU, rr = r * (0.5 + rnd() * 0.7);
+        const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+        if (k) { g.lineTo(px, py); b.lineTo(px, py); } else { g.moveTo(px, py); b.moveTo(px, py); }
+      }
+      g.closePath(); b.closePath();
+      g.fillStyle = rnd() < 0.8 ? '#E4D8C6' : '#B79C82'; g.fill();
+      b.fillStyle = '#2A2A2A'; b.fill();
+    };
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(TAU * rnd());
+    // la grande balafre en haut à droite, comme dans le teaser, et quelques impacts plus anciens
+    const scars = [[0.50, 0.37, 0.12, 0.035, 150, -0.35], [0.56, 0.20, 0.05, 0.05, 40, 0], [-0.33, -0.25, 0.05, 0.03, 46, 0.2], [0.30, -0.22, 0.04, 0.04, 22, 0], [-0.52, 0.30, 0.05, 0.05, 18, 0]];
+    scars.forEach(sc => {
+      const c = at(sc[0], sc[1]), ca = Math.cos(sc[5]), sa = Math.sin(sc[5]);
+      for (let i = 0; i < sc[4]; i++) {
+        const u = gauss() * sc[2] * M, v = gauss() * sc[3] * M;
+        fleck(c[0] + u * ca - v * sa, c[1] + u * sa + v * ca, (0.0015 + rnd() * rnd() * 0.008) * M);
+      }
+    });
+    for (let i = 0; i < 34; i++) fleck(rnd() * size, rnd() * size, (0.0008 + rnd() * 0.0022) * M);
+    // une fissure qui part de la balafre
+    const c0 = at(0.38, 0.42);
+    g.strokeStyle = 'rgba(236,224,206,0.8)'; g.lineWidth = 1.6; b.strokeStyle = '#303030'; b.lineWidth = 2.4;
+    [g, b].forEach(ctx => {
+      const r2 = mulberry32(77);
+      ctx.beginPath(); ctx.moveTo(c0[0], c0[1]);
+      let x = c0[0], y = c0[1];
+      for (let k = 0; k < 16; k++) { x += (0.012 + r2() * 0.012) * M; y += (r2() - 0.62) * 0.012 * M; ctx.lineTo(x, y); }
+      ctx.stroke();
+    });
+    return { col, bmp };
+  }
+
+  /* Un impact frais dans l'enduit : quelques éclats de plâtre autour d'un trou */
+  function chipTexture(seed) {
+    const S = 128;
+    const c = document.createElement('canvas'); c.width = c.height = S;
+    const g = c.getContext('2d');
+    const rnd = mulberry32(seed);
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(TAU * rnd());
+    for (let i = 0; i < 15; i++) {
+      const x = S / 2 + gauss() * S * 0.12, y = S / 2 + gauss() * S * 0.12, r = 1.5 + rnd() * rnd() * 8;
+      g.beginPath();
+      const n = 5 + Math.floor(rnd() * 3), a0 = rnd() * TAU;
+      for (let k = 0; k < n; k++) {
+        const a = a0 + k / n * TAU, rr = r * (0.5 + rnd() * 0.7);
+        if (k) g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); else g.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+      }
+      g.closePath();
+      g.fillStyle = rnd() < 0.8 ? '#E4D8C6' : '#B79C82';
+      g.fill();
+    }
+    g.beginPath(); g.arc(S / 2, S / 2, 3, 0, TAU); g.fillStyle = '#1A0E08'; g.fill();
+    return c;
   }
 
   /* Bois : cernes déformés par un bruit, fil serré, lames de teintes un peu différentes */
@@ -596,87 +646,6 @@
       }
     }
     g.putImageData(img, 0, 0);
-    return c;
-  }
-
-  function chalkTexture(names, seed) {
-    const W = 512, H = 1024, F = 34;
-    const c = document.createElement('canvas'); c.width = W; c.height = H;
-    const g = c.getContext('2d');
-    const rnd = mulberry32(seed);
-    g.fillStyle = '#3A2413'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#1B2420'; g.fillRect(F, F, W - 2 * F, H - 2 * F);
-    // traces de chiffon
-    for (let i = 0; i < 26; i++) {
-      const x = F + rnd() * (W - 2 * F), y = F + rnd() * (H - 2 * F), r = 60 + rnd() * 130;
-      const gr = g.createRadialGradient(x, y, 0, x, y, r);
-      gr.addColorStop(0, `rgba(230,235,225,${0.03 + rnd() * 0.05})`); gr.addColorStop(1, 'rgba(230,235,225,0)');
-      g.fillStyle = gr; g.fillRect(F, F, W - 2 * F, H - 2 * F);
-    }
-    // l'écriture à la craie, sur un calque qu'on grignote ensuite
-    const t = document.createElement('canvas'); t.width = W; t.height = H;
-    const tg = t.getContext('2d');
-    const chalk = (txt, x, y, px, align) => {
-      tg.font = `italic 500 ${px}px Archivo, "Helvetica Neue", Arial, sans-serif`;
-      tg.textAlign = align || 'center'; tg.textBaseline = 'middle';
-      for (let k = 0; k < 3; k++) {
-        tg.fillStyle = `rgba(238,238,228,${0.5 + rnd() * 0.3})`;
-        tg.save();
-        tg.translate(x + (rnd() - 0.5) * 2.5, y + (rnd() - 0.5) * 2.5);
-        tg.rotate((rnd() - 0.5) * 0.05);
-        tg.fillText(txt, 0, 0);
-        tg.restore();
-      }
-    };
-    const line = (x0, y0, x1, y1) => {
-      tg.strokeStyle = 'rgba(238,238,228,0.75)'; tg.lineWidth = 3.5; tg.lineCap = 'round';
-      tg.beginPath(); tg.moveTo(x0, y0 + (rnd() - 0.5) * 4); tg.lineTo(x1, y1 + (rnd() - 0.5) * 4); tg.stroke();
-    };
-    chalk('301', W / 2, 120, 92);
-    line(140, 172, W - 140, 176);
-    chalk(names[0], W * 0.3, 240, 34);
-    chalk(names[1], W * 0.7, 240, 34);
-    line(W / 2, 215, W / 2, 800);
-    line(70, 272, W - 70, 270);
-    let a = 301, bScore = 301;
-    for (let r = 0; r < 7; r++) {
-      const y = 330 + r * 66;
-      chalk(String(a), W * 0.3, y, 44);
-      chalk(String(bScore), W * 0.7, y, 44);
-      if (r < 6) { line(W * 0.3 - 46, y, W * 0.3 + 46, y - 6); line(W * 0.7 - 46, y, W * 0.7 + 46, y - 6); }
-      a = Math.max(2, a - (26 + Math.floor(rnd() * 60)));
-      bScore = Math.max(2, bScore - (26 + Math.floor(rnd() * 60)));
-    }
-    chalk('GAME ON !', W / 2, 880, 50);
-    tg.globalCompositeOperation = 'destination-out';
-    tg.globalAlpha = 0.5;
-    // le bruit est opaque : on ne retire qu'une partie des pixels, façon grain de craie
-    const mask = document.createElement('canvas'); mask.width = mask.height = 128;
-    const mg = mask.getContext('2d');
-    const id = mg.createImageData(128, 128);
-    for (let i = 0; i < 128 * 128; i++) { id.data[i * 4 + 3] = rnd() < 0.42 ? 255 : 0; }
-    mg.putImageData(id, 0, 0);
-    tg.fillStyle = tg.createPattern(mask, 'repeat');
-    tg.fillRect(0, 0, W, H);
-    g.drawImage(t, 0, 0);
-    return c;
-  }
-
-  function neonTexture() {
-    const W = 1024, H = 288;
-    const c = document.createElement('canvas'); c.width = W; c.height = H;
-    const g = c.getContext('2d');
-    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.lineJoin = 'round'; g.lineCap = 'round';
-    g.font = DISPLAY(190);
-    const draw = (style, lw, blur, glow) => {
-      g.strokeStyle = style; g.lineWidth = lw; g.shadowColor = glow; g.shadowBlur = blur;
-      g.save(); g.translate(W / 2, H / 2 + 8); g.scale(0.9, 1); g.strokeText('FLÉCHETTES CUP', 0, 0); g.restore();
-    };
-    draw('#6A2CF0', 16, 60, '#6A2CF0');
-    draw('#8F5BFF', 10, 30, '#8F5BFF');
-    draw('#F3ECFF', 3.5, 8, '#C9B0FF');
     return c;
   }
 
@@ -723,7 +692,7 @@
     renderer.setPixelRatio(dpr);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 0.96;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x000000, 0);
@@ -745,18 +714,17 @@
     };
     const dataTex = (c, repeat) => { const t = canvasTex(c, repeat); t.encoding = THREE.LinearEncoding; return t; };
 
-    // Reflets : l'ambiance d'un bar, sombre, avec des sources chaudes et un néon violet
+    // Reflets : un pub sombre, quelques sources chaudes, une lueur froide dans un coin
     const envC = document.createElement('canvas');
     envC.width = 512; envC.height = 256;
     const eg = envC.getContext('2d');
     const sky = eg.createLinearGradient(0, 0, 0, 256);
-    sky.addColorStop(0, '#1A1210'); sky.addColorStop(0.5, '#0C0808'); sky.addColorStop(1, '#050304');
+    sky.addColorStop(0, '#1A120E'); sky.addColorStop(0.5, '#0B0706'); sky.addColorStop(1, '#040303');
     eg.fillStyle = sky; eg.fillRect(0, 0, 512, 256);
-    eg.fillStyle = '#FFE2B0'; eg.fillRect(60, 20, 120, 44);
-    eg.fillStyle = '#FFC98A'; eg.fillRect(300, 30, 60, 30);
-    eg.fillStyle = '#FFB060'; eg.fillRect(430, 96, 40, 30);
-    eg.fillStyle = '#7A45FF'; eg.fillRect(200, 70, 110, 26);
-    eg.fillStyle = '#FFE8C8'; eg.fillRect(120, 150, 50, 16);
+    eg.fillStyle = '#FFD9A0'; eg.fillRect(330, 18, 120, 46);
+    eg.fillStyle = '#FFB868'; eg.fillRect(70, 34, 50, 26);
+    eg.fillStyle = '#FF9A48'; eg.fillRect(210, 100, 36, 26);
+    eg.fillStyle = '#2FB8AE'; eg.fillRect(20, 150, 60, 30);
     const envT = new THREE.CanvasTexture(envC);
     envT.mapping = THREE.EquirectangularReflectionMapping;
     envT.encoding = THREE.sRGBEncoding;
@@ -764,118 +732,105 @@
     scene.environment = pmrem.fromEquirectangular(envT).texture;
     envT.dispose(); pmrem.dispose();
 
-    /* --- Lumières --- */
+    /* --- Lumières : celles du teaser de l'édition 1 ---
+       Une source chaude et rasante, en haut à droite : les fléchettes plantées dans le mur
+       projettent de longues ombres, et le côté gauche tombe dans le noir. */
     const lights = [];
-    // Le spot du pas de tir, braqué sur la cible. Deux sources voisines plutôt qu'une :
-    // leurs ombres se recouvrent en dégradé, comme la pénombre d'une vraie lampe.
     const mkSpot = (intensity, x, y, z) => {
-      const l = new THREE.SpotLight(0xFFE2BC, intensity, 0, 0.31, 0.88, 1);
+      const l = new THREE.SpotLight(0xFFCB96, intensity, 0, 0.36, 0.92, 1);
       l.position.set(x, y, z);
-      l.target.position.set(0, -0.04, 0);
+      l.target.position.set(0.24, 0.05, 0);
       l.castShadow = true;
       l.shadow.mapSize.set(mobile ? 1024 : 2048, mobile ? 1024 : 2048);
-      l.shadow.camera.near = 1.2; l.shadow.camera.far = 3.6;
+      l.shadow.camera.near = 0.6; l.shadow.camera.far = 4.2;
       l.shadow.bias = -0.0004;
       l.shadow.normalBias = 0.0009;
       scene.add(l, l.target);
       lights.push(l);
     };
-    mkSpot(1.65, -0.60, 1.12, 1.86);
-    mkSpot(1.15, -0.40, 1.28, 1.94);
-    const lampGlow = new THREE.PointLight(0xFFC27A, 0.75, 1.5, 1.6);
-    lampGlow.position.set(0, 0.56, 0.24);
-    const neonGlow = new THREE.PointLight(0x7A45FF, 1.3, 2.6, 1.5);
-    neonGlow.position.set(0, 0.92, 0.28);
-    const sconceL = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
+    // deux sources voisines plutôt qu'une : leurs ombres se recouvrent en dégradé, comme une vraie lampe
+    mkSpot(2.25, 1.50, 1.08, 0.74);
+    mkSpot(1.45, 1.70, 0.92, 0.84);
+    // un peu de face, pour que la cible et les papiers restent lisibles côté ombre
+    const frontFill = new THREE.SpotLight(0xFFE2C4, 0.3, 0, 0.5, 1, 1);
+    frontFill.position.set(-0.3, 0.5, 2.4);
+    frontFill.target.position.set(0, 0, 0);
+    // les ombres ne sont pas noires : elles tirent vers le froid, comme sur le film
+    const cold = new THREE.AmbientLight(0x123438, 0.42);
+    const tvGlow = new THREE.PointLight(0x35D8C8, 0.7, 2.6, 1.4);       // la lueur d'un écran, en bas à gauche
+    tvGlow.position.set(-1.5, -0.55, 0.55);
+    const sconceL = new THREE.PointLight(0xFFB769, 0.8, 2.6, 1.5);
     sconceL.position.set(-2.45, 0.5, 0.22);
-    const sconceR = new THREE.PointLight(0xFFB769, 1.15, 2.6, 1.5);
+    const sconceR = new THREE.PointLight(0xFFB769, 0.8, 2.6, 1.5);
     sconceR.position.set(2.45, 0.5, 0.22);
-    // un peu de lumière de la salle renvoyée par la droite, pour ne pas boucher les ombres
-    const fill = new THREE.PointLight(0xFFD0A0, 0.32, 5, 1.2);
-    fill.position.set(1.0, -0.35, 1.3);
-    const hemi = new THREE.HemisphereLight(0x9C8AD8, 0x1C0E0A, 0.15);
-    [lampGlow, neonGlow, sconceL, sconceR, fill, hemi].forEach(l => { scene.add(l); lights.push(l); });
+    scene.add(frontFill.target);
+    [frontFill, cold, tvGlow, sconceL, sconceR].forEach(l => { scene.add(l); lights.push(l); });
     lights.forEach(l => l.layers.enable(1));
 
-    /* --- Le bar --- */
-    const WALL_Z = -0.075;
-    const bricks = brickTextures();
-    const wallW = 9, wallH = 3.8;
-    const rep = [wallW / bricks.tileW, wallH / bricks.tileH];
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(wallW, wallH), new THREE.MeshStandardMaterial({
-      map: canvasTex(bricks.col, rep), bumpMap: dataTex(bricks.bmp, rep), bumpScale: 0.006,
-      roughness: 0.94, metalness: 0, envMapIntensity: 0.25
+    /* --- Le décor : le mur du pub --- */
+    const WALL_Z = -0.040;                 // la cible est accrochée à même le mur
+    // le pan de mur où est la cible : un enduit terracotta usé, avec sa balafre
+    const PANEL = 2.4;
+    const plaster = plasterTexture(mobile ? 1024 : 2048, PANEL);
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(PANEL, PANEL), new THREE.MeshStandardMaterial({
+      map: canvasTex(plaster.col), bumpMap: dataTex(plaster.bmp), bumpScale: 0.0013,
+      roughness: 0.9, metalness: 0, envMapIntensity: 0.3
     }));
-    wall.position.set(0, -0.15, WALL_Z);
+    panel.position.set(0, 0.2, WALL_Z);
+    panel.receiveShadow = true;
+    scene.add(panel);
+    // le reste du mur, plus rouge et plus sombre
+    const farWall = plasterTexture(512, 1.2, true);
+    const wallW = 9, wallH = 3.8;
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(wallW, wallH), new THREE.MeshStandardMaterial({
+      map: canvasTex(farWall.col, [wallW / 1.2, wallH / 1.2]), bumpMap: dataTex(farWall.bmp, [wallW / 1.2, wallH / 1.2]), bumpScale: 0.002,
+      color: 0x8A5A52, roughness: 0.92, metalness: 0, envMapIntensity: 0.25
+    }));
+    wall.position.set(0, -0.15, WALL_Z - 0.004);
     wall.receiveShadow = true;
     scene.add(wall);
 
     const woodA = woodTexture(21), woodB = woodTexture(22);
-    // bois verni : le relief suit le fil, une couche brillante accroche la lumière du spot
+    // bois sombre verni : le relief suit le fil, une couche brillante accroche la lumière
     const wood = (tint, repeat, canvasSrc) => new THREE.MeshPhysicalMaterial({
       map: canvasTex(canvasSrc || woodA, repeat || [1, 1]), bumpMap: dataTex(canvasSrc || woodA, repeat || [1, 1]), bumpScale: 0.0009,
-      color: tint, roughness: 0.6, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.4, envMapIntensity: 0.35
+      color: tint, roughness: 0.55, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.4, envMapIntensity: 0.45
     });
-    // soubassement en lambris et sa cimaise
-    const wains = new THREE.Mesh(new THREE.PlaneGeometry(wallW, 1.3), wood(0x8E7866, [wallW / 0.46, 1.3 / 0.92]));
-    wains.position.set(0, -0.78 - 0.65, WALL_Z + 0.02);
-    wains.receiveShadow = true;
-    scene.add(wains);
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(wallW, 0.055, 0.05), wood(0x7E6856, [12, 0.1]));
-    rail.position.set(0, -0.78, WALL_Z + 0.03);
-    scene.add(rail);
-
-    // le meuble à fléchettes : fond en bois, portes ouvertes avec leurs ardoises
-    const CAB_W = 1.02, CAB_H = 1.10;
-    const cabMat = wood(0xB09A88, [2.3, 1.25], woodB);
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(CAB_W, CAB_H, 0.037), cabMat);
-    cab.position.set(0, 0, WALL_Z + 0.0185);
-    cab.castShadow = true; cab.receiveShadow = true;
-    scene.add(cab);
-    [[0, CAB_H / 2 + 0.014, CAB_W + 0.056, 0.028], [0, -CAB_H / 2 - 0.014, CAB_W + 0.056, 0.028]].forEach(d => {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(d[2], d[3], 0.07), cabMat);
-      m.position.set(d[0], d[1], WALL_Z + 0.035);
-      m.castShadow = true; m.receiveShadow = true;
-      scene.add(m);
+    const darkWood = wood(0x4A342A, [0.4, 2.2], woodB);
+    // les montants en bois qui encadrent le pan de mur
+    [-1, 1].forEach(side => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.13, 2.9, 0.09), darkWood);
+      post.position.set(side * (PANEL / 2 + 0.03), 0.1, WALL_Z + 0.045);
+      post.castShadow = true; post.receiveShadow = true;
+      scene.add(post);
     });
-    [['LEBOUSEUH', 'MICHOU', 31, -1], ['DOMINGO', 'INOX', 32, 1]].forEach(d => {
-      const pivot = new THREE.Group();
-      pivot.position.set(d[3] * CAB_W / 2, 0, WALL_Z + 0.04);
-      pivot.rotation.y = -d[3] * 0.34;
-      const mats = [cabMat, cabMat, cabMat, cabMat,
-        new THREE.MeshStandardMaterial({ map: canvasTex(chalkTexture([d[0], d[1]], d[2])), roughness: 0.9, envMapIntensity: 0.2 }), cabMat];
-      const door = new THREE.Mesh(new THREE.BoxGeometry(CAB_W / 2, CAB_H, 0.02), mats);
-      door.position.x = d[3] * CAB_W / 4;
-      door.castShadow = true; door.receiveShadow = true;
-      pivot.add(door);
-      scene.add(pivot);
-    });
-
-    // l'applique en laiton au-dessus du meuble
-    const brass = new THREE.MeshStandardMaterial({ color: 0xB08A3C, metalness: 1, roughness: 0.3, envMapIntensity: 1.3 });
-    const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 20), brass);
-    shade.rotation.z = Math.PI / 2;
-    shade.position.set(0, 0.640, 0.2);
-    scene.add(shade);
-    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.44, 10), new THREE.MeshBasicMaterial({ color: 0xFFE9C4, toneMapped: false }));
-    tube.rotation.z = Math.PI / 2;
-    tube.position.set(0, 0.617, 0.2);
-    scene.add(tube);
-    [-0.14, 0.14].forEach(x => {
-      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.28, 8), brass);
-      arm.rotation.x = Math.PI / 2;
-      arm.position.set(x, 0.640, WALL_Z + 0.14);
-      scene.add(arm);
-    });
-
-    // le néon
-    const neon = new THREE.Mesh(new THREE.PlaneGeometry(0.98, 0.275), new THREE.MeshBasicMaterial({
-      map: canvasTex(neonTexture()), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false
-    }));
-    neon.position.set(0, 0.92, WALL_Z + 0.03);
-    scene.add(neon);
+    // la tablette sous la cible, couverte de débris, et le lambris en dessous
+    const ledge = new THREE.Group();
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(PANEL + 0.2, 0.036, 0.16), wood(0x513828, [5, 0.2], woodA));
+    shelf.position.set(0, -0.018, WALL_Z + 0.08);
+    shelf.castShadow = true; shelf.receiveShadow = true;
+    ledge.add(shelf);
+    const below = new THREE.Mesh(new THREE.PlaneGeometry(wallW, 1.6), wood(0x3E2C24, [wallW / 0.46, 1.7], woodB));
+    below.position.set(0, -0.036 - 0.8, WALL_Z + 0.012);
+    below.receiveShadow = true;
+    ledge.add(below);
+    (function debris() {
+      const rnd = mulberry32(515);
+      const mat = new THREE.MeshStandardMaterial({ color: 0xD9CBB8, roughness: 0.95 });
+      const dust = new THREE.MeshStandardMaterial({ color: 0x9A6A48, roughness: 0.95 });
+      for (let i = 0; i < 26; i++) {
+        const s = 0.004 + rnd() * 0.012;
+        const chunk = new THREE.Mesh(new THREE.BoxGeometry(s, s * (0.4 + rnd() * 0.5), s * (0.6 + rnd() * 0.8)), rnd() < 0.7 ? mat : dust);
+        chunk.position.set((rnd() * 2 - 1) * 0.62, s * 0.2, WALL_Z + 0.02 + rnd() * 0.12);
+        chunk.rotation.set(rnd() * 0.6, rnd() * Math.PI, rnd() * 0.6);
+        chunk.castShadow = true; chunk.receiveShadow = true;
+        ledge.add(chunk);
+      }
+    })();
+    scene.add(ledge);
 
     // appliques murales, avec leur halo
+    const brass = new THREE.MeshStandardMaterial({ color: 0xB08A3C, metalness: 1, roughness: 0.3, envMapIntensity: 1.3 });
     const halo = canvasTex(haloTexture('rgba(255,236,200,1)', 'rgba(255,170,80,0.35)'));
     [-2.45, 2.45].forEach(x => {
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), new THREE.MeshBasicMaterial({ color: 0xFFE2B5, toneMapped: false }));
@@ -890,40 +845,13 @@
       scene.add(sp);
     });
 
-    // étagère à bouteilles, à gauche
-    const shelfMat = wood(0x7C6656, [2.4, 0.2]);
-    [[-1.66, 0.02], [-1.66, 0.47]].forEach((s, row) => {
-      const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.03, 0.17), shelfMat);
-      shelf.position.set(s[0], s[1], WALL_Z + 0.085);
-      scene.add(shelf);
-      const rnd = mulberry32(60 + row);
-      const prof = [[0, 0], [0.034, 0], [0.036, 0.008], [0.036, 0.15], [0.031, 0.185], [0.014, 0.22], [0.0125, 0.27], [0.015, 0.274], [0.015, 0.285], [0, 0.285]]
-        .map(p => new THREE.Vector2(p[0], p[1]));
-      const bottleGeo = new THREE.LatheGeometry(prof, 20);
-      const glassCols = [0x2B1608, 0x12331C, 0x3A1E0A, 0x20303A, 0x0E0E10, 0x4A2A10];
-      for (let i = 0; i < 8; i++) {
-        const sc = 0.82 + rnd() * 0.3;
-        const bottle = new THREE.Mesh(bottleGeo, new THREE.MeshStandardMaterial({
-          color: glassCols[Math.floor(rnd() * glassCols.length)], roughness: 0.07, metalness: 0.1,
-          transparent: true, opacity: 0.9, envMapIntensity: 2.2
-        }));
-        const bx = s[0] - 0.46 + i * 0.13 + (rnd() - 0.5) * 0.03;
-        bottle.position.set(bx, s[1] + 0.015, WALL_Z + 0.085 + (rnd() - 0.5) * 0.04);
-        bottle.scale.set(sc, 0.9 + rnd() * 0.3, sc);
-        scene.add(bottle);
-        const label = new THREE.Mesh(new THREE.CylinderGeometry(0.0368 * sc, 0.0368 * sc, 0.06, 18, 1, true),
-          new THREE.MeshStandardMaterial({ color: [0xE9E2D0, 0xC9A64A, 0x7A1F1F, 0xE9E2D0][Math.floor(rnd() * 4)], roughness: 0.8 }));
-        label.position.set(bx, s[1] + 0.015 + 0.085 * bottle.scale.y, bottle.position.z);
-        scene.add(label);
-      }
-    });
-
-    // affiches encadrées, à droite
-    [[1.44, 0.22, 0.44, 0.59, TEAM_GRADS[1], 'MICHOU', 41], [2.0, 0.02, 0.36, 0.48, TEAM_GRADS[4], 'INOX', 42], [1.72, -0.42, 0.3, 0.4, TEAM_GRADS[0], 'LEBOUSEUH', 43]].forEach(f => {
+    // cadres aux murs, de part et d'autre
+    [[1.62, 0.30, 0.44, 0.59, TEAM_GRADS[1], 'MICHOU', 41], [2.12, 0.02, 0.36, 0.48, TEAM_GRADS[4], 'INOX', 42], [-1.60, 0.36, 0.36, 0.48, TEAM_GRADS[0], 'LEBOUSEUH', 43], [-2.08, -0.02, 0.3, 0.4, TEAM_GRADS[3], 'DOMINGO', 44]].forEach(f => {
       const frame = new THREE.Mesh(new THREE.BoxGeometry(f[2] + 0.05, f[3] + 0.05, 0.03), new THREE.MeshStandardMaterial({ color: 0x15100C, roughness: 0.5, envMapIntensity: 0.6 }));
       frame.position.set(f[0], f[1], WALL_Z + 0.015);
+      frame.castShadow = true;
       scene.add(frame);
-      const pic = new THREE.Mesh(new THREE.PlaneGeometry(f[2], f[3]), new THREE.MeshStandardMaterial({ map: canvasTex(posterTexture(f[4], f[5], f[6])), color: 0xB8B0A8, roughness: 0.4, envMapIntensity: 0.6 }));
+      const pic = new THREE.Mesh(new THREE.PlaneGeometry(f[2], f[3]), new THREE.MeshStandardMaterial({ map: canvasTex(posterTexture(f[4], f[5], f[6])), color: 0x9A9088, roughness: 0.4, envMapIntensity: 0.6 }));
       pic.position.set(f[0], f[1], WALL_Z + 0.031);
       scene.add(pic);
     });
@@ -1009,7 +937,7 @@
 
       const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
         map, bumpMap: crease, bumpScale: 0.0007, roughness: it.id === 'photo' ? 0.45 : 0.82, metalness: 0, envMapIntensity: 0.28, side: THREE.DoubleSide,
-        emissive: 0xFFFFFF, emissiveMap: map, emissiveIntensity: 0
+        emissive: 0xFFFFFF, emissiveMap: map, emissiveIntensity: 0.035
       }));
       mesh.rotation.z = it.rot * DEG;
       mesh.castShadow = true;
@@ -1018,8 +946,8 @@
 
       return { it, mesh, map, canvas: c, pinWorld: new THREE.Vector3(), x: 0, y: 0, z0: 0, k: 1 };
     });
-    const OFF_Z = WALL_Z + 0.0375;                    // surface du fond du meuble
-    function layout(portrait) {
+    const OFF_Z = WALL_Z + 0.0008;                    // la surface du mur
+    let layout = function (portrait) {
       papers.forEach(p => {
         const it = p.it, c = portrait && it.posP ? it.posP : it.pos;
         const r = it.rot * DEG, cr = Math.cos(r), sr = Math.sin(r);
@@ -1029,8 +957,7 @@
         p.mesh.scale.setScalar(k);
         p.pinWorld.set(p.x + k * (it.pin[0] * cr - it.pin[1] * sr), p.y + k * (it.pin[0] * sr + it.pin[1] * cr), OFF_Z - 0.008);
       });
-    }
-    layout(false);
+    };
 
     /* --- Les fléchettes : pointe à l'origine, corps vers +Z, elles volent vers -Z --- */
     const alongZ = (geo, z) => { geo.rotateX(Math.PI / 2); geo.translate(0, 0, z); return geo; };
@@ -1109,6 +1036,59 @@
       return d;
     }
     const darts = papers.map(p => makeDart(p.it.fins));
+
+    /* --- La pluie de fléchettes : celles qui n'ont rien cloué du tout ---
+       Plantées n'importe où dans l'enduit, dans tous les sens, chacune avec son éclat de plâtre. */
+    const STRAY_FINS = [[0xEDEDED, 0x1C1C1C], [0xD63A2F, 0xF0F0F0], [0x1FA3A0, 0x0E5E5C], [0x1C1C1C, 0x555555], [0xEDEDED, 0xD63A2F], [0x2E8B57, 0xEDEDED]];
+    const chipMaps = [1, 2, 3].map(n => canvasTex(chipTexture(300 + n)));
+    const strays = [];
+    for (let i = 0; i < (mobile ? 10 : 16); i++) {
+      const chip = new THREE.Mesh(new THREE.PlaneGeometry(0.062, 0.062), new THREE.MeshStandardMaterial({
+        map: chipMaps[i % 3], transparent: true, depthWrite: false, roughness: 1, envMapIntensity: 0.2
+      }));
+      chip.receiveShadow = true;
+      chip.rotation.z = i * 2.4;
+      scene.add(chip);
+      strays.push({ dart: makeDart(STRAY_FINS[i % STRAY_FINS.length]), chip, pinWorld: new THREE.Vector3(), aim: [0, 0] });
+    }
+    // une fléchette qui a fini sur la tablette
+    const fallen = makeDart(STRAY_FINS[1]);
+    fallen.position.set(0.50, 0.012, WALL_Z + 0.05);
+    fallen.rotation.set(0.06, Math.PI / 2 - 0.3, 0);
+    ledge.add(fallen);
+
+    const baseLayout = layout;
+    layout = function (portrait) {
+      baseLayout(portrait);
+      ledge.position.y = portrait ? -0.60 : -0.325;
+      // positions tirées au sort, toujours les mêmes, en évitant la cible et les papiers
+      const rnd = mulberry32(portrait ? 2027 : 612);
+      const X = portrait ? 0.29 : 0.62, Y0 = portrait ? -0.55 : -0.29, Y1 = portrait ? 0.57 : 0.40;
+      const taken = [];
+      const onPaper = (x, y, m) => papers.some(p => Math.abs(x - p.x) < p.k * p.it.w / 2 + m && Math.abs(y - p.y) < p.k * p.it.h / 2 + m);
+      strays.forEach(s => {
+        let x = 0, y = 0, pitch = 0, yaw = 0;
+        for (let tries = 0; tries < 200; tries++) {
+          x = (rnd() * 2 - 1) * X; y = Y0 + rnd() * (Y1 - Y0);
+          // la plupart piquent du nez, quelques-unes pendent presque à la verticale
+          pitch = rnd() < 0.2 ? -(52 + rnd() * 16) : -(8 + rnd() * 32);
+          yaw = (rnd() * 2 - 1) * 44;
+          // où la queue se projette sur le mur, vue de face
+          const L = 0.24, tx = x - L * Math.sin(yaw * DEG) * Math.cos(pitch * DEG), ty = y - L * Math.sin(pitch * DEG);
+          const mx = (x + tx) / 2, my = (y + ty) / 2;
+          if (Math.min(Math.hypot(x, y), Math.hypot(tx, ty), Math.hypot(mx, my)) < BOARD_R + 0.03) continue;
+          if (onPaper(x, y, 0.03) || onPaper(tx, ty, 0.03) || onPaper(mx, my, 0.03)) continue;
+          if (taken.some(t => Math.hypot(x - t[0], y - t[1]) < 0.075)) continue;
+          break;
+        }
+        taken.push([x, y]);
+        s.pinWorld.set(x, y, OFF_Z - 0.008);
+        s.chip.position.set(x, y, OFF_Z + 0.0004);
+        s.aim = [pitch, yaw];
+      });
+    };
+    layout(false);
+
 
 
     /* --- Rendu façon photo ---
@@ -1208,7 +1188,7 @@
       camera.layers.set(0);
     }
 
-    return { THREE, renderer, scene, camera, canvas, papers, darts, render, resize, layout, makeDart, offZ: OFF_Z };
+    return { THREE, renderer, scene, camera, canvas, papers, darts, strays, render, resize, layout: p => layout(p), makeDart, offZ: OFF_Z };
 
   }
 
@@ -1229,7 +1209,7 @@
 
     // Netteté d'une fléchette : 'sharp' tout net, 'blur' tout flou (elle passe près de la caméra),
     // 'planted' l'avant net et l'arrière légèrement flou (il dépasse vers la caméra)
-    const DOF_PLANTED = 1.5;
+    const DOF_PLANTED = 0.9;
     function setDepth(d, mode) {
       d.userData.front.traverse(o => o.layers.set(mode === 'blur' ? 1 : 0));
       d.userData.rear.traverse(o => o.layers.set(mode === 'sharp' ? 0 : 1));
@@ -1237,9 +1217,17 @@
 
     const isPortrait = () => { const r = hero.getBoundingClientRect(); return r.width / r.height < 0.8; };
     S.layout(isPortrait());
-    const N = darts.length;
-    const ends = papers.map(p => p.pinWorld);
-    const dirEnds = papers.map(p => dirFrom(p.it.aim[0] * DEG, p.it.aim[1] * DEG, V()));
+    // toutes les fléchettes de LeBouseuh : d'abord celles qui clouent un papier, puis les autres
+    const strays = S.strays;
+    const allDarts = darts.concat(strays.map(st => st.dart));
+    const N = allDarts.length, NP = papers.length;
+    const ends = papers.map(p => p.pinWorld).concat(strays.map(st => st.pinWorld));
+    const dirEnds = allDarts.map(() => V());
+    function refreshAims() {
+      papers.forEach((p, i) => dirFrom(p.it.aim[0] * DEG, p.it.aim[1] * DEG, dirEnds[i]));
+      strays.forEach((st, j) => dirFrom(st.aim[0] * DEG, st.aim[1] * DEG, dirEnds[NP + j]));
+    }
+    refreshAims();
 
     const tA = V(), tB = V();
     function pathPos(from, to, arc, e, out) {
@@ -1282,6 +1270,7 @@
       const hr = hero.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
       view.w = hr.width; view.h = hr.height;
       S.layout(hr.width / hr.height < 0.8);
+      refreshAims();
       S.resize(hr.width, hr.height);
       camera.aspect = hr.width / hr.height;
       const wpp = 2 * BOARD_R / wr.width;
@@ -1331,7 +1320,7 @@
     function setLift(p, v) {
       p.mesh.position.z = p.z0 + v * 0.013;
       p.mesh.rotation.x = -v * 0.07;
-      p.mesh.material.emissiveIntensity = v * 0.1;
+      p.mesh.material.emissiveIntensity = 0.035 + v * 0.1;
     }
 
     /* --- Étiquette qui jaillit à un point de la scène : le score d'un lancer, ou « Raté ! » --- */
@@ -1350,7 +1339,8 @@
     }
 
     function applyRest() {
-      darts.forEach((d, i) => { d.visible = true; setDepth(d, 'planted'); setDart(d, ends[i], dirEnds[i]); });
+      allDarts.forEach((d, i) => { d.visible = true; setDepth(d, 'planted'); setDart(d, ends[i], dirEnds[i]); });
+      strays.forEach(st => { st.chip.visible = true; });
       papers.forEach((p, i) => {
         p.mesh.visible = true;
         p.mesh.scale.setScalar(p.k);
@@ -1577,6 +1567,7 @@
     /* --- Ce que le reste de la page peut demander à la cible --- */
     const api = window.FCBoard = {
       ready: false,
+      misses: N,                       // le nombre de fléchettes que LeBouseuh a mises à côté
       throwAt: throwAtClient,
       clearShots,
       // la zone de jeu à l'écran, et l'échelle de la cible (pixels par mètre)
@@ -1632,9 +1623,11 @@
     if (over) { applyRest(); drawRest(); announceReady(); return; }
 
     /* --- Intro : LeBouseuh ouvre le bal ---
-       Plan large du bar. Il enchaîne les fléchettes de loin : aucune ne touche la cible, elles se
-       plantent toutes dans le bois autour, chacune clouant un élément du site. Puis la caméra
-       s'approche de la cible, restée vide : c'est au visiteur de jouer. */
+       Un montage en champ-contrechamp. Côté LeBouseuh, les vrais plans du teaser de l'édition 1 :
+       il vise, il lance, il s'énerve, il relance. Côté mur, notre scène : à chaque fois les
+       fléchettes arrivent à côté de la cible, certaines en clouant un élément du site.
+       Puis la caméra s'approche de la cible, restée vide : c'est au visiteur de jouer.
+       Si le film ne peut pas être lu, on enchaîne simplement les plans du mur. */
     const portrait = isPortrait();
     const WIDE_Z = portrait ? 3.5 : 2.6;
     const FOV_WIDE = 40;
@@ -1644,15 +1637,60 @@
     m4.lookAt(camA.pos, lookWide, UP); camA.quat.setFromRotationMatrix(m4);
     m4.lookAt(camB.pos, lookNear, UP); camB.quat.setFromRotationMatrix(m4);
 
-    const FLIGHT = 520, BACK = 1250, T0 = 900;
-    const GAPS = [0, 430, 330, 300, 390, 260, 520, 300, 300];      // un rythme irrégulier : il s'acharne
-    const launch = [], hits = [];
-    let acc = T0;
-    for (let i = 0; i < N; i++) { acc += GAPS[i % GAPS.length]; launch.push(acc); hits.push(acc + FLIGHT); }
-    const T_BACK = hits[N - 1] + 700, T_POSE = T_BACK + BACK - 200, T_END = T_POSE + 450;
-    const starts = darts.map(() => V());
-    const aired = darts.map(() => false), landed = darts.map(() => false);
+    const FLIGHT = 480, BACK = 1250;
+    // l'ordre des lancers : une fléchette qui cloue un papier, puis deux qui ne clouent rien, et ainsi de suite
+    const order = [];
+    (function () {
+      let pi = 0, si = NP;
+      while (pi < NP || si < N) {
+        if (pi < NP) order.push(pi++);
+        for (let k = 0; k < 2 && si < N; k++) order.push(si++);
+      }
+    })();
+    // trois salves, une après chaque plan de lancer ; dans une salve le rythme est irrégulier : il s'acharne
+    const cutA = Math.round(N * 0.22), cutB = Math.round(N * 0.52);
+    const salvos = [order.slice(0, cutA), order.slice(cutA, cutB), order.slice(cutB)];
+    const launch = new Array(N), hits = new Array(N), salvoStart = [], salvoEnd = [];
+    (function () {
+      const rnd = mulberry32(1612);
+      let acc = 300;
+      salvos.forEach((g, k) => {
+        salvoStart[k] = acc;
+        g.forEach((i, j) => {
+          acc += j === 0 ? 0 : 90 + rnd() * 100 + (i < NP ? 40 : 0);
+          launch[i] = acc; hits[i] = acc + FLIGHT;
+        });
+        salvoEnd[k] = acc + FLIGHT + 430;
+        acc = salvoEnd[k] + 120;
+      });
+    })();
+    const T_BACK = salvoEnd[2] + 120, T_POSE = T_BACK + BACK - 200, T_END = T_POSE + 450;
+    const starts = allDarts.map(() => V());
+    const aired = allDarts.map(() => false), landed = allDarts.map(() => false);
     let posed = false, missed = 0;
+
+    // Le déroulé : plan de LeBouseuh (secondes dans le film), puis salve sur le mur
+    const steps = [
+      { film: [0, 1.96], pos: ['55%', '45%'] },      // il vise, puis il lance
+      { salvo: 0 },
+      { film: [1.96, 2.96], pos: ['50%'] },          // il relance, rageur
+      { salvo: 1 },
+      { film: [2.96, 3.80], pos: ['62%'] },          // en contre-plongée, n'importe comment
+      { salvo: 2 }
+    ];
+    let stepIdx = 0, filmDead = false, filmStall = 0, filmLast = -1;
+    const saveData = navigator.connection && navigator.connection.saveData;
+    const film = document.createElement('video');
+    film.className = 'intro-film';
+    film.muted = true; film.defaultMuted = true; film.playsInline = true; film.preload = 'auto';
+    film.setAttribute('muted', ''); film.setAttribute('playsinline', ''); film.setAttribute('aria-hidden', 'true');
+    film.tabIndex = -1;
+    film.addEventListener('error', () => { filmDead = true; });
+    const filmSrc = !film.canPlayType ? '' :
+      film.canPlayType('video/mp4; codecs="avc1.42E01E"') ? 'assets/intro-lebouseuh.mp4' :
+      film.canPlayType('video/webm; codecs="vp9"') ? 'assets/intro-lebouseuh.webm' : '';
+    if (saveData || !filmSrc) filmDead = true;
+    else { film.src = filmSrc; hero.appendChild(film); }
 
     // le carton de l'intro : qui lance, et où il en est
     const card = document.createElement('div');
@@ -1672,6 +1710,8 @@
       root.classList.remove('intro', 'intro-impact', 'intro-pose');
       ['wheel', 'touchmove', 'keydown'].forEach(ev => window.removeEventListener(ev, onUserSkip));
       card.remove();
+      try { film.pause(); } catch (e) { /* rien à arrêter */ }
+      film.remove();
       par.x = par.tx = REST.x; par.y = par.ty = REST.y;
       applyRest();
       drawRest();
@@ -1691,20 +1731,78 @@
     if (skip) skip.addEventListener('click', end);
     ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, onUserSkip, { passive: true }));
 
-    darts.forEach(d => { d.visible = false; });
+    clearTimeout(window.__introSafety);        // la scène est lancée : c'est elle qui termine l'intro
+    allDarts.forEach(d => { d.visible = false; });
+    strays.forEach(st => { st.chip.visible = false; });
     papers.forEach(p => { p.mesh.visible = false; });
 
-    // L'horloge de la séquence avance au rythme des images affichées, avec un pas plafonné :
+    // L'horloge du mur avance au rythme des images affichées, avec un pas plafonné :
     // sur un appareil lent l'intro ralentit, elle ne saute pas d'un coup à la fin
-    let clock = 0, lastNow = null;
+    let t = 0, lastNow = null, drawn = false;
+
+    /* Un plan du film. Renvoie true tant qu'il occupe l'écran. */
+    function playFilm(step, dt) {
+      if (filmDead) return false;
+      const from = step.film[0], to = step.film[1];
+      if (!step.on) {
+        step.on = true;
+        filmStall = 0; filmLast = -1;
+        // les plans se suivent dans le fichier : on reprend simplement la lecture là où elle s'était
+        // arrêtée, sans jamais repositionner la vidéo (certains serveurs ne le permettent pas)
+        const pr = film.play();
+        if (pr && pr.catch) pr.catch(() => { filmDead = true; });
+      }
+      // le film n'avance pas (lecture automatique refusée, réseau trop lent) : on s'en passe.
+      // On compte en temps d'images, plafonné, pour qu'une page momentanément figée ne le condamne pas.
+      if (film.currentTime === filmLast) filmStall += dt; else { filmStall = 0; filmLast = film.currentTime; }
+      if (filmStall > 2200) filmDead = true;
+      if (filmDead || film.currentTime >= to - 0.05) {
+        film.pause();
+        film.classList.remove('on');
+        return false;
+      }
+      // on ne montre le film qu'une fois entré dans le plan : pas d'image résiduelle du plan précédent
+      if (film.currentTime >= from + 0.02) {
+        const mid = step.pos.length > 1 && film.currentTime > 1.08 ? step.pos[1] : step.pos[0];
+        film.style.objectPosition = mid + ' 50%';
+        film.classList.add('on');
+      }
+      return true;
+    }
+
     function frame(now) {
       if (over) return;
-      clock += lastNow === null ? 0 : Math.min(now - lastNow, 60);
+      const dt = lastNow === null ? 0 : Math.min(now - lastNow, 60);
       lastNow = now;
-      const t = clock, s = t / 1000;
+
+      /* Où en est-on du déroulé ? */
+      // le mur est dessiné une première fois avant tout : ce premier rendu peut figer la page un instant,
+      // autant que ce soit avant le film que pendant
+      if (!drawn) { drawn = true; drawWall(0); raf = requestAnimationFrame(frame); return; }
+      let step = steps[stepIdx];
+      while (step && step.film) {
+        if (playFilm(step, dt)) { raf = requestAnimationFrame(frame); return; }
+        stepIdx += 1;
+        step = steps[stepIdx];
+        // on arrive sur le mur alors que les fléchettes sont déjà en l'air
+        if (step && step.salvo !== undefined) t = Math.max(t, salvoStart[step.salvo] + 200);
+      }
+      t += dt;
+      if (step && step.salvo !== undefined && step.salvo < 2 && t >= salvoEnd[step.salvo]) {
+        stepIdx += 1;
+        if (steps[stepIdx] && steps[stepIdx].film && !filmDead) { raf = requestAnimationFrame(frame); return; }
+      }
+      drawWall(t);
+      if (t >= T_END) { end(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+
+    /* Le plan du mur à l'instant t */
+    function drawWall(t) {
+      const s = t / 1000;
       let blur = 0;
 
-      /* La caméra : plan large qui se resserre doucement, puis elle vient se caler sur la cible */
+      // la caméra : plan large qui se resserre doucement, puis elle vient se caler sur la cible
       const kv = clamp01(t / T_BACK), kb = clamp01((t - T_BACK) / BACK);
       if (kb <= 0) {
         camera.position.lerpVectors(camA.pos, camB.pos, easeInOut(kv));
@@ -1719,11 +1817,11 @@
         camera.fov = FOV_WIDE + (FOV_END - FOV_WIDE) * easeInOut(kb);
       }
 
-      /* Les fléchettes de LeBouseuh */
+      // les fléchettes de LeBouseuh
       let shake = 0;
       for (let i = 0; i < N; i++) {
         if (t < launch[i]) continue;
-        const d = darts[i];
+        const d = allDarts[i];
         if (t < hits[i]) {
           const u = (t - launch[i]) / FLIGHT;
           const e = Math.pow(u, 1.15);
@@ -1731,7 +1829,7 @@
             aired[i] = true;
             // elles partent de sa main, juste à côté de nous
             starts[i].set(0.20 + 0.05 * Math.sin(i * 2.3), -0.15, -0.28).add(camera.position);
-            Sound.whoosh(FLIGHT / 1000, 0.6);
+            Sound.whoosh(FLIGHT / 1000, i < NP ? 0.6 : 0.35);
           }
           d.visible = true;
           pathPos(starts[i], ends[i], 0.11, e, tip);
@@ -1747,23 +1845,24 @@
         if (!landed[i]) {
           landed[i] = true;
           missed += 1;
-          Sound.thunk(true, 0.85);
-          buzz(10);
-          popLabel(ends[i], 'Raté !', '', 'miss-label');
+          Sound.thunk(true, i < NP ? 0.85 : 0.6);
+          if (i < NP) { buzz(10); popLabel(ends[i], 'Raté !', '', 'miss-label'); }
+          else strays[i - NP].chip.visible = true;
           cardCount.textContent = missed === N ? N + ' fléchettes, 0 point' : missed + (missed > 1 ? ' ratées' : ' ratée');
           if (missed === N) card.classList.add('done');
         }
-        // la fléchette vibre dans le bois, et le papier qu'elle cloue se déplie d'un coup
+        // la fléchette vibre dans le mur, et le papier qu'elle cloue se déplie d'un coup
         const vib = Math.exp(-th / 0.2) * Math.sin(TAU * 11 * th);
         d.visible = true;
         setDepth(d, kb > 0.35 ? 'planted' : 'sharp');
         setDart(d, ends[i], dirEnds[i], 5.5 * DEG * vib, 2.2 * DEG * vib);
+        shake += (i < NP ? 0.0035 : 0.0016) * Math.exp(-th / 0.085) * Math.sin(71 * th + i);
+        if (i >= NP) continue;
         const p = papers[i];
         p.mesh.visible = true;
         p.mesh.scale.setScalar(p.k * easeOut(clamp01(th / 0.13), 2));
         p.mesh.rotation.z = p.it.rot * DEG + 5 * DEG * Math.exp(-th / 0.22) * Math.sin(TAU * 5 * th);
         p.mesh.rotation.x = -0.5 * Math.exp(-th / 0.16) * Math.cos(TAU * 4 * th);
-        shake += 0.0035 * Math.exp(-th / 0.085) * Math.sin(71 * th + i);
       }
       camera.position.x += shake;
       camera.position.y += shake * 0.7;
@@ -1779,12 +1878,10 @@
         placeLinks();
         camera.position.copy(p); camera.quaternion.copy(q); camera.fov = f;
       }
-      if (t >= T_END) { end(); return; }
 
       camera.updateProjectionMatrix();
       camera.updateMatrixWorld(true);
       S.render(blur);
-      raf = requestAnimationFrame(frame);
     }
     raf = requestAnimationFrame(frame);
   }
